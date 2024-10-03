@@ -26,7 +26,6 @@ const SheduledCompletion = cron.schedule("0 * * * *", async () => {
         console.log(`Event ${event._id} marked as completed`);
       }
     }
-
     console.log("Completed events updated");
   } catch (error) {
     console.error("Error updating completed events:", error);
