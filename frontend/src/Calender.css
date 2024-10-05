@@ -1,0 +1,57 @@
+.custom-calendar .react-calendar {
+  margin-left: 100px;
+  background: transparent;
+  border: none;
+  width: 80rem;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.custom-calendar .react-calendar__tile {
+  font-size: 27px;
+  padding: 15px;
+  background-color: transparent;
+}
+
+.custom-calendar .react-calendar__tile > abbr {
+  border: solid #8641f59f;
+  border-radius: 5px;
+  background-color: rgba(192, 192, 192, 0.085);
+  display: block;
+  padding: 30px;
+  text-align: center;
+}
+
+.custom-calendar .react-calendar__tile--active {
+  background: #ffa962b0;
+}
+
+.custom-calendar .react-calendar__tile--active:enabled:hover,
+.custom-calendar .react-calendar__tile--active:enabled:focus {
+  background: #ff9ef0b0;
+}
+
+.custom-calendar .react-calendar__navigation span {
+  font-size: 35px; 
+  font-weight: bold; 
+  color: #333;
+}
+
+.custom-calendar .react-calendar__navigation__prev-button,
+.custom-calendar .react-calendar__navigation__next-button {
+  font-size: 20px;
+  background-color: #ffa962b0;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 50%; 
+  cursor: pointer;
+}
+
+.custom-calendar .react-calendar__navigation__prev-button:hover,
+.custom-calendar .react-calendar__navigation__next-button:hover {
+  background-color: #ff9ef0b0; 
+}
