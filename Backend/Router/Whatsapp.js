@@ -1,4 +1,4 @@
 const router = require("express").Router();
-const Whatsapp = require("../Controller/Whatsapp");
-router.post("/whatsapp-webhook", Whatsapp.handleWhatsAppMessage);
+const messages = require("../Controller/Whatsapp");
+router.post("/whatsapp", messages.getMessage);
 module.exports = router;
