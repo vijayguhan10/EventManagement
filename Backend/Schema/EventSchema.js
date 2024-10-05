@@ -39,7 +39,7 @@ const EventDataSchema = new mongoose.Schema({
   },
   typeofevent: {
     type: String,
-    enum: ["placementoriented", "technical", "nontechnical"],
+    enum: ["Placement", "Technical", "Nontechnical"],
     required: true,
   },
   status: {
