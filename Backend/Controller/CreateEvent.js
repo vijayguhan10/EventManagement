@@ -1,6 +1,6 @@
 const Signups = require("../Schema/Authorization");
 const Event = require("../Schema/EventSchema");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 exports.CreateEvent = async (req, res) => {
   const {
@@ -81,9 +81,12 @@ exports.CreateEvent = async (req, res) => {
 };
 
 exports.updateevent = async (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
   const {
     eventId,
-    userid,
     eventname,
     resourceperson,
     organizer,
@@ -92,25 +95,34 @@ exports.updateevent = async (req, res) => {
     eventendtime,
     eventstartdate,
     eventenddate,
+    status,
   } = req.body;
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    console.log("decoded token : ", decoded);
+    var userid = decoded.userId;
+    console.log("Decoded user ID:", userid);
     const Check_Type_User = await Signups.findById(userid);
     if (!Check_Type_User) {
       return res.status(401).json({ message: "Oops Invalid User" });
     }
 
-    const updatedEvent = await Event.findByIdAndUpdate(eventId, {
-      userid,
-      eventname,
-      resourceperson,
-      organizer,
-      venue,
-      eventstarttime,
-      eventendtime,
-      eventstartdate,
-      eventenddate,
-    });
+    const updatedEvent = await Event.findByIdAndUpdate(
+      eventId,
+      {
+        eventname,
+        resourceperson,
+        organizer,
+        venue,
+        eventstarttime,
+        eventendtime,
+        eventstartdate,
+        eventenddate,
+        status,
+      },
+      { new: true }
+    );
 
     if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
@@ -128,9 +140,19 @@ exports.updateevent = async (req, res) => {
   }
 };
 exports.deleteEvent = async (req, res) => {
-  const { userid, eventid } = req.body;
+  const token = req.headers["authorization"]?.split(" ")[1]; // Extract the token
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
+
+  const { eventid } = req.body;
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN); // Verify the token
+    const userid = decoded.userId; // Get the user ID from the token
+    console.log("Decoded user ID:", userid);
+
     const Check_Type_User = await Signups.findById(userid);
     if (!Check_Type_User) {
       return res.status(401).json({ message: "Oops Invalid User" });
@@ -146,6 +168,7 @@ exports.deleteEvent = async (req, res) => {
       .status(200)
       .json({ message: "Event deleted successfully", event: deletedEvent });
   } catch (error) {
+    console.error("Error:", error.message); // Log the error for debugging
     return res.status(500).json({
       message: "Sorry, error in deleting the event",
       error: error.message,
@@ -153,9 +176,24 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 exports.Get_Detailed_Info = async (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1]; // Extract the token
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
+
   const { id } = req.params;
 
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const userid = decoded.userId; 
+    console.log("Decoded user ID:", userid);
+
+    const Check_Type_User = await Signups.findById(userid);
+    if (!Check_Type_User) {
+      return res.status(401).json({ message: "Oops Invalid User" });
+    }
+
     const check_Event_Data = await Event.findById(id);
 
     if (!check_Event_Data) {
@@ -165,10 +203,11 @@ exports.Get_Detailed_Info = async (req, res) => {
       message: "Data fetched successfully",
       eventdata: check_Event_Data,
     });
-  } catch (err) {
+  } catch (error) {
+    console.error("Error:", error.message); 
     return res.status(500).json({
       message: "Sorry, error in fetching the event",
-      error: err.message,
+      error: error.message,
     });
   }
 };
