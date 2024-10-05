@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const router = require("./Router/Signups");
 const Event = require("./Router/eventHandeler");
-const updateevents = require("./Node-Corn");
+const updateevents = require("./other/Node-Corn");
 const messages = require("./Router/Whatsapp");
 const cors = require("cors");
 dotenv.config();

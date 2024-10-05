@@ -1,4 +1,4 @@
 const router = require("express").Router();
-const messages = require("../Controller/Whatsapp");
+const messages = require("../other/Whatsapp");
 router.post("/whatsapp", messages.getMessage);
 module.exports = router;
