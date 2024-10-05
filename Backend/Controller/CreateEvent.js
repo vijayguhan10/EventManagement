@@ -1,9 +1,9 @@
 const Signups = require("../Schema/Authorization");
 const Event = require("../Schema/EventSchema");
-
+const jwt = require('jsonwebtoken');
+require("dotenv").config();
 exports.CreateEvent = async (req, res) => {
   const {
-    userid,
     eventname,
     resourceperson,
     organizer,
@@ -16,12 +16,25 @@ exports.CreateEvent = async (req, res) => {
     status,
   } = req.body;
 
+  const token = req.headers["authorization"]?.split(" ")[1];
+  console.log("JWT token : ", token);
+  console.log("process env token : ", process.env.JWT_SECRET_TOKEN);
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
+
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    console.log("decoded token : ", decoded);
+    const userid = decoded.userId;
+    console.log("Decoded user ID:", userid);
+
     const Check_Type_User = await Signups.findById(userid);
-    console.log("checking user for creating an event : ", Check_Type_User);
+    console.log("Checking user for creating an event:", Check_Type_User);
     if (!Check_Type_User) {
-      return res.status(401).json({ message: "Oops Invalid User" });
+      return res.status(401).json({ message: "Oops, Invalid User" });
     }
+
     const formattedEventStartDate = new Date(eventstartdate).toLocaleDateString(
       "en-GB",
       {
@@ -38,6 +51,7 @@ exports.CreateEvent = async (req, res) => {
         year: "2-digit",
       }
     );
+
     const New_Event_Registration = new Event({
       userid,
       eventname,
@@ -58,7 +72,7 @@ exports.CreateEvent = async (req, res) => {
       event: New_Event_Registration,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error.message);
     return res.status(500).json({
       message: "Sorry, there was an error processing your request.",
       error: error.message,
@@ -139,7 +153,7 @@ exports.deleteEvent = async (req, res) => {
   }
 };
 exports.Get_Detailed_Info = async (req, res) => {
-  const { id } = req.params; 
+  const { id } = req.params;
 
   try {
     const check_Event_Data = await Event.findById(id);
@@ -153,9 +167,8 @@ exports.Get_Detailed_Info = async (req, res) => {
     });
   } catch (err) {
     return res.status(500).json({
-      message: "Sorry, error in fetching the event", 
+      message: "Sorry, error in fetching the event",
       error: err.message,
     });
   }
 };
-

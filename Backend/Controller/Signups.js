@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Signups = require("../Schema/Authorization");
 const mongoose = require("mongoose");
-
-const secretKey = process.env.SECRET_KEY || "yourDefaultSecretKey";
+require("dotenv").config();
+const secretKey = process.env.JWT_SECRET_TOKEN || "yourDefaultSecretKey";
+console.log("secret key while creating token :", secretKey);
 exports.Signup = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -55,7 +56,7 @@ exports.Login = async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log("password for login : ",isPasswordValid);
+    console.log("password for login : ", isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -90,6 +91,6 @@ exports.verifyToken = (req, res) => {
       return res.status(401).json({ message: "Unauthorized access" });
     }
 
-    req.userId = decoded.userId;
+    // req.userId = decoded.userId;
   });
 };
