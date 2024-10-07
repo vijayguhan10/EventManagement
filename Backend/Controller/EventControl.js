@@ -228,14 +228,14 @@ exports.gettodaydetails = async (req, res) => {
     }
 
     const today = new Date();
-    const formattedToday = `${String(today.getDate()).padStart(
-      2,
-      "0"
-    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
-      today.getFullYear()
-    ).slice(-2)}`;
+    // const formattedToday = `${String(today.getDate()).padStart(
+    //   2,
+    //   "0"
+    // )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
+    //   today.getFullYear()
+    // ).slice(-2)}`;
 
-    const todayEvents = await Event.find({ eventstartdate: formattedToday });
+    const todayEvents = await Event.find({});
 
     if (todayEvents.length === 0) {
       return res
