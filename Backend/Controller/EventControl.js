@@ -211,3 +211,47 @@ exports.Get_Detailed_Info = async (req, res) => {
     });
   }
 };
+exports.gettodaydetails = async (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1]; // Extract the token
+  if (!token) {
+    return res.status(401).json({ message: "No token provided." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const userid = decoded.userId;
+    console.log("Decoded user ID:", userid);
+
+    const Check_Type_User = await Signups.findById(userid);
+    if (!Check_Type_User) {
+      return res.status(401).json({ message: "Oops Invalid User" });
+    }
+
+    const today = new Date();
+    const formattedToday = `${String(today.getDate()).padStart(
+      2,
+      "0"
+    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
+      today.getFullYear()
+    ).slice(-2)}`;
+
+    const todayEvents = await Event.find({ eventstartdate: formattedToday });
+
+    if (todayEvents.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No events scheduled for today." }); // No events found
+    }
+
+    return res.status(200).json({
+      message: "Today's events fetched successfully",
+      eventdata: todayEvents,
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({
+      message: "Sorry, error in fetching the events",
+      error: error.message,
+    });
+  }
+};
