@@ -186,7 +186,7 @@ exports.Get_Detailed_Info = async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
-    const userid = decoded.userId; 
+    const userid = decoded.userId;
     console.log("Decoded user ID:", userid);
 
     const Check_Type_User = await Signups.findById(userid);
@@ -204,7 +204,7 @@ exports.Get_Detailed_Info = async (req, res) => {
       eventdata: check_Event_Data,
     });
   } catch (error) {
-    console.error("Error:", error.message); 
+    console.error("Error:", error.message);
     return res.status(500).json({
       message: "Sorry, error in fetching the event",
       error: error.message,
