@@ -64,7 +64,7 @@ const SideBar = () => {
                 className="flex items-center p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <img
-                  className="bg-white rounded-lg"
+                  className="bg-white ring-yellow-50 rounded-lg"
                   src="https://digri.ai/wp-content/uploads/2023/12/Logo-2-768x258.png"
                   alt="newimgclg"
                 />
