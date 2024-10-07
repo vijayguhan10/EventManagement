@@ -105,7 +105,7 @@ const SideBar = () => {
             </li>
             <li>
               <Link
-                to=""
+                to="/Technical"
                 className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <FaMobile />
@@ -116,7 +116,7 @@ const SideBar = () => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/Placement"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <FaAddressBook />
@@ -127,7 +127,7 @@ const SideBar = () => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/NonTechnical"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <FaSmoking />

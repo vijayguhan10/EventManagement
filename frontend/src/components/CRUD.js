@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import data from "../data/db.json";
+import React, { useState, useEffect } from "react";
 import {
   FaCalendar,
   FaSearchLocation,
@@ -10,11 +9,18 @@ import {
 } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
+import useDashboard from "./useDashboard";
+import axios from "axios"; // Import axios
+import { toast, ToastContainer } from "react-toastify"; // Import toast
 
 function CRUD() {
+  const { Loading, WholeData } = useDashboard();
+
+  const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState(data); // Using a state for event data
+  const [events, setEvents] = useState(data);
   const [isEditing, setIsEditing] = useState(false);
   const [editEventData, setEditEventData] = useState({
     eventname: "",
@@ -28,9 +34,21 @@ function CRUD() {
     typeofevent: "",
     description: "",
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEventName, setDeleteEventName] = useState("");
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
-  const [deleteEventName, setDeleteEventName] = useState(""); // To confirm event name before deleting
+  useEffect(() => {
+    if (!Loading) {
+      const filteredData = WholeData.filter(
+        (elem) => elem.status === "pending"
+      );
+      setData(filteredData);
+    }
+  }, [Loading, WholeData]);
+
+  if (Loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
@@ -48,10 +66,24 @@ function CRUD() {
     setShowDeleteModal(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    console.log("Selected event to delete: ", selectedEvent._id);
+
+    // Check if the event name matches
     if (deleteEventName === selectedEvent.eventname) {
-      const updatedEvents = events.filter((e) => e !== selectedEvent);
-      setEvents(updatedEvents);
+      try {
+        await axios.post(
+          `https://eventmanagement-2-mye7.onrender.com/event/delete_event`,
+          { eventid: selectedEvent._id } // Send it in an object
+        );
+
+        // Update events state to remove the deleted event
+        const updatedEvents = events.filter((e) => e._id !== selectedEvent._id); // Change 'id' to '_id'
+        setEvents(updatedEvents);
+        toast.success("Event deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete the event.");
+      }
       setShowDeleteModal(false);
       setDeleteEventName("");
       handleCloseModal();
@@ -82,12 +114,18 @@ function CRUD() {
     setEditEventData({ ...editEventData, [name]: value });
   };
 
-  const handleSaveEdit = () => {
-    const updatedEvents = events.map((event) =>
-      event === selectedEvent ? editEventData : event
-    );
-    setEvents(updatedEvents);
-    handleCloseModal();
+  const handleSaveEdit = async () => {
+    try {
+      await axios.put(`/api/events/${selectedEvent.id}`, editEventData); // Dummy endpoint
+      const updatedEvents = events.map((event) =>
+        event.id === selectedEvent.id ? { ...event, ...editEventData } : event
+      );
+      setEvents(updatedEvents);
+      toast.success("Event updated successfully!");
+      handleCloseModal();
+    } catch (error) {
+      toast.error("Failed to update the event.");
+    }
   };
 
   return (
@@ -119,7 +157,7 @@ function CRUD() {
         </div>
       </div>
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-        {events.map((event, index) => (
+        {data.map((event, index) => (
           <div
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
@@ -154,7 +192,6 @@ function CRUD() {
                   {event.venue}
                 </h1>
               </div>
-              {/* Edit and Delete Buttons */}
               <div className="flex gap-2 mt-3">
                 <button
                   className=" text-white p-2 rounded-md"
@@ -192,77 +229,56 @@ function CRUD() {
               {isEditing ? "Edit Event" : selectedEvent.eventname}
             </h1>
             {isEditing ? (
-              <div className="space-y-4">
+              <div>
                 <input
                   type="text"
                   name="eventname"
                   value={editEventData.eventname}
                   onChange={handleChange}
+                  className="border rounded p-2 w-full mb-2"
                   placeholder="Event Name"
-                  className="border p-2 rounded-md w-full"
                 />
-                <input
-                  type="text"
-                  name="resourceperson"
-                  value={editEventData.resourceperson}
-                  onChange={handleChange}
-                  placeholder="Resource Person"
-                  className="border p-2 rounded-md w-full"
-                />
-                <input
-                  type="text"
-                  name="organizer"
-                  value={editEventData.organizer}
-                  onChange={handleChange}
-                  placeholder="Organizer"
-                  className="border p-2 rounded-md w-full"
-                />
-                {/* Add other input fields similarly... */}
+                {/* Add other fields similarly for editing */}
                 <button
-                  className="bg-green-600 text-white p-2 rounded-md mt-3"
                   onClick={handleSaveEdit}
+                  className="bg-green-500 text-white px-4 py-2 rounded"
                 >
                   Save Changes
                 </button>
               </div>
             ) : (
-              <>
-                <p>{selectedEvent.description}</p>
-                <p>Resource Person: {selectedEvent.resourceperson}</p>
-                <p>Organizer: {selectedEvent.organizer}</p>
-                {/* More details */}
-              </>
+              <div>
+                {/* Display the selected event details */}
+                <h2>{selectedEvent.eventname}</h2>
+                {/* Add other details similarly */}
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {showDeleteModal && selectedEvent && (
+      {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md mx-4">
-            <h1 className="text-2xl font-bold mb-4">
-              Confirm Deletion of {selectedEvent.eventname}
-            </h1>
-            <p>
-              Please type the name of the event to confirm deletion:
-              <strong> {selectedEvent.eventname}</strong>
-            </p>
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md mx-4 animate-open">
+            <h2 className="text-lg mb-4">
+              Are you sure you want to delete {selectedEvent.eventname}?
+            </h2>
+            <p>Please type the event name to confirm:</p>
             <input
               type="text"
               value={deleteEventName}
               onChange={(e) => setDeleteEventName(e.target.value)}
-              placeholder="Enter event name"
-              className="border p-2 rounded-md w-full mt-3"
+              className="border rounded p-2 w-full mb-4"
             />
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-between">
               <button
-                className="bg-red-600 text-white p-2 rounded-md mr-2"
+                className="bg-red-500 text-white px-4 py-2 rounded"
                 onClick={handleDelete}
               >
-                Confirm Delete
+                Delete
               </button>
               <button
-                className="bg-gray-600 text-white p-2 rounded-md"
+                className="bg-gray-300 px-4 py-2 rounded"
                 onClick={() => setShowDeleteModal(false)}
               >
                 Cancel
@@ -271,6 +287,8 @@ function CRUD() {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 }

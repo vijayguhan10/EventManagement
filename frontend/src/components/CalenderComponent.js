@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
-import data from "../data/db.json";
 import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import prevarrow from "../assets/Forward Arrow (1).png";
 import { FaStar } from "react-icons/fa";
-import { Link } from "react-router-dom";
-
-const CalendarComponent = () => {
+const CalendarComponent = ({ events }) => {
+  console.log("events passed to calendercomponenet : ", events);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -51,7 +49,7 @@ const CalendarComponent = () => {
         </div>
         <Calendar
           onChange={onChange}
-          value={selectedDate} // This should remain as selectedDate
+          value={selectedDate}
           className="react-calendar font-Afacad"
           minDetail="month"
           tileClassName={({ date }) => {
@@ -64,7 +62,6 @@ const CalendarComponent = () => {
           activeStartDate={currentDate}
         />
       </div>
-
       <div className="flex flex-row border-l-[#7848F4] border-l-8 xl:items-center xl:justify-between xl:w-[92%] w-[90%] rounded-md shadow shadow-[#0000003d] mt-10">
         <div className="xl:ml-10 ml-3">
           <p className="text-2xl font-Afacad">
@@ -78,8 +75,7 @@ const CalendarComponent = () => {
             {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
           </p>
         </div>
-        <Link
-          to={isFutureOrToday(selectedDate) ? "/Form" : "#"} // Only set 'to' if the button is enabled
+        <button
           className={`${
             isFutureOrToday(selectedDate)
               ? "bg-[#7848F4] text-white"
@@ -88,36 +84,48 @@ const CalendarComponent = () => {
           disabled={!isFutureOrToday(selectedDate)}
         >
           Add Event
-        </Link>
+        </button>
       </div>
 
+      {/* Events List */}
+      {/* Events List */}
       <div className="xl:h-52 h-96 overflow-scroll overflow-x-hidden shadow-md mt-12 border-l-[#7848F4] border-l-8 w-[92%] rounded-lg scrollbar-hide">
-        {data.map((event, index) => (
-          <div
-            key={index}
-            className="relative flex mb-2 flex-row items-center ml-1 w-[92%] rounded-md shadow shadow-[#0000003d] mt-3"
-          >
-            <img
-              src={event.image_url}
-              className="xl:w-36 xl:ml-20 xl:h-20 w-28 h-24 m-2 rounded-lg"
-              alt="new event"
-            />
-            <div className="ml-10">
-              <p className="xl:text-2xl font-bold text-sm font-Afacad">
-                {event.eventname}
-              </p>
-              <p className="text-[#4746497c] font-Afacad text-sm xl:text-xl font-bold">
-                {event.description}
-              </p>
-              <p className="text-[#4746497c] font-Afacad xl:text-xl text-sm">
-                {event.eventstartdate} - {event.eventstarttime}
-              </p>
-            </div>
-            <div className="absolute top-0 right-0 mt-2 mr-2">
-              <FaStar color="#7848F4" />
-            </div>
-          </div>
-        ))}
+        {events && events.length > 0 ? (
+          events.map((event, index) => {
+            console.log("Rendering event:", event); // Log each event object
+            return (
+              <div
+                key={index}
+                className="relative flex mb-2 flex-row items-center ml-1 w-[92%] rounded-md shadow shadow-[#0000003d] mt-3"
+              >
+                <img
+                  src={
+                    event.imageURL ||
+                    "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+                  } 
+                  className="xl:w-36 xl:ml-20 xl:h-20 w-28 h-24 m-2 rounded-lg"
+                  alt="new event"
+                />
+                <div className="ml-10">
+                  <p className="xl:text-2xl font-bold text-sm font-Afacad">
+                    {event.eventname}
+                  </p>
+                  <p className="text-[#4746497c] font-Afacad text-sm xl:text-xl font-bold">
+                    {event.eventname}
+                  </p>
+                  <p className="text-[#4746497c] font-Afacad xl:text-xl text-sm">
+                    {event.eventstartdate} - {event.eventstarttime}
+                  </p>
+                </div>
+                <div className="absolute top-0 right-0 mt-2 mr-2">
+                  <FaStar color="#7848F4" />
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>No events available.</p>
+        )}
       </div>
     </div>
   );

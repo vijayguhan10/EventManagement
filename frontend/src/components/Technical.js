@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-// import data from "../data/db.json";
+import React, { useState, useEffect } from "react";
 import {
   FaCalendar,
   FaSearchLocation,
@@ -10,11 +9,21 @@ import SideBar from "./SideBar";
 import "../Modal.css";
 import useDashboard from "./useDashboard";
 
-function EventDatas() {
+function Placement() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); 
-  const { Loading, completedEvents } = useDashboard();
+  const { Loading, WholeData } = useDashboard();
+  const [data, setdata] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (!Loading) {
+      const filteredData = WholeData.filter(
+        (elem) => elem.typeofevent === "Technical"
+      );
+      setdata(filteredData);
+    }
+  }, [Loading, WholeData]);
 
   if (Loading) {
     return <div>Loading...</div>;
@@ -30,12 +39,12 @@ function EventDatas() {
     setSelectedEvent(null);
   };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
   };
 
-  const filteredEvents = completedEvents.filter((event) =>
-    event.eventname.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredData = data.filter((event) =>
+    event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -48,6 +57,7 @@ function EventDatas() {
           </h1>
         </div>
       </div>
+
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
           Explore the Upcoming Events
@@ -56,9 +66,9 @@ function EventDatas() {
           <input
             type="text"
             placeholder="Enter the event name"
+            value={searchTerm}
+            onChange={handleSearch}
             className="xl:w-full xl:h-14 w-96 pl-5 h-14 xl:pl-10 xl:pr-16 border-[#7848F4] border rounded-md"
-            value={searchQuery} 
-            onChange={handleSearchChange} 
           />
           <div className="xl:absolute xl:left-2 xl:top-14 -mt-7 transform -translate-y-1/2 text-gray-400">
             <FaSearch className="xl:block hidden" />
@@ -68,14 +78,23 @@ function EventDatas() {
           </button>
         </div>
       </div>
+
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-        {filteredEvents.map((event, index) => (
+        {filteredData.map((event, index) => (
           <div
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button className="bg-violet-600 mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28">
-              {event.eventname}
+            <button
+              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                new Date(event.eventenddate) < new Date()
+                  ? "bg-[#2cef5d]"
+                  : "bg-[#f92d2d]"
+              }`}
+            >
+              {new Date(event.eventenddate) < new Date()
+                ? "Completed"
+                : "Not Completed"}
             </button>
             <img
               className="w-96 h-40 rounded-lg"
@@ -171,4 +190,4 @@ function EventDatas() {
   );
 }
 
-export default EventDatas;
+export default Placement;

@@ -1,13 +1,20 @@
 import React from "react";
+// import { useState, useEffect } from "react";
+import data from "../data/db.json";
 import { FaSearch, FaStar } from "react-icons/fa";
 import { Carousel } from "react-responsive-carousel";
-import data from "../data/db.json";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
+import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 import welcome from "../assets/Welcome-bro 1 (1).png";
 import CalendarComponent from "./CalenderComponent";
 import SideBar from "./SideBar";
-
+import useDashboard from "./useDashboard";
 const Dashboard = () => {
+  const {  currentEvents, futureEvents, Loading } =
+    useDashboard();
+    
+  if (Loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="xl:overflow-y-hidden xl:overflow-hidden h-fit">
       <SideBar />
@@ -128,14 +135,18 @@ const Dashboard = () => {
               showStatus={false}
               showIndicators={true}
             >
-              {Array(Math.ceil(data.length / (window.innerWidth < 640 ? 1 : 3))) // Slide one card for small screens
+              {Array(
+                Math.ceil(
+                  futureEvents.length / (window.innerWidth < 640 ? 1 : 3)
+                )
+              ) // Slide one card for small screens
                 .fill()
                 .map((_, slideIndex) => (
                   <div
                     key={slideIndex}
                     className="xl:flex xl:justify-around w-full"
                   >
-                    {data
+                    {futureEvents
                       .slice(
                         slideIndex * (window.innerWidth < 640 ? 1 : 3), // Change the slice logic based on screen size
                         slideIndex * (window.innerWidth < 640 ? 1 : 3) +
@@ -143,14 +154,14 @@ const Dashboard = () => {
                       )
                       .map((event, index) => (
                         <div
-                          key={index}
+                          key={event._id}
                           className={`shadow-lg rounded-md h-96 xl:h-60  flex flex-col xl:items-center xl:mx-2 xl:border border-[#00000068]  ${
                             // Use responsive classes to control the width
                             "xl:w-1/3 lg:w-1/3 " // Adjust width based on screen size
                           }`}
                         >
                           <img
-                            src={event.image_url}
+                            src="https://www.cmrit.ac.in/wp-content/uploads/2021/09/Placement_CMRIT-02-1-scaled.jpg"
                             alt="img"
                             className="xl:max-w-52  rounded-3xl xl:rounded-xl xl:h-28 w-28 h-52 p-5 xl:p-2 "
                           />
@@ -225,7 +236,13 @@ const Dashboard = () => {
           <h1 className="text-xl font-bold font-Afacad flex items-center justify-center w-40 ml-[70%] mb-3 shadow-md shadow-[#00000013] rounded-lg text-[#7848F4]">
             IQAC
           </h1>
-          <CalendarComponent />
+          {!Loading ? (
+            <CalendarComponent
+              events={currentEvents.length > 0 ? currentEvents : data}
+            />
+          ) : (
+            <p>Loading...</p>
+          )}
         </div>
       </div>
     </div>
