@@ -4,6 +4,7 @@ import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import prevarrow from "../assets/Forward Arrow (1).png";
 import { FaStar } from "react-icons/fa";
+import { Link } from "react-router-dom";
 const CalendarComponent = ({ events }) => {
   console.log("events passed to calendercomponenet : ", events);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -75,7 +76,8 @@ const CalendarComponent = ({ events }) => {
             {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
           </p>
         </div>
-        <button
+        <Link
+          to="/Form"
           className={`${
             isFutureOrToday(selectedDate)
               ? "bg-[#7848F4] text-white"
@@ -84,7 +86,7 @@ const CalendarComponent = ({ events }) => {
           disabled={!isFutureOrToday(selectedDate)}
         >
           Add Event
-        </button>
+        </Link>
       </div>
 
       {/* Events List */}
@@ -102,7 +104,7 @@ const CalendarComponent = ({ events }) => {
                   src={
                     event.imageURL ||
                     "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-                  } 
+                  }
                   className="xl:w-36 xl:ml-20 xl:h-20 w-28 h-24 m-2 rounded-lg"
                   alt="new event"
                 />
