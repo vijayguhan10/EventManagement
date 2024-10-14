@@ -9,22 +9,22 @@ import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
 
-function Placement() {
+function History() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true); // To handle loading state
-  const token = localStorage.getItem("authToken");
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/event/getalldata"
         );
+        console.log("responsed data frm the events : ", response.data);
         const filteredData = response.data.eventdata.filter(
-          (elem) => elem.typeofevent === "Placement"
+          (elem) => elem.status === "completed"
         );
         setData(filteredData);
         setLoading(false);
@@ -34,7 +34,7 @@ function Placement() {
       }
     };
     fetchData();
-  }, [data, loading]);
+  }, [data,loading]);
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
@@ -75,7 +75,7 @@ function Placement() {
 
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
-          Explore the Placement Events
+          History
         </h1>
         <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
           <input
@@ -100,13 +100,7 @@ function Placement() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button
-              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
-                new Date(event.eventenddate) < new Date()
-                  ? "bg-[#2cef5d]"
-                  : "bg-[#f92d2d]"
-              }`}
-            >
+            <button className="mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 bg-[#2cef5d]">
               {new Date(event.eventenddate) < new Date()
                 ? "Completed"
                 : "Not Completed"}
@@ -205,4 +199,4 @@ function Placement() {
   );
 }
 
-export default Placement;
+export default History;

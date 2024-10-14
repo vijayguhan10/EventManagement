@@ -7,27 +7,36 @@ import {
 } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
-import useDashboard from "./useDashboard";
+import axios from "axios";
 
-function Placement() {
+function Technical() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const { Loading, WholeData } = useDashboard();
-  const [data, setdata] = useState([]);
+  const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("authToken"); 
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-  useEffect(() => {
-    if (!Loading) {
-      const filteredData = WholeData.filter(
+  const fetchData = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/event/getalldata"
+      );
+      console.log("responsed data frm the events : ", response.data);
+      const filteredData = response.data.eventdata.filter(
         (elem) => elem.typeofevent === "Technical"
       );
-      setdata(filteredData);
+      setData(filteredData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
     }
-  }, [Loading, WholeData]);
-
-  if (Loading) {
-    return <div>Loading...</div>;
-  }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
@@ -47,6 +56,14 @@ function Placement() {
     event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="xl:ml-72 overflow-x-hidden">
       <SideBar />
@@ -60,7 +77,7 @@ function Placement() {
 
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
-          Explore the Upcoming Events
+          Explore the Department Events
         </h1>
         <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
           <input
@@ -104,7 +121,7 @@ function Placement() {
             <div className="ml-5 mt-3 flex flex-row gap-1">
               <FaCalendar size={20} className="mt-1" color="#46459d" />
               <h1 className="text-xl text-[#8b21e8] font-Afacad">
-                {event.eventenddate}
+                {event.eventstartdate}- {event.eventenddate}
               </h1>
             </div>
             <div className="ml-5 flex flex-col gap-3 mt-3">
@@ -190,4 +207,4 @@ function Placement() {
   );
 }
 
-export default Placement;
+export default Technical;

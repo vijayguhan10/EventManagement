@@ -24,7 +24,7 @@ function Login() {
 
     try {
       const response = await axios.post(
-        "https://eventmanagement-2-mye7.onrender.com/sece/Login",
+        "http://127.0.0.1:8000/sece/Login",
         credentials
       );
 
@@ -61,24 +61,6 @@ function Login() {
 
       {/* Login Container */}
       <div className="relative bg-white rounded-lg shadow-lg p-10 w-full max-w-md z-10 bg-opacity-90">
-        {/* Background Video */}
-        <video
-          autoPlay
-          loop
-          muted
-          className="absolute inset-0 w-full h-full object-cover opacity-70 rounded-lg"
-          style={{
-            zIndex: -1,
-            top: 0,
-            left: 0,
-            objectFit: "cover",
-            borderRadius: "inherit",
-          }}
-        >
-          <source src={backgroundVideo} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-6">
           <img

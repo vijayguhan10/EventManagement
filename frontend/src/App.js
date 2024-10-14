@@ -1,5 +1,5 @@
 import React from "react";
-import InitialRouter from "./InitialRouter";
+import InitialRouter from "./Router/InitialRouter";
 const App = () => {
   return (
     <div className="w-full ">

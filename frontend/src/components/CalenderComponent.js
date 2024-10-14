@@ -37,8 +37,8 @@ const CalendarComponent = ({ events }) => {
   };
 
   return (
-    <div>
-      <div className="custom-calendar shadow-xl w-[90%] xl:overflow-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
+    <div >
+      <div className="custom-calendar shadow-xl w-[90%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
         <div className="calendar-navigation">
           <button onClick={prevMonth}>
             <img src={prevarrow} alt="previous month" />
@@ -64,7 +64,7 @@ const CalendarComponent = ({ events }) => {
         />
       </div>
       <div className="flex flex-row border-l-[#7848F4] border-l-8 xl:items-center xl:justify-between xl:w-[92%] w-[90%] rounded-md shadow shadow-[#0000003d] mt-10">
-        <div className="xl:ml-10 ml-3">
+        <div className="xl:ml-5 ml-3">
           <p className="text-2xl font-Afacad">
             {selectedDate.toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -80,7 +80,7 @@ const CalendarComponent = ({ events }) => {
           to="/Form"
           className={`${
             isFutureOrToday(selectedDate)
-              ? "bg-[#7848F4] text-white"
+              ? "bg-[#7848F4] text-white text-center mb-5"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
           } font-Afacad w-24 h-7 mt-5 ml-10 text-xl xl:mr-20 shadow-md rounded-sm xl:w-36 shadow-[#0000003d]`}
           disabled={!isFutureOrToday(selectedDate)}
@@ -91,7 +91,10 @@ const CalendarComponent = ({ events }) => {
 
       {/* Events List */}
       {/* Events List */}
-      <div className="xl:h-52 h-96 overflow-scroll overflow-x-hidden shadow-md mt-12 border-l-[#7848F4] border-l-8 w-[92%] rounded-lg scrollbar-hide">
+      <h1 className=" xl:text-2xl absolute mt-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
+        Today's Events
+      </h1>
+      <div className="xl:h-52 h-96 overflow-scroll  overflow-x-hidden shadow-md mt-12 border-l-[#7848F4] border-l-8 w-[92%] rounded-lg scrollbar-hide">
         {events && events.length > 0 ? (
           events.map((event, index) => {
             console.log("Rendering event:", event); // Log each event object

@@ -20,7 +20,7 @@ const SideBar = () => {
 
 
   return (
-    <div className="flex max-h-full">
+    <div className="flex max-h-full xl:overflow-hidden">
       <button
         onClick={toggleSidebar}
         type="button"
@@ -83,7 +83,7 @@ const SideBar = () => {
             </li>
             <li>
               <Link
-                to="/EventData"
+                to="/History"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <FaHistory />
