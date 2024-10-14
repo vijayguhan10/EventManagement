@@ -47,6 +47,7 @@ exports.Signup = async (req, res) => {
 };
 
 exports.Login = async (req, res) => {
+  console.log("request  to the body : ",req.body);
   const { email, password } = req.body;
 
   try {

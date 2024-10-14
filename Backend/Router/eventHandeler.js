@@ -1,10 +1,11 @@
 const router = require("express").Router();
-const { Router } = require("express");
+const jsonwebtoken = require("../Middleware/Authentication");
 const Event = require("../Controller/EventControl");
-router.post("/create_event", Event.CreateEvent);
-router.post("/delete_event", Event.deleteEvent);
-router.post("/modify_event", Event.updateevent);
-router.get("/geteventdata/:id", Event.Get_Detailed_Info);
-router.post("/gettodaydata", Event.gettodaydetails);
-
+const pdf = require("../other/PDF");
+router.post("/create_event", jsonwebtoken, Event.CreateEvent);
+router.post("/delete_event", jsonwebtoken, Event.deleteEvent);
+router.post("/modify_event", jsonwebtoken, Event.updateevent);
+router.get("/geteventdata/:id", jsonwebtoken, Event.Get_Detailed_Info);
+router.post("/getalldata", jsonwebtoken, Event.getallevents);
+router.get("/generated pdf-doc", pdf);
 module.exports = router;

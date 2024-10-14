@@ -1,4 +1,3 @@
-// Node-Cron.js
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 const Event = require("../Schema/EventSchema");
@@ -17,9 +16,7 @@ const convertToDateTime = (dateString, timeString) => {
 
   return new Date(fullYear, month - 1, day, hours24, parseInt(minutes, 10));
 };
-
 const ScheduledCompletion = cron.schedule("* * * * * ", async () => {
-  // Run every second
   try {
     const currentDate = new Date();
     const events = await Event.find({ status: { $eq: "pending" } });

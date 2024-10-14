@@ -29,7 +29,7 @@ app.use("/event", Event);
 app.use("/messages", messages);
 
 updateevents;
-const PORT = process.env.PORT || 3000;
+const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
