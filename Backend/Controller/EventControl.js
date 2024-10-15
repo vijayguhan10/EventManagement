@@ -1,6 +1,6 @@
 const Event = require("../Schema/EventSchema");
 const { validateUser, formatDate } = require("../utilities/EventHelper");
-
+const images_dept = require("../other/Images");
 exports.CreateEvent = async (req, res) => {
   try {
     const {
@@ -14,6 +14,7 @@ exports.CreateEvent = async (req, res) => {
       eventenddate,
       typeofevent,
       status,
+      department,
     } = req.body;
     const userId = req.userId;
 
@@ -21,6 +22,9 @@ exports.CreateEvent = async (req, res) => {
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
+
+    const departmentData = images_dept.find((item) => item.name === department);
+    const imageUrl = departmentData ? departmentData[department] : null;
 
     const New_Event_Registration = new Event({
       userid: userId,
@@ -34,6 +38,8 @@ exports.CreateEvent = async (req, res) => {
       eventenddate: formatDate(eventenddate),
       status,
       typeofevent,
+      department,
+      imageurl: imageUrl,
     });
 
     await New_Event_Registration.save();
@@ -63,6 +69,7 @@ exports.updateevent = async (req, res) => {
       eventstartdate,
       eventenddate,
       status,
+      department,
     } = req.body;
     const userId = req.userId;
 
@@ -83,6 +90,7 @@ exports.updateevent = async (req, res) => {
         eventstartdate: formatDate(eventstartdate),
         eventenddate: formatDate(eventenddate),
         status,
+        department,
       },
       { new: true }
     );
