@@ -24,8 +24,11 @@ exports.CreateEvent = async (req, res) => {
     }
 
     const departmentData = images_dept.find((item) => item.name === department);
-    const imageUrl = departmentData ? departmentData[department] : null;
 
+    const imageKey = departmentData
+      ? Object.keys(departmentData).find((key) => key !== "name")
+      : null; 
+    const imageUrl = imageKey ? departmentData[imageKey] : null;
     const New_Event_Registration = new Event({
       userid: userId,
       eventname,
