@@ -1,236 +1,189 @@
-import React from "react";
-import data from "../data/db.json"; 
+import React, { useState } from "react";
+import data from "../data/db.json";
 import { FaSearch, FaStar } from "react-icons/fa";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import welcome from "../assets/Welcome-bro 1 (1).png";
 import CalendarComponent from "./CalenderComponent";
 import SideBar from "./SideBar";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
-  // Assuming data contains both current and future events
-  const currentEvents = data.currentEvents || []; // Replace with the appropriate property if needed
-  const futureEvents = data.futureEvents || []; // Replace with the appropriate property if needed
+  const currentEvents = data.currentEvents || [];
+  const futureEvents = data.futureEvents || [];
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
+  const openEventModal = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const chartData = {
+    labels: ["CSE", "IT", "AIDS", "AIML", "CCE", "ECE", "EEE", "MECH", "CSBS"],
+    datasets: [
+      {
+        label: "This Year",
+        data: [15, 10, 20, 18, 12, 25, 17, 14, 21], // Example data for this year
+        backgroundColor: "rgba(139, 92, 246, 0.7)", // Purple color with some transparency
+        borderColor: "rgba(139, 92, 246, 1)", // Solid border color
+        borderWidth: 1,
+      },
+      {
+        label: "Overall",
+        data: [20, 18, 22, 20, 15, 24, 21, 18, 23], // Example data for overall
+        backgroundColor: "rgba(139, 92, 246, 0.3)", // Lighter purple color with more transparency
+        borderColor: "rgba(139, 92, 246, 0.5)", // Lighter border color
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(200, 200, 200, 0.2)", 
+        },
+        ticks: {
+          stepSize: 5, 
+        },
+      },
+    },
+  };
 
   return (
     <div className="xl:overflow-y-hidden xl:overflow-hidden h-fit">
       <SideBar />
-      <div className="flex flex-col xl:flex-row w-full">
+      <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
+        <div className="absolute top-4 right-4 flex items-center">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search events..."
+              className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
+            />
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
+              <FaSearch size={20} />
+            </div>
+            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-md">
+              Search
+            </button>
+          </div>
+        </div>
+
         <div className="xl:ml-72 xl:w-[40%] w-full">
-          <div className="hidden xl:block flex-row justify-between items-center mb-3">
-            <div className="relative mt-1">
-              <input
-                type="text"
-                placeholder="Enter the event name"
-                className="xl:w-full xl:h-14 xl:pl-10 xl:pr-16 border-[#7848F4] border rounded-md"
-              />
-              <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <FaSearch />
-              </div>
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#7848F4] text-white px-4 py-1 rounded-sm">
-                Search
-              </button>
-            </div>
+          <div className="max-w-xl mx-auto p-0 -mt-"> 
+  <h1 className="text-3xl font-bold mb-3 text-white-800">Welcome,</h1>
+  <p className="text-xl font-medium mb-5 text-gray-600">Today's Events</p>
+  <div className="max-h-[300px] overflow-y-auto scrollbar-hide"> 
+    {data.length > 0 ? (
+      data.map((event, index) => (
+        <div
+          key={index}
+          className="relative bg-gradient-to-r from-purple-500 to-pink-400 text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+          onClick={() => openEventModal(event)}
+        >
+          <div>
+            <h2 className="text-2xl font-bold">{event.eventname}</h2>
+            <p className="text-lg font-light">Dept of CSE</p>
           </div>
+          <img
+            src="https://path-to-your-cup-image-1.png"
+            alt="Event Icon"
+            className="w-20 h-20"
+          />
+          <img
+            src="https://path-to-your-back-cup-image.png"
+            alt="Cup Icon"
+            className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
+          />
+        </div>
+      ))
+    ) : (
+      <p>No events for this date.</p>
+    )}
+  </div>
+</div>
 
-          <div className="xl:hidden block w-full m-5">
-            <div className="ml-2">
-              <CalendarComponent />
-            </div>
-            <div className="mr-8 ">
-              <h1
-                className="text-2xl pt-5 pl-5 pb-3 text-[#7848F4] font-Afacad font-bold"
-                style={{ textShadow: "0 8px 8px #c2c0c0" }}
-              >
-                Event Data
-              </h1>
-              <div className="shadow-md shadow-[#00000036] rounded-lg p-4 border border-[#0000004a]">
-                <div className="flex justify-between items-center mb-2">
-                  <FaStar color="#7848F4" />
-                  <h1 className="text-right text-lg mb-0 font-Afacad">
-                    12:30PM - 3:00PM
-                  </h1>
-                </div>
-                <div className="xl:flex xl:items-center ">
-                  <img
-                    className="w-[30%] shadow-black shadow-sm mr-4"
-                    src="https://analyticsindiamag.com/wp-content/uploads/2024/06/Zoho-Logo-1300x618.jpg"
-                    alt="zoho"
-                  />
-                  <div className="">
-                    <p
-                      className="text-xl font-bold font-Afacad"
-                      style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      Zoho Preparation (Placements)
-                    </p>
-                    <p className="text-md text-gray-600">
-                      Conducted by Placement Team
-                    </p>
-                    <h1>
-                      <span className="text-[#7848F4] font-bold font-Afacad">
-                        Venue:
-                      </span>{" "}
-                      Fullstack lab
-                    </h1>
-                    <div className="flex xl:justify-between">
-                      <h1 className="mt-4 font-Afacad">
-                        <span className="font-bold text-md font-afacad text-[#7848F4]">
-                          Start Date
-                        </span>
-                        : 12.10.2024
-                      </h1>
-                      <h1 className="mt-4 ml-2 font-Afacad">
-                        <span className="font-bold text-md font-Afacad text-[#7848F4]">
-                          End Date
-                        </span>
-                        : 15.10.2024
-                      </h1>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="rounded-lg border-transparent bg-white">
-            <div className="shadow-md shadow-[#00000036] m-5 rounded-xl border-transparent xl:h-36 h-48">
-              <div className="flex flex-row">
-                <div className="flex flex-col">
-                  <h1
-                    className="pt-3 pl-11 xl:text-2xl text-xl font-Afacad text-[#7848F4]"
-                    style={{ textShadow: "0 8px 8px #c2c0c0" }}
-                  >
-                    Welcome Back Vijay
-                  </h1>
-                  <p className="pt-3 pl-10 xl:pl-16 text-sm text-left xl:text-xl font-Afacad font-bold">
-                    Sri Eshwar is the most preferred institution for high
-                    ranking students. With industry-relevant curriculum
-                  </p>
-                </div>
-                <img
-                  src={welcome}
-                  className="xl:w-40 xl:h-40 w-28 h-28"
-                  alt="welcome"
-                />
-              </div>
-            </div>
-          </div>
 
-          <h1
-            className="text-2xl pl-5 text-violet-500 font-Afacad font-bold"
-            style={{ textShadow: "0 8px 8px #c2c0c0" }}
-          >
-            Upcoming Events
-          </h1>
-          <div className="m-1">
-            <Carousel
-              infiniteLoop
-              showThumbs={false}
-              showStatus={false}
-              showIndicators={true}
-            >
-              {Array(
-                Math.ceil(
-                  futureEvents.length / (window.innerWidth < 640 ? 1 : 3)
-                )
-              )
-                .fill()
-                .map((_, slideIndex) => (
-                  <div
-                    key={slideIndex}
-                    className="xl:flex xl:justify-around w-full"
-                  >
-                    {futureEvents
-                      .slice(
-                        slideIndex * (window.innerWidth < 640 ? 1 : 3),
-                        slideIndex * (window.innerWidth < 640 ? 1 : 3) +
-                          (window.innerWidth < 640 ? 1 : 3)
-                      )
-                      .map((event) => (
-                        <div
-                          key={event._id}
-                          className={`shadow-lg rounded-md h-96 xl:h-60 flex flex-col xl:items-center xl:mx-2 xl:border border-[#00000068] xl:w-1/3 lg:w-1/3`}
-                        >
-                          <img
-                            src="https://www.cmrit.ac.in/wp-content/uploads/2021/09/Placement_CMRIT-02-1-scaled.jpg"
-                            alt="img"
-                            className="xl:max-w-52 rounded-3xl xl:rounded-xl xl:h-28 w-28 h-52 p-5 xl:p-2"
-                          />
-                          <h1 className="pt-4 text-xl font-Afacad font-bold text-black text-center">
-                            {event.eventname}
-                          </h1>
-                          <h1 className="pt-3 text-xl text-gray-400 font-Afacad text-center">
-                            {event.eventstarttime} - {event.eventendtime}
-                          </h1>
-                        </div>
-                      ))}
-                  </div>
-                ))}
-            </Carousel>
-          </div>
 
-          <div className="m-5 hidden xl:block ">
-            <h1
-              className="text-xl xl:text-2xl pl-5 pb-3 text-[#7848F4] font-Afacad font-bold"
-              style={{ textShadow: "0 8px 8px #c2c0c0" }}
-            >
-              Event Data
-            </h1>
-            <div className="shadow-xl shadow-[#00000036] rounded-lg p-4 border border-[#0000004a]">
-              <div className="flex justify-between items-center">
-                <FaStar color="#7848F4" />
-                <h1 className="text-right text-lg mb-0 font-Afacad">
-                  12:30PM - 3:00PM
-                </h1>
-              </div>
-              <div className="xl:flex xl:items-center ">
-                <img
-                  className="w-[30%] shadow-black shadow-sm mr-4"
-                  src="https://analyticsindiamag.com/wp-content/uploads/2024/06/Zoho-Logo-1300x618.jpg"
-                  alt="zoho"
-                />
-                <div className="">
-                  <p
-                    className="text-xl font-bold font-Afacad"
-                    style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)" }}
-                  >
-                    Zoho Preparation (Placements)
-                  </p>
-                  <p className="text-md text-gray-600">
-                    Conducted by Placement Team
-                  </p>
-                  <h1>
-                    <span className="text-[#7848F4] font-bold font-Afacad">
-                      Venue:
-                    </span>{" "}
-                    Fullstack lab
-                  </h1>
-                  <div className="flex xl:justify-between">
-                    <h1 className="mt-4 font-Afacad">
-                      <span className="font-bold text-md font-afacad text-[#7848F4]">
-                        Start Date
-                      </span>
-                      : 12.10.2024
-                    </h1>
-                    <h1 className="mt-4 ml-2 font-Afacad">
-                      <span className="font-bold text-md font-Afacad text-[#7848F4]">
-                        End Date
-                      </span>
-                      : 15.10.2024
-                    </h1>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Side Content */}
-        <div className="xl:w-[60%] w-full">
-          <CalendarComponent />
-        </div>
+    {/* Leaderboard Section */}
+<div className="xl:w-[60%] w-full xl:pl-10 mt-10 xl:mt-0 flex flex-col min-h-screen items-center"> 
+
+  <div className="flex justify-center mb-4 w-full"> 
+    <CalendarComponent />
+  </div>
+
+
+  <div className="flex justify-center mt-6 w-full">
+    <div className="w-full">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">LeaderBoard</h1>
+    </div>
+  </div>
+
+  <div className="flex justify-center items-center w-full"> 
+    <div className="w-[90%] md:w-[80%] lg:w-[70%] xl:w-[100%]"> 
+      <Bar data={chartData} options={chartOptions} />
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
       </div>
+
+      {/* Event Modal */}
+      {selectedEvent && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            <p className="custom-modal-description">
+              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
+              <br />
+              <strong>Description:</strong> {selectedEvent.description}
+              <br />
+              <strong>Location:</strong> {selectedEvent.venue}
+              <br />
+              <strong>Contact:</strong> {selectedEvent.contact}
+            </p>
+            <p className="modal-date">
+              <strong>{selectedDate.toLocaleDateString()}</strong>
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
