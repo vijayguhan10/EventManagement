@@ -1,4 +1,6 @@
 .custom-calendar .react-calendar {
+  height: 250px;
+  width: 700px;
   background: transparent;
   border: none;
 }
@@ -18,9 +20,22 @@
   padding: 0;
 }
 
-.custom-calendar .react-calendar__tile {
+.custom-calendar .react-calendar_month-view_weekdays {
   font-size: 20px;
-  padding: 10px;
+  font-weight: bold;
+  display: grid;
+  grid-template-columns: repeat(
+    7,
+    1fr
+  ); 
+  text-align: center;
+  border-bottom: none;
+  background: none;
+}
+
+.custom-calendar .react-calendar__tile {
+  font-size: 16px;
+  padding: 5px;
   background-color: transparent;
   border: none;
 }
@@ -29,7 +44,7 @@
   border-radius: 5px;
   display: block;
   font-weight: 600;
-  padding: 2px;
+  padding-top: 2px;
   text-align: center;
 }
 

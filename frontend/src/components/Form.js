@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Forms() {
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
   const [formData, setFormData] = useState({
     eventTitle: "",
     eventVenue: "",
@@ -14,17 +18,23 @@ function Forms() {
     specialization: "",
     eventType: "",
     eventDescription: "",
-    departments: [], // Updated to store selected departments
+    departments: [],
   });
 
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
     { fullName: "Computer Science Engineering", shortName: "CSE" },
-    { fullName: "Artificial Intelligence and Data Science", shortName: "AI & DS" },
+    {
+      fullName: "Artificial Intelligence and Data Science",
+      shortName: "AI & DS",
+    },
     { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
     { fullName: "Information Technology", shortName: "IT" },
     { fullName: "Mechanical Engineering", shortName: "MECH" },
-    { fullName: "Artificial Intelligence and Machine Learning", shortName: "AI & ML" },
+    {
+      fullName: "Artificial Intelligence and Machine Learning",
+      shortName: "AI & ML",
+    },
     { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
     { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
     { fullName: "Cybersecurity", shortName: "Cyber" },
@@ -39,7 +49,6 @@ function Forms() {
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
     } else if (type === "checkbox" && name === "departments") {
-      // Handle department checkboxes
       const selectedDepartments = [...formData.departments];
       if (e.target.checked) {
         selectedDepartments.push(value);
@@ -93,12 +102,13 @@ function Forms() {
           eventstartdate: formData.startDate.replace(/-/g, "/"),
           eventenddate: formData.endDate.replace(/-/g, "/"),
           typeofevent: formData.eventType,
-          departments: formData.departments, // Include selected departments
-          status: "pending", // Add the status field
+          departments: formData.departments,
+          status: "pending",
         }
       );
 
       if (response.status === 201) {
+        console.log("sucessfull response : ", response);
         toast.success("Event added successfully!");
       }
     } catch (error) {
@@ -111,6 +121,7 @@ function Forms() {
 
   return (
     <div className="p-10">
+      <ToastContainer />
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
           Create Event
@@ -130,8 +141,10 @@ function Forms() {
                     <input
                       type="checkbox"
                       name="departments"
-                      value={department.shortName} // Use the department's shortName as the value
-                      checked={formData.departments.includes(department.shortName)}
+                      value={department.fullName}
+                      checked={formData.departments.includes(
+                        department.fullName
+                      )}
                       onChange={handleChange}
                       className="form-checkbox"
                     />
@@ -288,39 +301,39 @@ function Forms() {
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Type
             </label>
-            <div className="flex space-x-4">
-              <label>
+            <div className="flex">
+              <label className="mr-4">
                 <input
                   type="radio"
                   name="eventType"
-                  value="Workshop"
-                  checked={formData.eventType === "Workshop"}
+                  value="Technical"
+                  checked={formData.eventType === "Technical"}
                   onChange={handleChange}
                   className="mr-1"
                 />
-                Workshop
+                Technical
               </label>
               <label>
                 <input
                   type="radio"
                   name="eventType"
-                  value="Webinar"
-                  checked={formData.eventType === "Webinar"}
+                  value="Nontechnical"
+                  checked={formData.eventType === "Nontechnical"}
                   onChange={handleChange}
                   className="mr-1"
                 />
-                Webinar
+                Nontechnical{" "}
               </label>
               <label>
                 <input
                   type="radio"
                   name="eventType"
-                  value="Seminar"
-                  checked={formData.eventType === "Seminar"}
+                  value="Placement"
+                  checked={formData.eventType === "Placement"}
                   onChange={handleChange}
                   className="mr-1"
                 />
-                Seminar
+                Placement{" "}
               </label>
             </div>
             {errors.eventType && (
@@ -338,13 +351,13 @@ function Forms() {
               value={formData.eventDescription}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="4"
             />
             {errors.eventDescription && (
               <span className="text-red-500">{errors.eventDescription}</span>
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded"
@@ -353,7 +366,6 @@ function Forms() {
           </button>
         </form>
       </div>
-      <ToastContainer />
     </div>
   );
 }

@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import data from "../data/db.json";
-import { FaSearch, FaStar } from "react-icons/fa";
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
-import welcome from "../assets/Welcome-bro 1 (1).png";
-import CalendarComponent from "./CalenderComponent";
+import { FaSearch } from "react-icons/fa";
+import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
-import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import CalendarComponent from "./CalenderComponent";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// CanvasJS Pie Chart
+var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const Dashboard = () => {
   const currentEvents = data.currentEvents || [];
@@ -20,61 +17,54 @@ const Dashboard = () => {
   const closeEventModal = () => {
     setSelectedEvent(null);
   };
+
   const openEventModal = (event) => {
     setSelectedEvent(event);
   };
 
-  const chartData = {
-    labels: ["CSE", "IT", "AIDS", "AIML", "CCE", "ECE", "EEE", "MECH", "CSBS"],
-    datasets: [
+  // Pie chart options
+  const pieChartOptions = {
+    exportEnabled: true,
+    animationEnabled: true,
+    title: {
+      text: "Department Analytics",
+    },
+    data: [
       {
-        label: "This Year",
-        data: [15, 10, 20, 18, 12, 25, 17, 14, 21], // Example data for this year
-        backgroundColor: "rgba(139, 92, 246, 0.7)", // Purple color with some transparency
-        borderColor: "rgba(139, 92, 246, 1)", // Solid border color
-        borderWidth: 1,
-      },
-      {
-        label: "Overall",
-        data: [20, 18, 22, 20, 15, 24, 21, 18, 23], // Example data for overall
-        backgroundColor: "rgba(139, 92, 246, 0.3)", // Lighter purple color with more transparency
-        borderColor: "rgba(139, 92, 246, 0.5)", // Lighter border color
-        borderWidth: 1,
+        type: "pie",
+        startAngle: 75,
+        toolTipContent: "<b>{label}</b>: {y}%",
+        showInLegend: "true",
+        legendText: "{label}",
+        indexLabelFontSize: 16,
+        indexLabel: "{label} - {y}%",
+        dataPoints: [
+          { y: 10, label: "CSE" },
+          { y: 3, label: "IT" },
+          { y: 6, label: "AIDS" },
+          { y: 5.9, label: "CCE" },
+          { y: 4, label: "CSBS" },
+          { y: 6, label: "CYBER" },
+          { y: 7, label: "ECE" },
+          { y: 2, label: "EEE" },
+          { y: 8, label: "MECH" },
+          { y: 7.09, label: "AIML" },
+        ],
       },
     ],
   };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: "rgba(200, 200, 200, 0.2)", 
-        },
-        ticks: {
-          stepSize: 5, 
-        },
-      },
-    },
-  };
-
   return (
-    <div className="xl:overflow-y-hidden xl:overflow-hidden h-fit">
+    <div className="xl:overflow-y-hidden h-fit ">
       <SideBar />
       <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
-        <div className="absolute top-4 right-4 flex items-center">
-          <div className="relative">
+        <div className="absolute top-4 flex left-[20%] items-center">
+          <div className="text-nowrap mb-5">
+            <h1 className="text-3xl font-bold mb-3 text-white-800">
+              Welcome, <span>Vijay Guhan</span>
+            </h1>
+          </div>
+          <div className="relative ml-[85%] mb-11">
             <input
               type="text"
               placeholder="Search events..."
@@ -89,71 +79,50 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="xl:ml-72 xl:w-[40%] w-full">
-          <div className="max-w-xl mx-auto p-0 -mt-"> 
-  <h1 className="text-3xl font-bold mb-3 text-white-800">Welcome,</h1>
-  <p className="text-xl font-medium mb-5 text-gray-600">Today's Events</p>
-  <div className="max-h-[300px] overflow-y-auto scrollbar-hide"> 
-    {data.length > 0 ? (
-      data.map((event, index) => (
-        <div
-          key={index}
-          className="relative bg-gradient-to-r from-purple-500 to-pink-400 text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-          onClick={() => openEventModal(event)}
-        >
-          <div>
-            <h2 className="text-2xl font-bold">{event.eventname}</h2>
-            <p className="text-lg font-light">Dept of CSE</p>
+        <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-transparent">
+          <div className="mx-auto p-0">
+            <div className="max-h-[300px] xl:w-[130%] overflow-y-auto bg-transparent scrollbar-hide">
+              {data.length > 0 ? (
+                data.map((event, index) => (
+                  <div
+                    key={index}
+                    className="relative bg-gradient-to-r from-[#bb85fd] to-[#7848F4] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+                    onClick={() => openEventModal(event)}
+                  >
+                    <div>
+                      <h2 className="text-2xl font-bold">{event.eventname}</h2>
+                      <p className="text-lg font-light">Dept of CSE</p>
+                    </div>
+                    <img
+                      src="https://path-to-your-cup-image-1.png"
+                      alt="Event Icon"
+                      className="w-20 h-20"
+                    />
+                    <img
+                      src="https://path-to-your-back-cup-image.png"
+                      alt="Cup Icon"
+                      className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
+                    />
+                  </div>
+                ))
+              ) : (
+                <p>No events for this date.</p>
+              )}
+            </div>
           </div>
-          <img
-            src="https://path-to-your-cup-image-1.png"
-            alt="Event Icon"
-            className="w-20 h-20"
-          />
-          <img
-            src="https://path-to-your-back-cup-image.png"
-            alt="Cup Icon"
-            className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
-          />
-        </div>
-      ))
-    ) : (
-      <p>No events for this date.</p>
-    )}
-  </div>
-</div>
-
-
-
-
         </div>
 
-    {/* Leaderboard Section */}
-<div className="xl:w-[60%] w-full xl:pl-10 mt-10 xl:mt-0 flex flex-col min-h-screen items-center"> 
+        {/* Leaderboard Section */}
+        <div className="flex justify-center ml-60 mb-4 w-full">
+          <CalendarComponent />
+        </div>
+      </div>
 
-  <div className="flex justify-center mb-4 w-full"> 
-    <CalendarComponent />
-  </div>
-
-
-  <div className="flex justify-center mt-6 w-full">
-    <div className="w-full">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">LeaderBoard</h1>
-    </div>
-  </div>
-
-  <div className="flex justify-center items-center w-full"> 
-    <div className="w-[90%] md:w-[80%] lg:w-[70%] xl:w-[100%]"> 
-      <Bar data={chartData} options={chartOptions} />
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
+      {/* Pie Chart at the Bottom */}
+      <div className="flex justify-center items-center mt-10 relative -left-[18%] bottom-32">
+        <div className="w-full xl:w-[26%] h-auto bg-transparent">
+          <CanvasJSChart options={pieChartOptions} />
+        </div>
       </div>
 
       {/* Event Modal */}
