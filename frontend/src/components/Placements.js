@@ -21,7 +21,7 @@ function Placement() {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/event/getalldata"
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
         const filteredData = response.data.eventdata.filter(
           (elem) => elem.typeofevent === "Placement"

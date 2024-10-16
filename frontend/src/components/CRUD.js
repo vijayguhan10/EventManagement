@@ -13,11 +13,14 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
 function CRUD() {
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState(data);
+  const [events, setEvents] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editEventData, setEditEventData] = useState({
     eventname: "",
@@ -39,12 +42,13 @@ function CRUD() {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/event/getalldata"
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
-        const filteredData = response.data.filter(
+        const filteredData = response.data.eventdata.filter(
           (elem) => elem.status === "pending"
         );
         setData(filteredData);
+        setEvents(filteredData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
         toast.error("Failed to fetch data.");
@@ -63,20 +67,8 @@ function CRUD() {
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
     setIsOpen(true);
-    if (isEditing) {
-      setEditEventData({
-        eventname: event.eventname,
-        resourceperson: event.resourceperson,
-        organizer: event.organizer,
-        venue: event.venue,
-        eventstarttime: event.eventstarttime,
-        eventendtime: event.eventendtime,
-        eventstartdate: event.eventstartdate,
-        eventenddate: event.eventenddate,
-        typeofevent: event.typeofevent,
-        status: event.status,
-      });
-    }
+    setIsEditing(true);
+    setEditEventData({ ...event });
   };
 
   const handleCloseModal = () => {
@@ -94,7 +86,7 @@ function CRUD() {
     if (deleteEventName === selectedEvent.eventname) {
       try {
         await axios.post(
-          `https://eventmanagement-2-mye7.onrender.com/event/delete_event`,
+          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
           { eventid: selectedEvent._id }
         );
 
@@ -113,7 +105,6 @@ function CRUD() {
   };
 
   const handleEdit = (event) => {
-    setIsEditing(true);
     handleOpenModal(event);
   };
 
@@ -124,35 +115,73 @@ function CRUD() {
 
   const handleSaveEdit = async () => {
     try {
-      await axios.post(
-        `http://127.0.0.1:3000/event/modify_event`, // Corrected POST method here
-        { eventId: selectedEvent._id, ...editEventData } // Pass eventid and edited fields
+      console.log("updating the event data : ", editEventData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
+        {
+          eventId: selectedEvent._id,
+          ...editEventData,
+        }
       );
-      const updatedEvents = events.map((event) =>
-        event._id === selectedEvent._id ? { ...event, ...editEventData } : event
-      );
-      setEvents(updatedEvents);
-      toast.success("Event updated successfully!");
+      console.log("return response while updating : ", response);
+
+      if (response.status === 200) {
+        const updatedEvents = events.map((event) =>
+          event._id === selectedEvent._id
+            ? { ...event, ...editEventData }
+            : event
+        );
+        setEvents(updatedEvents);
+        toast.success("Event updated successfully!");
+      } else {
+        toast.error("Failed to update the event.");
+      }
+
       handleCloseModal();
     } catch (error) {
-      toast.error("Failed to update the event.");
+      if (error.response && error.response.status) {
+        if (error.response.status === 400) {
+          toast.error("Bad request. Please check your input.");
+        } else if (error.response.status === 404) {
+          toast.error("Event not found.");
+        } else if (error.response.status === 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error("Failed to update the event.");
+        }
+      } else {
+        toast.error("Failed to update the event.");
+      }
     }
   };
+
+  const filteredEvents = events.filter((event) =>
+    event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="xl:ml-72 overflow-x-hidden">
       <SideBar />
+      <div className="m-4 xl:mt-5">
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded mb-4 w-full"
+        />
+      </div>
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-        {data.map((event, index) => (
+        {filteredEvents.map((event, index) => (
           <div
             key={index}
-            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
+            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative transition-transform transform hover:scale-105 duration-300"
           >
             <button className="bg-violet-600 mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28">
               {event.typeofevent}
             </button>
             <img
-              className="w-96 h-40 rounded-lg"
+              className="w-96 h-40 rounded-lg object-cover"
               src="https://www.teami.org/wp-content/uploads/2020/03/80453288_2843723012318282_1636474684004368384_o.jpg"
               alt={event.eventname}
             />
@@ -180,16 +209,16 @@ function CRUD() {
               </div>
               <div className="flex gap-2 mt-3">
                 <button
-                  className=" text-white p-2 rounded-md"
+                  className="text-white p-2 rounded-md bg-blue-500 hover:bg-blue-600 transition duration-300"
                   onClick={() => handleEdit(event)}
                 >
-                  <FaEdit color="#8b21e8" />
+                  <FaEdit color="#fff" />
                 </button>
                 <button
-                  className=" text-white p-2 rounded-md"
+                  className="text-white p-2 rounded-md bg-red-500 hover:bg-red-600 transition duration-300"
                   onClick={() => handleDeleteConfirmation(event)}
                 >
-                  <FaTrash color="#8b21e8" />
+                  <FaTrash color="#fff" />
                 </button>
               </div>
             </div>
@@ -206,95 +235,111 @@ function CRUD() {
               onClick={handleCloseModal}
             />
             <h1 className="text-3xl font-bold mb-4">
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editEventData.eventname}
-                  onChange={handleChange}
-                  name="eventname"
-                  className="border rounded p-2 w-full"
-                />
-              ) : (
-                selectedEvent.eventname
-              )}
+              <input
+                type="text"
+                value={editEventData.eventname}
+                onChange={handleChange}
+                name="eventname"
+                className="border rounded p-2 w-full"
+              />
             </h1>
             <div className="space-y-4">
-              {/* Edit Mode: Show input fields when editing */}
-              {isEditing ? (
-                <>
-                  <label>
-                    Resource Person:
-                    <input
-                      type="text"
-                      value={editEventData.resourceperson}
-                      onChange={handleChange}
-                      name="resourceperson"
-                      className="border rounded p-2 w-full"
-                    />
-                  </label>
-                  <label>
-                    Organizer:
-                    <input
-                      type="text"
-                      value={editEventData.organizer}
-                      onChange={handleChange}
-                      name="organizer"
-                      className="border rounded p-2 w-full"
-                    />
-                  </label>
-                  <label>
-                    Venue:
-                    <input
-                      type="text"
-                      value={editEventData.venue}
-                      onChange={handleChange}
-                      name="venue"
-                      className="border rounded p-2 w-full"
-                    />
-                  </label>
-                  <label>
-                    Start Date:
-                    <input
-                      type="date"
-                      value={editEventData.eventstartdate}
-                      onChange={handleChange}
-                      name="eventstartdate"
-                      className="border rounded p-2 w-full"
-                    />
-                  </label>
-                  <label>
-                    End Date:
-                    <input
-                      type="date"
-                      value={editEventData.eventenddate}
-                      onChange={handleChange}
-                      name="eventenddate"
-                      className="border rounded p-2 w-full"
-                    />
-                  </label>
-                  <button
-                    onClick={handleSaveEdit}
-                    className="bg-blue-500 text-white p-2 rounded"
-                  >
-                    Save Changes
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p>
-                    Organizer: <strong>{selectedEvent.organizer}</strong>
-                  </p>
-                  <p>
-                    Venue: <strong>{selectedEvent.venue}</strong>
-                  </p>
-                  <p>
-                    Start Date: <strong>{selectedEvent.eventstartdate}</strong>
-                  </p>
-                  <p>
-                    End Date: <strong>{selectedEvent.eventenddate}</strong>
-                  </p>
-                </>
-              )}
+              <label>
+                Resource Person:
+                <input
+                  type="text"
+                  value={editEventData.resourceperson}
+                  onChange={handleChange}
+                  name="resourceperson"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Organizer:
+                <input
+                  type="text"
+                  value={editEventData.organizer}
+                  onChange={handleChange}
+                  name="organizer"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Venue:
+                <input
+                  type="text"
+                  value={editEventData.venue}
+                  onChange={handleChange}
+                  name="venue"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Event Start Date:
+                <input
+                  type="date"
+                  value={editEventData.eventstartdate}
+                  onChange={handleChange}
+                  name="eventstartdate"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Event End Date:
+                <input
+                  type="date"
+                  value={editEventData.eventenddate}
+                  onChange={handleChange}
+                  name="eventenddate"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Event Start Time:
+                <input
+                  type="time"
+                  value={editEventData.eventstarttime}
+                  onChange={handleChange}
+                  name="eventstarttime"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Event End Time:
+                <input
+                  type="time"
+                  value={editEventData.eventendtime}
+                  onChange={handleChange}
+                  name="eventendtime"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Type of Event:
+                <input
+                  type="text"
+                  value={editEventData.typeofevent}
+                  onChange={handleChange}
+                  name="typeofevent"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <label>
+                Status:
+                <input
+                  type="text"
+                  value={editEventData.status}
+                  onChange={handleChange}
+                  name="status"
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+              <button
+                onClick={handleSaveEdit}
+                className="bg-green-500 text-white p-2 rounded mt-4 hover:bg-green-600 transition duration-300"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>
@@ -302,31 +347,27 @@ function CRUD() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md mx-4">
-            <h2 className="text-lg font-bold mb-4">Delete Event</h2>
-            <p>
-              Are you sure you want to delete the event "
-              {selectedEvent.eventname}"?
-            </p>
-            <label>
-              Type the event name to confirm:
-              <input
-                type="text"
-                value={deleteEventName}
-                onChange={(e) => setDeleteEventName(e.target.value)}
-                className="border rounded p-2 w-full"
-              />
-            </label>
-            <div className="mt-4 flex justify-between">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-lg mx-4">
+            <h2 className="text-lg mb-4">
+              Confirm Deletion of {selectedEvent.eventname}?
+            </h2>
+            <p>Type the event name to confirm:</p>
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mb-4"
+            />
+            <div className="flex justify-between">
               <button
                 onClick={handleDelete}
-                className="bg-red-500 text-white p-2 rounded"
+                className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition duration-300"
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="bg-gray-300 text-black p-2 rounded"
+                className="bg-gray-300 p-2 rounded hover:bg-gray-400 transition duration-300"
               >
                 Cancel
               </button>

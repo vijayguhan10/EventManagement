@@ -54,7 +54,7 @@ function Forms() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/event/create_event",
+        `${process.env.REACT_APP_BASE_URL}/event/create_event`,
         {
           eventname: formData.eventTitle,
           resourceperson: formData.resourcePerson,

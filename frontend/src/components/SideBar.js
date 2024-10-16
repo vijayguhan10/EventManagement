@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   FaAddressBook,
+  FaDiscourse,
   FaHistory,
   FaHome,
   FaHotTub,
@@ -17,7 +18,6 @@ const SideBar = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
 
   return (
     <div className="flex max-h-full xl:overflow-hidden">
@@ -147,11 +147,22 @@ const SideBar = () => {
                 </span>
               </Link>
             </li>
+
+            <li>
+              <Link
+                to="/Departments"
+                className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <FaDiscourse />
+                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                  Departments
+                </span>
+              </Link>
+            </li>
           </ul>
         </div>
       </aside>
 
-      {/* Overlay when sidebar is open on small screens */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black opacity-50 z-30 lg:hidden"

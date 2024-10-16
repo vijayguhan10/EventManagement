@@ -8,6 +8,7 @@ import {
 import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
+import GeneratePdf from "./GeneratePdf";
 
 function Technical() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,13 +16,13 @@ function Technical() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("authToken"); 
+  const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   const fetchData = async () => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/event/getalldata"
+        `${process.env.REACT_APP_BASE_URL}/event/getalldata`
       );
       console.log("responsed data frm the events : ", response.data);
       const filteredData = response.data.eventdata.filter(
@@ -203,6 +204,7 @@ function Technical() {
           </div>
         </div>
       )}
+      <GeneratePdf />
     </div>
   );
 }

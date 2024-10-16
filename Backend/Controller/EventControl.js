@@ -27,7 +27,7 @@ exports.CreateEvent = async (req, res) => {
 
     const imageKey = departmentData
       ? Object.keys(departmentData).find((key) => key !== "name")
-      : null; 
+      : null;
     const imageUrl = imageKey ? departmentData[imageKey] : null;
     const New_Event_Registration = new Event({
       userid: userId,
@@ -93,7 +93,7 @@ exports.updateevent = async (req, res) => {
         eventstartdate: formatDate(eventstartdate),
         eventenddate: formatDate(eventenddate),
         status,
-        department,
+        // department,
       },
       { new: true }
     );
@@ -123,7 +123,6 @@ exports.deleteEvent = async (req, res) => {
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
-
     const deletedEvent = await Event.findByIdAndDelete(eventid);
     if (!deletedEvent) {
       return res.status(404).json({ message: "Event not found" });

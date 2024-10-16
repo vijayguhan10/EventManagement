@@ -26,7 +26,7 @@ exports.generatePdf = async (req, res) => {
     const pageHeight = doc.internal.pageSize.height;
 
     filteredEvents.forEach((event, index) => {
-      if (y + 100 > P) {
+      if (y + 100 > pageHeight) {
         doc.addPage();
         y = 10;
       }
