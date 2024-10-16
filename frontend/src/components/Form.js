@@ -14,7 +14,21 @@ function Forms() {
     specialization: "",
     eventType: "",
     eventDescription: "",
+    departments: [], // Updated to store selected departments
   });
+
+  const departmentOptions = [
+    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+    { fullName: "Computer Science Engineering", shortName: "CSE" },
+    { fullName: "Artificial Intelligence and Data Science", shortName: "AI & DS" },
+    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+    { fullName: "Information Technology", shortName: "IT" },
+    { fullName: "Mechanical Engineering", shortName: "MECH" },
+    { fullName: "Artificial Intelligence and Machine Learning", shortName: "AI & ML" },
+    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+    { fullName: "Cybersecurity", shortName: "Cyber" },
+  ];
 
   const [errors, setErrors] = useState({});
 
@@ -24,6 +38,18 @@ function Forms() {
     const { name, value, type } = e.target;
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
+    } else if (type === "checkbox" && name === "departments") {
+      // Handle department checkboxes
+      const selectedDepartments = [...formData.departments];
+      if (e.target.checked) {
+        selectedDepartments.push(value);
+      } else {
+        const index = selectedDepartments.indexOf(value);
+        if (index !== -1) {
+          selectedDepartments.splice(index, 1);
+        }
+      }
+      setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -46,6 +72,8 @@ function Forms() {
       newErrors.eventType = "Please select an event type";
     if (!formData.eventDescription)
       newErrors.eventDescription = "Event description is required";
+    if (formData.departments.length === 0)
+      newErrors.departments = "Please select at least one department";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -62,9 +90,10 @@ function Forms() {
           venue: formData.eventVenue,
           eventstarttime: formData.startTime,
           eventendtime: formData.endTime,
-          eventstartdate: formData.startDate.replace(/-/g, "/"), // Convert date format to YYYY/MM/DD
-          eventenddate: formData.endDate.replace(/-/g, "/"), // Convert date format to YYYY/MM/DD
+          eventstartdate: formData.startDate.replace(/-/g, "/"),
+          eventenddate: formData.endDate.replace(/-/g, "/"),
           typeofevent: formData.eventType,
+          departments: formData.departments, // Include selected departments
           status: "pending", // Add the status field
         }
       );
@@ -76,20 +105,6 @@ function Forms() {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
     }
-
-    // Reset form data
-    // setFormData({
-    //   eventTitle: "",
-    //   eventVenue: "",
-    //   startDate: "",
-    //   endDate: "",
-    //   startTime: "",
-    //   endTime: "",
-    //   resourcePerson: "",
-    //   specialization: "",
-    //   eventType: "",
-    //   eventDescription: "",
-    // });
 
     setErrors({});
   };
@@ -106,6 +121,33 @@ function Forms() {
         >
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+              Departments
+            </label>
+            <div className="flex flex-wrap">
+              {departmentOptions.map((department) => (
+                <div key={department.shortName} className="mr-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="departments"
+                      value={department.shortName} // Use the department's shortName as the value
+                      checked={formData.departments.includes(department.shortName)}
+                      onChange={handleChange}
+                      className="form-checkbox"
+                    />
+                    <span className="ml-2">{department.shortName}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {errors.departments && (
+              <span className="text-red-500">{errors.departments}</span>
+            )}
+          </div>
+
+          {/* Event Title */}
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Title
             </label>
             <input
@@ -120,6 +162,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Event Venue */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Venue
@@ -136,6 +179,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Start Date */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Start Date
@@ -153,6 +197,7 @@ function Forms() {
             )}
           </div>
 
+          {/* End Date */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               End Date
@@ -163,15 +208,14 @@ function Forms() {
               value={formData.endDate}
               onChange={handleChange}
               min={formData.startDate || today} // Restrict past dates and set min to start date
-              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                !formData.startDate ? "hidden" : ""
-              }`}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
             {errors.endDate && (
               <span className="text-red-500">{errors.endDate}</span>
             )}
           </div>
 
+          {/* Start and End Time */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
@@ -205,6 +249,7 @@ function Forms() {
             </div>
           </div>
 
+          {/* Resource Person */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Resource Person
@@ -221,6 +266,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Specialization */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Specialization
@@ -237,44 +283,52 @@ function Forms() {
             )}
           </div>
 
+          {/* Event Type */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-              Type of Event
+              Event Type
             </label>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="eventType"
-                value="Placement"
-                onChange={handleChange}
-                checked={formData.eventType === "Placement"}
-                className="mr-2"
-              />
-              <label className="mr-4">Placement</label>
-              <input
-                type="radio"
-                name="eventType"
-                value="Technical"
-                onChange={handleChange}
-                checked={formData.eventType === "Technical"}
-                className="mr-2"
-              />
-              <label className="mr-4">Technical</label>
-              <input
-                type="radio"
-                name="eventType"
-                value="Nontechnical"
-                onChange={handleChange}
-                checked={formData.eventType === "Nontechnical"}
-                className="mr-2"
-              />
-              <label>Nontechnical</label>
+            <div className="flex space-x-4">
+              <label>
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Workshop"
+                  checked={formData.eventType === "Workshop"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Workshop
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Webinar"
+                  checked={formData.eventType === "Webinar"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Webinar
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Seminar"
+                  checked={formData.eventType === "Seminar"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Seminar
+              </label>
             </div>
             {errors.eventType && (
               <span className="text-red-500">{errors.eventType}</span>
             )}
           </div>
 
+          {/* Event Description */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Description
@@ -284,18 +338,18 @@ function Forms() {
               value={formData.eventDescription}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="4"
             />
             {errors.eventDescription && (
               <span className="text-red-500">{errors.eventDescription}</span>
             )}
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
-            className="bg-[#7848F4] text-white px-4 py-2 rounded-md"
+            className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded"
           >
-            Submit
+            Create Event
           </button>
         </form>
       </div>
