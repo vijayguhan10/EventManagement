@@ -8,47 +8,61 @@ import {
 import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
-
+import "../Calender.css";
 const products = [
   {
     name: "Computer and Communication Engineering",
     imageurl: "https://i.ibb.co/LNvgTTn/cce.jpg",
+    date: new Date("2024-10-14"), 
+    count:6
   },
   {
     name: "Computer Science Engineering",
     imageurl: "https://i.ibb.co/pjx192W/cse.jpg",
+    date: new Date("2024-10-14"),
+    count:6
   },
   {
     name: "Artificial Intelligence and Data Science",
     imageurl: "https://i.ibb.co/K6WmSZS/aids.jpg",
+    date: new Date("2024-10-14"), 
+    count:7
   },
   {
     name: "Electronics and Communication Engineering",
     imageurl: "https://i.ibb.co/48jZq57/ece.jpg",
+    date: new Date("2024-10-14"), 
+    count:8
   },
   {
     name: "Information Technology",
     imageurl: "https://i.ibb.co/6tYMCG2/it.jpg",
+    date: new Date("2024-10-14"), // Add date here
   },
   {
     name: "Mechanical Engineering",
     imageurl: "https://i.ibb.co/cC6vgS1/mech.png",
+    date: new Date("2024-10-14"), // Add date here
   },
   {
     name: "Artificial Intelligence and Machine Learning",
     imageurl: "https://i.ibb.co/bXswgkq/aiml.jpg",
+    date: new Date("2024-10-14"), // Add date here
   },
   {
     name: "Computer Science and Business Systems",
     imageurl: "https://i.ibb.co/BrP6Cc5/csbs.jpg",
+    date: new Date("2024-10-14"), // Add date here
   },
   {
     name: "Electrical and Electronics Engineering",
     imageurl: "https://i.ibb.co/s3MbZv2/eee.png",
+    date: new Date("2024-10-14"), // Add date here
   },
   {
     name: "Cybersecurity",
     imageurl: "https://i.ibb.co/s3MbZv2/eee.png",
+    date: new Date("2024-10-14"), // Add date here
   },
 ];
 
@@ -85,32 +99,50 @@ const events = [
 function Departments() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Mocking the data load with static events
+  const [selectedDate, setSelectedDate] = useState(new Date("2024-10-14"));
+  const [isEventListOpen, setIsEventListOpen] = useState(false);
+ 
   useEffect(() => {
     setData(events);
+    
   }, []);
-
+  const closeEventModal = () => {
+    setSelectedEvent(null); 
+  };
   const handleOpenModal = (event) => {
-    setSelectedEvent(event);
-    setIsOpen(true);
+    const eventDate = new Date(event.date); 
+    setSelectedDate(eventDate);
+    setIsEventListOpen(true);
+  };
+  const openEventModal = (event) => {
+    setSelectedEvent(event); 
   };
 
   const handleCloseModal = () => {
     setIsOpen(false);
     setSelectedEvent(null);
   };
-
+  const closeEventList = () => {
+    setIsEventListOpen(false); // Close the event list
+  };
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredData = data.filter((event) =>
-    event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
+  const eventsForSelectedDate = events.filter(
+    (event) =>
+      new Date(event.date).toLocaleDateString() ===
+      selectedDate.toLocaleDateString()
   );
+  const filteredProducts = products.filter((dept) =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+
 
   if (loading) {
     return (
@@ -153,61 +185,75 @@ function Departments() {
       </div>
 
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-        {products.map((dept, index) => (
-          <div
-            key={index}
-            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
-          >
-            <img
-              className="w-96 h-40 rounded-lg"
-              src={dept.imageurl}
-              alt={dept.name}
-            />
-            <div className="ml-5 mt-3 flex flex-row gap-1">
-              <FaCalendar size={20} className="mt-1" color="#46459d" />
-              <h1 className="text-xl text-[#8b21e8] font-Afacad">
-                {dept.name}
-              </h1>
-            </div>
-            <div className="ml-5 flex flex-col gap-3 mt-3">
-              <button
-                className="bg-violet-800 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
-                onClick={() => handleOpenModal(dept)}
-              >
-                View More
-              </button>
-            </div>
-          </div>
-        ))}
+      {filteredProducts.map((dept, index) => (
+  <div
+    key={index}
+    className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative pb-16" // Added padding bottom
+  >
+    <img
+      className="w-96 h-40 rounded-lg"
+      src={dept.imageurl}
+      alt={dept.name}
+    />
+
+    <div className="ml-5 mt-3 flex flex-row gap-1">
+      <FaCalendar size={20} className="mt-1" color="#46459d" />
+      <h1 className="text-xl text-[#8b21e8] font-Afacad">
+        {dept.name}
+      </h1>
+    </div>
+
+    <div className="absolute bottom-5 left-5 right-5 flex justify-between items-center">
+      <button
+        className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+        onClick={() => handleOpenModal(dept)}
+      >
+        View More
+      </button>
+      
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8b21e8] text-white">
+        <span className="text-sm">{dept.count || 0}</span>
+      </div>
+    </div>
+  </div>
+))}
+
+
       </div>
 
-      {isOpen && selectedEvent && (
+
+
+
+
+ 
+      {/* Event List Modal */}
+      {isEventListOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button className="close-modal" onClick={handleCloseModal}>
+            <button className="close-modal" onClick={closeEventList}>
               &times;
             </button>
             <h2 className="modal-date-title">
-              Events for {selectedEvent.name}
+              Events for {selectedDate.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
             </h2>
             <ul className="event-list">
-              {filteredData.length > 0 ? (
-                filteredData.map((event, index) => (
+              {eventsForSelectedDate.length > 0 ? (
+                eventsForSelectedDate.map((event, index) => (
                   <li
                     key={index}
                     className="event-item"
-                    onClick={() => handleOpenModal(event)}
+                    onClick={() => openEventModal(event)}
                   >
                     <div className="event-row">
                       <span className="event-name">{event.eventname}</span>
-                      <span
-                        className={`event-category ${event.category.toLowerCase()}`}
-                      >
+                      <span className={`event-category ${event.category.toLowerCase()}`}>
                         {event.category}
                       </span>
-                      <span
-                        className={`event-icon ${event.category.toLowerCase()}`}
-                      >
+                      <span className={`event-icon ${event.category.toLowerCase()}`}>
                         {event.category === "Tech" ? "📘" : "📕"}
                       </span>
                     </div>
@@ -215,9 +261,40 @@ function Departments() {
                   </li>
                 ))
               ) : (
-                <p>No events found.</p>
+                <p>No events for this date.</p>
               )}
             </ul>
+          </div>
+        </div>
+      )}
+
+
+
+            {/* Event Modal */}
+            {selectedEvent && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            <p className="custom-modal-description">
+              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
+              <br />
+              <strong>Description:</strong> {selectedEvent.description}
+              <br />
+              <strong>Location:</strong> {selectedEvent.venue}
+              <br />
+              <strong>Contact:</strong> {selectedEvent.contact}
+            </p>
+            <p className="modal-date">
+              <strong>{selectedDate.toLocaleDateString()}</strong>
+            </p>
           </div>
         </div>
       )}
