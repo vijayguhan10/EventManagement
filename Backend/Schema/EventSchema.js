@@ -21,9 +21,9 @@ const EventDataSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  department: {
+  departments: {
     required: true,
-    type: String,
+    type: [String],
     enum: [
       "Computer and Communication Engineering",
       "Computer Science Engineering",
@@ -35,6 +35,7 @@ const EventDataSchema = new mongoose.Schema({
       "Computer Science and Business Systems",
       "Electrical and Electronics Engineering",
       "Cybersecurity",
+      "All",
     ],
   },
   eventstarttime: {

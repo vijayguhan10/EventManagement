@@ -14,8 +14,9 @@ exports.CreateEvent = async (req, res) => {
       eventenddate,
       typeofevent,
       status,
-      department,
+      departments,
     } = req.body;
+
     const userId = req.userId;
 
     const isValidUser = await validateUser(userId);
@@ -23,32 +24,46 @@ exports.CreateEvent = async (req, res) => {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
-    const departmentData = images_dept.find((item) => item.name === department);
+    const createdEvents = [];
 
-    const imageKey = departmentData
-      ? Object.keys(departmentData).find((key) => key !== "name")
-      : null;
-    const imageUrl = imageKey ? departmentData[imageKey] : null;
-    const New_Event_Registration = new Event({
-      userid: userId,
-      eventname,
-      resourceperson,
-      organizer,
-      venue,
-      eventstarttime,
-      eventendtime,
-      eventstartdate: formatDate(eventstartdate),
-      eventenddate: formatDate(eventenddate),
-      status,
-      typeofevent,
-      department,
-      imageurl: imageUrl,
-    });
+    let departmentsToProcess = departments.includes("All")
+      ? images_dept.map((item) => item.name)
+      : departments;
 
-    await New_Event_Registration.save();
+    for (const department of departmentsToProcess) {
+      const departmentData = images_dept.find(
+        (item) => item.name === department
+      );
+
+      const imageKey = departmentData
+        ? Object.keys(departmentData).find((key) => key !== "name")
+        : null;
+
+      const imageUrl = imageKey ? departmentData[imageKey] : null;
+
+      const newEvent = new Event({
+        userid: userId,
+        eventname,
+        resourceperson,
+        organizer,
+        venue,
+        eventstarttime,
+        eventendtime,
+        eventstartdate: formatDate(eventstartdate),
+        eventenddate: formatDate(eventenddate),
+        status,
+        typeofevent,
+        departments: department,
+        imageurl: imageUrl,
+      });
+
+      const savedEvent = await newEvent.save();
+      createdEvents.push(savedEvent);
+    }
+
     return res.status(201).json({
-      message: "Event created successfully",
-      event: New_Event_Registration,
+      message: "Events created successfully",
+      events: createdEvents,
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -72,7 +87,7 @@ exports.updateevent = async (req, res) => {
       eventstartdate,
       eventenddate,
       status,
-      department,
+      departments,
     } = req.body;
     const userId = req.userId;
 
@@ -93,7 +108,7 @@ exports.updateevent = async (req, res) => {
         eventstartdate: formatDate(eventstartdate),
         eventenddate: formatDate(eventenddate),
         status,
-        // department,
+        departments,
       },
       { new: true }
     );
