@@ -3,16 +3,59 @@ import Calendar from "react-calendar";
 import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import prevarrow from "../assets/Forward Arrow (1).png";
-import { FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
-const CalendarComponent = ({ events }) => {
-  console.log("events passed to calendercomponenet : ", events);
+
+const CalendarComponent = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isEventListOpen, setIsEventListOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const events = [
+    {
+      date: "2024-10-14",
+      eventname: "IOT Workshop",
+      category: "Tech",
+      starttime: "12:00 PM",
+      description: "A workshop on the latest trends in IoT.",
+      location: "Event Hall A, Main Campus",
+      contact: "iotworkshop@example.com",
+    },
+    {
+      date: "2024-10-14",
+      eventname: "Onam Celebration",
+      category: "Non Tech",
+      starttime: "02:00 PM",
+      description: "Cultural events to celebrate Onam.",
+      location: "Central Auditorium",
+      contact: "onamcelebration@example.com",
+    },
+    {
+      date: "2024-10-15",
+      eventname: "DSA Bootcamp",
+      category: "Tech",
+      starttime: "10:00 AM",
+      description: "Data Structures and Algorithms bootcamp.",
+      location: "Room 204, Main Campus",
+      contact: "dsabootcamp@example.com",
+    },
+  ];
+
+  const onClickDay = (value) => {
+    setSelectedDate(value); 
+    setIsEventListOpen(true); 
+  };
+
+  const closeEventList = () => {
+    setIsEventListOpen(false); // Close the event list
+  };
+
+  const closeEventModal = () => {
+    setSelectedEvent(null); 
+  };
 
   const onChange = (newDate) => {
-    console.log("Selected date while click: ", newDate);
-    setSelectedDate(newDate);
+    setSelectedDate(newDate); // Update selected date
   };
 
   const updateMonth = (direction) => {
@@ -25,20 +68,31 @@ const CalendarComponent = ({ events }) => {
   const nextMonth = () => updateMonth(1);
   const prevMonth = () => updateMonth(-1);
 
-  const monthYearString = currentDate.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
-
   const isFutureOrToday = (dateToCheck) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return dateToCheck >= today;
   };
 
+  const openEventModal = (event) => {
+    setSelectedEvent(event); // Set the selected event
+
+  };
+
+  const eventsForSelectedDate = events.filter(
+    (event) =>
+      new Date(event.date).toLocaleDateString() ===
+      selectedDate.toLocaleDateString()
+  );
+
+  const monthYearString = currentDate.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+
   return (
-    <div >
-      <div className="custom-calendar shadow-xl w-[90%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
+    <div>
+      <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
         <div className="calendar-navigation">
           <button onClick={prevMonth}>
             <img src={prevarrow} alt="previous month" />
@@ -56,82 +110,113 @@ const CalendarComponent = ({ events }) => {
           tileClassName={({ date }) => {
             return isFutureOrToday(date) ? "future-date" : "past-date";
           }}
-          onClickDay={(value) => {
-            console.log("Clicked date: ", value);
-            setSelectedDate(value);
-          }}
+          onClickDay={onClickDay} // Updated method here
           activeStartDate={currentDate}
         />
       </div>
-      <div className="flex flex-row border-l-[#7848F4] border-l-8 xl:items-center xl:justify-between xl:w-[92%] w-[90%] rounded-md shadow shadow-[#0000003d] mt-10">
-        <div className="xl:ml-5 ml-3">
-          <p className="text-2xl font-Afacad">
-            {selectedDate.toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-          <p className="text-[#7848F4] text-xl font-Afacad">
-            {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
-          </p>
-        </div>
-        <Link
-          to="/Form"
-          className={`${
-            isFutureOrToday(selectedDate)
-              ? "bg-[#7848F4] text-white text-center mb-5"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          } font-Afacad w-24 h-7 mt-5 ml-10 text-xl xl:mr-20 shadow-md rounded-sm xl:w-36 shadow-[#0000003d]`}
-          disabled={!isFutureOrToday(selectedDate)}
-        >
-          Add Event
-        </Link>
-      </div>
 
-      {/* Events List */}
-      {/* Events List */}
-      <h1 className=" xl:text-2xl absolute mt-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
-        Today's Events
-      </h1>
-      <div className="xl:h-52 h-96 overflow-scroll  overflow-x-hidden shadow-md mt-12 border-l-[#7848F4] border-l-8 w-[92%] rounded-lg scrollbar-hide">
-        {events && events.length > 0 ? (
-          events.map((event, index) => {
-            console.log("Rendering event:", event); // Log each event object
-            return (
-              <div
-                key={index}
-                className="relative flex mb-2 flex-row items-center ml-1 w-[92%] rounded-md shadow shadow-[#0000003d] mt-3"
-              >
-                <img
-                  src={
-                    event.imageURL ||
-                    "https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-                  }
-                  className="xl:w-36 xl:ml-20 xl:h-20 w-28 h-24 m-2 rounded-lg"
-                  alt="new event"
-                />
-                <div className="ml-10">
-                  <p className="xl:text-2xl font-bold text-sm font-Afacad">
-                    {event.eventname}
-                  </p>
-                  <p className="text-[#4746497c] font-Afacad text-sm xl:text-xl font-bold">
-                    {event.eventname}
-                  </p>
-                  <p className="text-[#4746497c] font-Afacad xl:text-xl text-sm">
-                    {event.eventstartdate} - {event.eventstarttime}
-                  </p>
-                </div>
-                <div className="absolute top-0 right-0 mt-2 mr-2">
-                  <FaStar color="#7848F4" />
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <p>No events available.</p>
-        )}
-      </div>
+      <div className="flex flex-row items-center justify-between w-[90%] xl:w-[92%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-10 transition-transform transform hover:scale-105">
+  <div className="ml-3 xl:ml-5 py-5">
+    <p className="text-2xl font-bold text-gray-800 font-Afacad">
+      {selectedDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })}
+    </p>
+    <p className="text-[#7848F4] text-xl font-medium font-Afacad">
+      {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
+    </p>
+  </div>
+
+  {isFutureOrToday(selectedDate) ? (
+    <Link
+      to="/Form"
+      className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+    >
+      Add Event
+    </Link>
+  ) : (
+    <button
+      className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
+      disabled
+    >
+      Add Event
+    </button>
+  )}
+</div>
+
+
+      {/* Event List Modal */}
+      {isEventListOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-modal" onClick={closeEventList}>
+              &times;
+            </button>
+            <h2 className="modal-date-title">
+              Events for {selectedDate.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+            </h2>
+            <ul className="event-list">
+              {eventsForSelectedDate.length > 0 ? (
+                eventsForSelectedDate.map((event, index) => (
+                  <li
+                    key={index}
+                    className="event-item"
+                    onClick={() => openEventModal(event)}
+                  >
+                    <div className="event-row">
+                      <span className="event-name">{event.eventname}</span>
+                      <span className={`event-category ${event.category.toLowerCase()}`}>
+                        {event.category}
+                      </span>
+                      <span className={`event-icon ${event.category.toLowerCase()}`}>
+                        {event.category === "Tech" ? "📘" : "📕"}
+                      </span>
+                    </div>
+                    <hr className="event-divider" />
+                  </li>
+                ))
+              ) : (
+                <p>No events for this date.</p>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Event Modal */}
+      {selectedEvent && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            <p className="custom-modal-description">
+              <strong>Start Time:</strong> {selectedEvent.starttime}
+              <br />
+              <strong>Description:</strong> {selectedEvent.description}
+              <br />
+              <strong>Location:</strong> {selectedEvent.location}
+              <br />
+              <strong>Contact:</strong> {selectedEvent.contact}
+            </p>
+            <p className="modal-date">
+              <strong>{selectedDate.toLocaleDateString()}</strong>
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
