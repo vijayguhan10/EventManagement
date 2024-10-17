@@ -38,7 +38,7 @@ function Forms() {
     { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
     { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
     { fullName: "Cybersecurity", shortName: "Cyber" },
-    {fullName:"All",shortName:"All"},
+    { fullName: "All", shortName: "All" },
   ];
 
   const [errors, setErrors] = useState({});

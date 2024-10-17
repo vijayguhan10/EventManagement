@@ -61,7 +61,7 @@ const EventDataSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed", "notcompleted"],
+    enum: ["pending", "completed", "decline"],
     required: true,
   },
   imageurl: {

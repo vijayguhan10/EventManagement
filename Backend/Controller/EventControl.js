@@ -73,7 +73,6 @@ exports.CreateEvent = async (req, res) => {
     });
   }
 };
-
 exports.updateevent = async (req, res) => {
   try {
     const {
@@ -89,6 +88,10 @@ exports.updateevent = async (req, res) => {
       status,
       departments,
     } = req.body;
+
+    const st_date = formatDate(eventstartdate);
+    const end_date = formatDate(eventenddate);
+
     const userId = req.userId;
 
     const isValidUser = await validateUser(userId);
@@ -96,30 +99,48 @@ exports.updateevent = async (req, res) => {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
-    const updatedEvent = await Event.findByIdAndUpdate(
-      eventId,
-      {
-        eventname,
-        resourceperson,
-        organizer,
-        venue,
-        eventstarttime,
-        eventendtime,
-        eventstartdate: formatDate(eventstartdate),
-        eventenddate: formatDate(eventenddate),
-        status,
-        departments,
-      },
-      { new: true }
-    );
+    let updatedFields = {
+      eventname,
+      resourceperson,
+      organizer,
+      venue,
+      eventstarttime,
+      eventendtime,
+      eventstartdate: st_date,
+      eventenddate: end_date,
+      status,
+    };
 
+    if (departments && departments.length > 0) {
+      const departmentName = departments[0];
+
+      const departmentData = images_dept.find(
+        (item) => item.name === departmentName
+      );
+
+      const imageKey = departmentData
+        ? Object.keys(departmentData).find((key) => key !== "name")
+        : null;
+      const imageUrl = imageKey ? departmentData[imageKey] : null;
+
+      if (imageUrl) {
+        updatedFields.imageurl = imageUrl;
+      }
+
+      updatedFields.departments = departments; 
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedFields, {
+      new: true,
+    });
     if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Event updated successfully", event: updatedEvent });
+    return res.status(200).json({
+      message: "Event updated successfully",
+      event: updatedEvent,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({

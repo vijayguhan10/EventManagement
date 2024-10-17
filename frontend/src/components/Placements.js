@@ -113,7 +113,7 @@ function Placement() {
             </button>
             <img
               className="w-96 h-40 rounded-lg"
-              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              src={event.imageurl}
               alt={event.eventname}
             />
             <div className="ml-5 mt-3 flex flex-row gap-1">

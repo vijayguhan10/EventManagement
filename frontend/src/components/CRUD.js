@@ -165,9 +165,12 @@ function CRUD() {
     handleOpenModal(event);
   };
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-
-    if (type === "checkbox") {
+    console.log("dateeeeeeeeeee : ", event.target.value);
+    var { name, value, type, checked } = event.target;
+    const [year, month, date] = value.split("-");
+    console.log("date formated : ", year, month, date);
+    console.log("val", value, name);
+    if (type === "radio") {
       // Update the departments array
       if (checked) {
         // Add department if checked
@@ -186,8 +189,10 @@ function CRUD() {
       // For other input types
       setEditEventData((prev) => ({
         ...prev,
-        [name]: value,
+        name: `${year}/${month}/${date}`,
       }));
+      console.log("Updated formData:", formData);
+      console.log("updated values of date : ", `${year}/${month}/${date}`);
     }
   };
 
@@ -259,7 +264,7 @@ function CRUD() {
             </button>
             <img
               className="w-96 h-40 rounded-lg object-cover"
-              src="https://www.teami.org/wp-content/uploads/2020/03/80453288_2843723012318282_1636474684004368384_o.jpg"
+              src={event.imageurl}
               alt={event.eventname}
             />
             <div className="ml-5 mt-3 flex flex-row gap-1">
@@ -322,8 +327,6 @@ function CRUD() {
               />
             </h1>
             <div className="scrollable-form mb-4 overflow-y-auto max-h-60">
-              {" "}
-              {/* Scrollable container */}
               <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
                 Departments
               </label>
@@ -332,7 +335,7 @@ function CRUD() {
                   <div key={department.shortName} className="mr-4 mb-2">
                     <label className="inline-flex items-center">
                       <input
-                        type="checkbox"
+                        type="radio"
                         name="departments"
                         value={department.fullName}
                         checked={formData.departments.includes(
@@ -390,7 +393,6 @@ function CRUD() {
                     </label>
                   ))}
 
-                  {/* Event Type Radio Buttons */}
                   <div>
                     <span className="text-gray-800 font-semibold">
                       Event Type:
