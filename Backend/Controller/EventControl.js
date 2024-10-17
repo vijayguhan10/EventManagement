@@ -1,7 +1,79 @@
 const Event = require("../Schema/EventSchema");
 const { validateUser, formatDate } = require("../utilities/EventHelper");
 const images_dept = require("../other/Images");
+const TotalCount = require("../Schema/TotalCount");
+const incrementDepartmentCount = async (departments) => {
+  console.log("departments : ", departments);
+  if (departments.includes("All")) {
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Computer and Communication Engineering": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Computer Science Engineering": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Artificial Intelligence and Data Science": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Electronics and Communication Engineering": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Information Technology": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Mechanical Engineering": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      {
+        $inc: { "totalCounts.Artificial Intelligence and Machine Learning": 1 },
+      }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Computer Science and Business Systems": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Electrical and Electronics Engineering": 1 } }
+    );
+    await TotalCount.updateOne(
+      {},
+      { $inc: { "totalCounts.Cybersecurity": 1 } }
+    );
+  } else {
+    for (const department of departments) {
+      await TotalCount.updateOne(
+        {},
+        { $inc: { [`totalCounts.${department}`]: 1 } }
+      );
+    }
+  }
+};
+
+const updateDepartmentCount = async (oldDepartment, newDepartment) => {
+  if (oldDepartment) {
+    await TotalCount.updateOne(
+      {},
+      { $inc: { [`totalCounts.${oldDepartment}`]: -1 } }
+    );
+  }
+  if (newDepartment) {
+    await TotalCount.updateOne(
+      {},
+      { $inc: { [`totalCounts.${newDepartment}`]: 1 } }
+    );
+  }
+};
+
 exports.CreateEvent = async (req, res) => {
+  console.log("Request body:", req.body);
   try {
     const {
       eventname,
@@ -16,7 +88,6 @@ exports.CreateEvent = async (req, res) => {
       status,
       departments,
     } = req.body;
-
     const userId = req.userId;
 
     const isValidUser = await validateUser(userId);
@@ -25,7 +96,6 @@ exports.CreateEvent = async (req, res) => {
     }
 
     const createdEvents = [];
-
     let departmentsToProcess = departments.includes("All")
       ? images_dept.map((item) => item.name)
       : departments;
@@ -58,22 +128,30 @@ exports.CreateEvent = async (req, res) => {
       });
 
       const savedEvent = await newEvent.save();
+      console.log("Saved event:", savedEvent);
       createdEvents.push(savedEvent);
     }
+
+    await incrementDepartmentCount(departments);
+
+    const updatedCounts = await TotalCount.find({});
+    console.log("Incremented model data:", updatedCounts);
 
     return res.status(201).json({
       message: "Events created successfully",
       events: createdEvents,
     });
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Error in CreateEvent:", error.message);
     return res.status(500).json({
       message: "Sorry, there was an error processing your request.",
       error: error.message,
     });
   }
 };
+
 exports.updateevent = async (req, res) => {
+  console.log("rrrrrrrrrrrrrrrr : ",req.body);
   try {
     const {
       eventId,
@@ -85,7 +163,6 @@ exports.updateevent = async (req, res) => {
       eventendtime,
       eventstartdate,
       eventenddate,
-      status,
       departments,
     } = req.body;
 
@@ -99,6 +176,13 @@ exports.updateevent = async (req, res) => {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
+    const eventToUpdate = await Event.findById(eventId);
+    if (!eventToUpdate) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const oldDepartment = eventToUpdate.departments;
+
     let updatedFields = {
       eventname,
       resourceperson,
@@ -108,7 +192,6 @@ exports.updateevent = async (req, res) => {
       eventendtime,
       eventstartdate: st_date,
       eventenddate: end_date,
-      status,
     };
 
     if (departments && departments.length > 0) {
@@ -127,15 +210,18 @@ exports.updateevent = async (req, res) => {
         updatedFields.imageurl = imageUrl;
       }
 
-      updatedFields.departments = departments; 
+      updatedFields.departments = departments;
     }
 
     const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedFields, {
       new: true,
     });
+
     if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
+
+    await updateDepartmentCount(oldDepartment, departments[0]);
 
     return res.status(200).json({
       message: "Event updated successfully",

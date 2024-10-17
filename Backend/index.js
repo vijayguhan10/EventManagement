@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const router = require("./Router/Signups");
 const Event = require("./Router/eventHandeler");
-const updateevents = require("./other/Node-Corn");
+// const updateevents = require("./other/Node-Corn");
 const messages = require("./Router/Whatsapp");
 const cors = require("cors");
 dotenv.config();
@@ -28,7 +28,7 @@ app.use("/sece", router);
 app.use("/event", Event);
 app.use("/messages", messages);
 
-updateevents;
+// updateevents;
 const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
