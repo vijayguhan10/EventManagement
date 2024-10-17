@@ -1,19 +1,76 @@
-import React, { useState,useEffect } from "react";
-import data from "../data/db.json";
+import React, { useState, useEffect } from "react";
+// import data from "../data/db.json";
+import "../Scroll.css";
 import { FaSearch } from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
 import { toast, ToastContainer } from "react-toastify";
-import axios from 'axios'
 import cup from "../assets/cup.png";
-import Departments from './Departments';
+import axios from "axios";
+// import cup from "../assets/cup.png";
+// import Departments from './Departments';
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const Dashboard = () => {
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const [isFullYear, setIsFullYear] = useState(false);
+  const departmentOptions = [
+    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+    { fullName: "Computer Science Engineering", shortName: "CSE" },
+    {
+      fullName: "Artificial Intelligence and Data Science",
+      shortName: "AI & DS",
+    },
+    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+    { fullName: "Information Technology", shortName: "IT" },
+    { fullName: "Mechanical Engineering", shortName: "MECH" },
+    {
+      fullName: "Artificial Intelligence and Machine Learning",
+      shortName: "AI & ML",
+    },
+    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+    { fullName: "Cybersecurity", shortName: "Cyber" },
+    { fullName: "All", shortName: "All" },
+  ];
+
+  const handleDepartmentChange = (event) => {
+    const selectedDeptFullName = departmentOptions.find(
+      (dept) => dept.shortName === event.target.value
+    ).fullName;
+
+    setDepartments((prevDepartments) =>
+      prevDepartments.includes(selectedDeptFullName)
+        ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
+        : [...prevDepartments, selectedDeptFullName]
+    );
+  };
+
+  const handleFullYearChange = () => {
+    setIsFullYear(!isFullYear);
+    if (!isFullYear) {
+      setFromDate("");
+      setToDate("");
+    }
+  };
+
+  const handleGeneratePDF = () => {
+    const selectedData = {
+      departments: departments,
+      ...(isFullYear ? {} : { fromDate, toDate }),
+    };
+
+    console.log("Selected Data:", selectedData);
+    // You can integrate the PDF generation logic here
+  };
+
   const [data, setData] = useState([]);
   const currentEvents = data.currentEvents || [];
   const futureEvents = data.futureEvents || [];
+  const [popupPDF, SetPopupPdf] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
@@ -26,16 +83,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("😪")
+        console.log("😪");
         const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
-        console.log(response)
+        console.log(response);
         const filteredData = response.data.eventdata.filter(
           (elem) => elem.status === "pending"
         );
         setData(filteredData);
-        console.log("😒😒😒",filteredData)
+        console.log("😒😒😒", filteredData);
         setEvents(filteredData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -51,14 +108,14 @@ const Dashboard = () => {
     setSelectedEvent(event);
   };
 
-  const today = new Date(); // Get the current date
-  const formattedToday = 
-    `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getFullYear()).slice(-2)}`; // Format today's date as DD/MM/YY
-  
+  const today = new Date();
+  const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
   const filteredData = data.filter((event) => {
-    return event.eventenddate === formattedToday; // Compare event end date with today's date
+    return event.eventstartdate === formattedToday;
   });
-  
+
   const pieChartOptions = {
     exportEnabled: true,
     animationEnabled: true,
@@ -89,18 +146,29 @@ const Dashboard = () => {
       },
     ],
   };
-
+  const popupopen = () => {
+    SetPopupPdf(!popupPDF);
+  };
   return (
-    <div className="xl:overflow-y-hidden h-fit ">
+    <div
+      className={`${popupPDF ? "bg-[#000000]" : ""} xl:overflow-y-hidden h-fit`}
+    >
       <SideBar />
       <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
         <div className="absolute top-4 flex left-[20%] items-center">
-          <div className="text-nowrap mb-5">
+          <div className="text-nowrap flex mb-5">
             <h1 className="text-3xl font-bold mb-3 text-white-800">
               Welcome, <span>Vijay Guhan</span>
             </h1>
+            <button
+              onClick={popupopen}
+              to="/Form"
+              className="bg-gradient-to-r ml-80 mb-28 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+            >
+              Generate PDF
+            </button>
           </div>
-          <div className="relative ml-[85%] mb-11">
+          <div className="relative ml-[5%] mb-32">
             <input
               type="text"
               placeholder="Search events..."
@@ -115,36 +183,31 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-transparent">
+        <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
           <div className="mx-auto p-0">
-            <div className="max-h-[300px] xl:w-[130%] overflow-y-auto bg-transparent scrollbar-hide">
-            {filteredData.length > 0 ? (
-  filteredData.map((event, index) => (
-    <div
-      key={index}
-      className="relative bg-gradient-to-r from-[#bb85fd] to-[#7848F4] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-      onClick={() => openEventModal(event)}
-    >
-      <div>
-        <h2 className="text-2xl font-bold">{event.eventname}</h2>
-        <p className="text-lg font-light">{event.departments}</p>
-      </div>
-      {/* <img
-        src={cup}
-        alt="Event Icon"
-        className="w-20 h-20"
-      />
-      <img
-        src="https://path-to-your-back-cup-image.png"
-        alt="Cup Icon"
-        className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
-      /> */}
-     
-    </div>
-  ))
-) : (
-  <p>No events for today.</p>
-)}
+            <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white scrollbar-hide">
+              {filteredData.length > 0 ? (
+                filteredData.map((event, index) => (
+                  <div
+                    key={index}
+                    className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+                    onClick={() => openEventModal(event)}
+                  >
+                    <div>
+                      <h2 className="text-2xl font-bold">{event.eventname}</h2>
+                      <p className="text-lg font-light">{event.departments}</p>
+                    </div>
+                    <img src={cup} alt="Event Icon" className="w-20 h-20" />
+                    {/* <img
+                      src="https://path-to-your-back-cup-image.png"
+                      alt="Cup Icon"
+                      className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
+                    /> */}
+                  </div>
+                ))
+              ) : (
+                <p>No events for today.</p>
+              )}
             </div>
           </div>
         </div>
@@ -154,14 +217,12 @@ const Dashboard = () => {
           <CalendarComponent />
         </div>
       </div>
-
       {/* Pie Chart at the Bottom */}
-      <div className="flex justify-center items-center mt-10 relative -left-[18%] bottom-32">
+      <div className="flex justify-center items-center mt-28 relative -left-[18%] bottom-32">
         <div className="w-full xl:w-[26%] h-auto bg-transparent">
           <CanvasJSChart options={pieChartOptions} />
         </div>
       </div>
-
       {/* Event Modal */}
       {selectedEvent && (
         <div className="custom-modal-overlay">
@@ -176,8 +237,8 @@ const Dashboard = () => {
             />
             <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
             <p className="custom-modal-description">
-            <strong>Department:</strong> {selectedEvent.departments}
-            <br />
+              <strong>Department:</strong> {selectedEvent.departments}
+              <br />
               <strong>Start Time:</strong> {selectedEvent.eventstarttime}
               <br />
               <strong>End Time:</strong> {selectedEvent.eventendtime}
@@ -186,17 +247,89 @@ const Dashboard = () => {
               <br />
               <strong>start Date:</strong> {selectedEvent.eventenddate}
               <br />
-            
               <strong>Venue:</strong> {selectedEvent.venue}
               <br />
-             
             </p>
-            {/* <p className="modal-date">
-              <strong>{selectedDate.toLocaleDateString()}</strong>
-            </p> */}
           </div>
         </div>
       )}
+      <div className="container  absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black  rounded-xl shadow-lg">
+        <h1 className="text-xl font-bold text-center text-green-700 mb-4">
+          Department Report Generator
+        </h1>
+
+        {!isFullYear && (
+          <div className="flex   justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700">From Date</h2>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="p-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700">To Date</h2>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="p-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Full Year Option */}
+        <div className="mb-4">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              checked={isFullYear}
+              onChange={handleFullYearChange}
+              className="form-radio h-4 w-4 text-green-600"
+            />
+            <span className="ml-2 text-gray-700 font-semibold">Full Year</span>
+          </label>
+        </div>
+
+        {/* Department Selection */}
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-gray-700 mb-2">
+            Departments
+          </h2>
+          <div className="flex flex-wrap">
+            {departmentOptions.map((department) => (
+              <div key={department.shortName} className="mr-2 mb-2">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    value={department.shortName}
+                    checked={departments.includes(department.fullName)}
+                    onChange={handleDepartmentChange}
+                    className="form-checkbox h-4 w-4 text-green-600"
+                  />
+                  <span className="ml-1 text-gray-700">
+                    {department.shortName}
+                  </span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Generate PDF Button */}
+        <div className="text-center">
+          <button
+            onClick={handleGeneratePDF}
+            className="bg-green-500 text-white px-4 py-1 rounded-lg shadow-lg hover:bg-green-600 transition-all"
+          >
+            Generate PDF
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
