@@ -37,6 +37,10 @@ function CRUD() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEventName, setDeleteEventName] = useState("");
+  const [events, setEvents] = useState([]);
+
   const [formData, setFormData] = useState({
     eventname: "",
     resourceperson: "",
@@ -52,6 +56,32 @@ function CRUD() {
 
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const handleDeleteConfirmation = (event) => {
+    setSelectedEvent(event);
+    setShowDeleteModal(true);
+  };
+  const handleDelete = async () => {
+    if (deleteEventName === selectedEvent.eventname) {
+      try {
+        const response=await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
+          { eventid: selectedEvent._id }
+        );
+     console.log(response.data,"after deletion 😎😎😎")
+        const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
+        setEvents(updatedEvents);
+        toast.success("Event deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete the event.");
+      }
+      setShowDeleteModal(false);
+      setDeleteEventName("");
+      handleCloseModal();
+    } else {
+      alert("Event name does not match. Please try again.");
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -267,8 +297,8 @@ function CRUD() {
                   <FaEdit size={24} />
                   Edit
                 </button>
-                <button className="bg-red-600 mb-2 text-white rounded-md p-1 flex flex-row justify-center gap-2">
-                  <FaTrashAlt size={24} />
+                <button className="bg-red-600 mb-2 text-white rounded-md p-1 flex flex-row justify-center gap-2"  onClick={() => handleDeleteConfirmation(event)} >
+                  <FaTrashAlt size={24}                    />
                   Delete
                 </button>
               </div>
@@ -381,6 +411,38 @@ function CRUD() {
                 Update Event
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+            <p>
+              Are you sure you want to delete the event{" "}
+              <strong>{selectedEvent.eventname}</strong>? Type the event name to
+              confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mt-2"
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-500 text-white rounded px-4 py-2"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
