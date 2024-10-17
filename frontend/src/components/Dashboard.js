@@ -1,28 +1,62 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import data from "../data/db.json";
 import { FaSearch } from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
-
-// CanvasJS Pie Chart
+import { toast, ToastContainer } from "react-toastify";
+import axios from 'axios'
+import cup from "../assets/cup.png";
+import Departments from './Departments';
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const Dashboard = () => {
+  const [data, setData] = useState([]);
   const currentEvents = data.currentEvents || [];
   const futureEvents = data.futureEvents || [];
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
+  const [events, setEvents] = useState([]);
+  const [Loading, setLoading] = useState(true);
   const closeEventModal = () => {
     setSelectedEvent(null);
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("😪")
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
+        );
+        console.log(response)
+        const filteredData = response.data.eventdata.filter(
+          (elem) => elem.status === "pending"
+        );
+        setData(filteredData);
+        console.log("😒😒😒",filteredData)
+        setEvents(filteredData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to fetch data.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
   const openEventModal = (event) => {
     setSelectedEvent(event);
   };
 
-  // Pie chart options
+  const today = new Date(); // Get the current date
+  const formattedToday = 
+    `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getFullYear()).slice(-2)}`; // Format today's date as DD/MM/YY
+  
+  const filteredData = data.filter((event) => {
+    return event.eventenddate === formattedToday; // Compare event end date with today's date
+  });
+  
   const pieChartOptions = {
     exportEnabled: true,
     animationEnabled: true,
@@ -82,32 +116,33 @@ const Dashboard = () => {
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-transparent">
           <div className="mx-auto p-0">
             <div className="max-h-[300px] xl:w-[130%] overflow-y-auto bg-transparent scrollbar-hide">
-              {data.length > 0 ? (
-                data.map((event, index) => (
-                  <div
-                    key={index}
-                    className="relative bg-gradient-to-r from-[#bb85fd] to-[#7848F4] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-                    onClick={() => openEventModal(event)}
-                  >
-                    <div>
-                      <h2 className="text-2xl font-bold">{event.eventname}</h2>
-                      <p className="text-lg font-light">Dept of CSE</p>
-                    </div>
-                    <img
-                      src="https://path-to-your-cup-image-1.png"
-                      alt="Event Icon"
-                      className="w-20 h-20"
-                    />
-                    <img
-                      src="https://path-to-your-back-cup-image.png"
-                      alt="Cup Icon"
-                      className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
-                    />
-                  </div>
-                ))
-              ) : (
-                <p>No events for this date.</p>
-              )}
+            {filteredData.length > 0 ? (
+  filteredData.map((event, index) => (
+    <div
+      key={index}
+      className="relative bg-gradient-to-r from-[#bb85fd] to-[#7848F4] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+      onClick={() => openEventModal(event)}
+    >
+      <div>
+        <h2 className="text-2xl font-bold">{event.eventname}</h2>
+        <p className="text-lg font-light">{event.departments}</p>
+      </div>
+      {/* <img
+        src={cup}
+        alt="Event Icon"
+        className="w-20 h-20"
+      />
+      <img
+        src="https://path-to-your-back-cup-image.png"
+        alt="Cup Icon"
+        className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
+      /> */}
+     
+    </div>
+  ))
+) : (
+  <p>No events for today.</p>
+)}
             </div>
           </div>
         </div>
@@ -139,17 +174,24 @@ const Dashboard = () => {
             />
             <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
             <p className="custom-modal-description">
+            <strong>Department:</strong> {selectedEvent.departments}
+            <br />
               <strong>Start Time:</strong> {selectedEvent.eventstarttime}
               <br />
-              <strong>Description:</strong> {selectedEvent.description}
+              <strong>End Time:</strong> {selectedEvent.eventendtime}
               <br />
-              <strong>Location:</strong> {selectedEvent.venue}
+              <strong>End End date:</strong> {selectedEvent.eventstartdate}
               <br />
-              <strong>Contact:</strong> {selectedEvent.contact}
+              <strong>start Date:</strong> {selectedEvent.eventenddate}
+              <br />
+            
+              <strong>Venue:</strong> {selectedEvent.venue}
+              <br />
+             
             </p>
-            <p className="modal-date">
+            {/* <p className="modal-date">
               <strong>{selectedDate.toLocaleDateString()}</strong>
-            </p>
+            </p> */}
           </div>
         </div>
       )}

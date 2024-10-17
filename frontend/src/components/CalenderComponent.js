@@ -1,48 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import prevarrow from "../assets/Forward Arrow (1).png";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const CalendarComponent = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isEventListOpen, setIsEventListOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const events = [
-    {
-      date: "2024-10-14",
-      eventname: "IOT Workshop",
-      category: "Tech",
-      starttime: "12:00 PM",
-      description: "A workshop on the latest trends in IoT.",
-      location: "Event Hall A, Main Campus",
-      contact: "iotworkshop@example.com",
-    },
-    {
-      date: "2024-10-14",
-      eventname: "Onam Celebration",
-      category: "Non Tech",
-      starttime: "02:00 PM",
-      description: "Cultural events to celebrate Onam.",
-      location: "Central Auditorium",
-      contact: "onamcelebration@example.com",
-    },
-    {
-      date: "2024-10-15",
-      eventname: "DSA Bootcamp",
-      category: "Tech",
-      starttime: "10:00 AM",
-      description: "Data Structures and Algorithms bootcamp.",
-      location: "Room 204, Main Campus",
-      contact: "dsabootcamp@example.com",
-    },
-  ];
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const onClickDay = (value) => {
     setSelectedDate(value);
+    console.log("Selected date🎉", value); // Log the clicked date
     setIsEventListOpen(true);
   };
 
@@ -62,7 +38,6 @@ const CalendarComponent = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(currentDate.getMonth() + direction);
     setCurrentDate(newDate);
-    setSelectedDate(newDate);
   };
 
   const nextMonth = () => updateMonth(1);
@@ -78,19 +53,62 @@ const CalendarComponent = () => {
     setSelectedEvent(event); // Set the selected event
   };
 
-  const eventsForSelectedDate = events.filter(
-    (event) =>
-      new Date(event.date).toLocaleDateString() ===
-      selectedDate.toLocaleDateString()
-  );
+  const formatDate = (dateString) => {
+    // Format "17/10/24" to a Date object
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is zero-indexed
+      const year = parseInt(parts[2], 10) + 2000; // Assuming 20xx for '24'
+      return new Date(year, month, day);
+    }
+    // Fallback to returning an invalid date
+    return new Date(NaN);
+  };
+
+  const eventsForSelectedDate = events.filter((event) => {
+    const eventDate = new Date(event.date); // Assuming 'event.date' is in format "2024-10-14"
+    const eventStartDate = formatDate(event.eventstartdate); // Format "17/10/24" to Date object
+
+    return (
+      eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
+      eventStartDate.toLocaleDateString() === selectedDate.toLocaleDateString()
+    );
+  });
 
   const monthYearString = currentDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("Fetching data...");
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
+        );
+        console.log(response);
+        const filteredData = response.data.eventdata.filter(
+          (elem) => elem.status === "pending"
+        );
+        setData(filteredData);
+        console.log("Filtered data:", filteredData);
+        setEvents(filteredData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to fetch data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div>
+      <ToastContainer /> {/* Toast container for notifications */}
       <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
         <div className="calendar-navigation">
           <button onClick={prevMonth}>
@@ -109,7 +127,7 @@ const CalendarComponent = () => {
           tileClassName={({ date }) => {
             return isFutureOrToday(date) ? "future-date" : "past-date";
           }}
-          onClickDay={onClickDay} // Updated method here
+          onClickDay={onClickDay}
           activeStartDate={currentDate}
         />
       </div>
@@ -161,33 +179,40 @@ const CalendarComponent = () => {
               })}
             </h2>
             <ul className="event-list">
-              {eventsForSelectedDate.length > 0 ? (
-                eventsForSelectedDate.map((event, index) => (
-                  <li
-                    key={index}
-                    className="event-item"
-                    onClick={() => openEventModal(event)}
-                  >
-                    <div className="event-row">
-                      <span className="event-name">{event.eventname}</span>
-                      <span
-                        className={`event-category ${event.category.toLowerCase()}`}
-                      >
-                        {event.category}
-                      </span>
-                      <span
-                        className={`event-icon ${event.category.toLowerCase()}`}
-                      >
-                        {event.category === "Tech" ? "📘" : "📕"}
-                      </span>
-                    </div>
-                    <hr className="event-divider" />
-                  </li>
-                ))
-              ) : (
-                <p>No events for this date.</p>
-              )}
-            </ul>
+  {eventsForSelectedDate.length > 0 ? (
+    eventsForSelectedDate.map((event, index) => (
+      <li
+        key={index}
+        className="event-item"
+        onClick={() => openEventModal(event)}
+      >
+        <div className="event-row">
+          <span className="event-name">{event.eventname}</span>
+          <span
+            className={`event-category ${event.category ? event.category.toLowerCase() : 'default-category'}`}
+          >
+            {event.typeofevent || 'Unknown Category'}
+          </span>
+          <span
+            className={`event-category ${event.category ? event.category.toLowerCase() : 'default-category'}`}
+          >
+            {event.departments || 'Unknown Category'}
+          </span>
+          <span
+            className={`event-icon ${event.category ? event.category.toLowerCase() : 'default-category'}`}
+          >
+            {event.category === "Tech" ? "📘" : "📕"}
+          </span>
+        </div>
+        <hr className="event-divider" />
+      </li>
+    ))
+  ) : (
+    <p>No events for this date.</p>
+  )}
+</ul>
+
+
           </div>
         </div>
       )}
@@ -206,16 +231,20 @@ const CalendarComponent = () => {
             />
             <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
             <p className="custom-modal-description">
-              <strong>Start Time:</strong> {selectedEvent.starttime}
+            <strong>Department:</strong> {selectedEvent.departments}
+            <br />
+        
+              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
               <br />
-              <strong>Description:</strong> {selectedEvent.description}
+              <strong>End Time:</strong> {selectedEvent.eventendtime}
               <br />
-              <strong>Location:</strong> {selectedEvent.location}
+              <strong>End End date:</strong> {selectedEvent.eventstartdate}
               <br />
-              <strong>Contact:</strong> {selectedEvent.contact}
-            </p>
-            <p className="modal-date">
-              <strong>{selectedDate.toLocaleDateString()}</strong>
+              <strong>start Date:</strong> {selectedEvent.eventenddate}
+              <br />
+            
+              <strong>Venue:</strong> {selectedEvent.venue}
+              <br />
             </p>
           </div>
         </div>
