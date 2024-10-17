@@ -62,6 +62,7 @@ function CRUD() {
           (elem) => elem.status === "pending"
         );
         setData(filteredData);
+        console.log("😒😒😒",filteredData)
         setEvents(filteredData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -109,10 +110,15 @@ function CRUD() {
     setSelectedEvent(event);
     setShowDeleteModal(true);
   };
-  const formatDateToInput = (dateStr) => {
-    const [day, month, year] = dateStr.split("/");
-    return `20${year}-${month}-${day}`;
+  const formatDateToInput = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`; // Return as YYYY-MM-DD
   };
+  
 
   const formatDateFromInput = (dateStr) => {
     const [year, month, day] = dateStr.split("-");
@@ -184,9 +190,9 @@ function CRUD() {
       }
     } else {
       // For other input types
-      setEditEventData((prev) => ({
-        ...prev,
-        [name]: value,
+      setEditEventData((prevData) => ({
+        ...prevData,
+        [name]: value, // Update the specific field in state
       }));
     }
   };
@@ -304,140 +310,135 @@ function CRUD() {
       </div>
 
       {isOpen && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open">
-            <FaTimes
-              size={30}
-              className="absolute top-4 right-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
-              onClick={handleCloseModal}
-            />
-            <h1 className="text-3xl font-bold mb-4 border-b pb-2">
-              <input
-                type="text"
-                value={editEventData.eventname}
-                onChange={handleChange}
-                name="eventname"
-                className="border-b border-gray-300 w-full focus:outline-none focus:border-blue-500"
-                placeholder="Event Name"
-              />
-            </h1>
-            <div className="scrollable-form mb-4 overflow-y-auto max-h-60">
-              {" "}
-              {/* Scrollable container */}
-              <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-                Departments
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open overflow-y-auto max-h-[80vh] custom-scrollbar">
+      <FaTimes
+        size={30}
+        className="absolute top-4 right-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+        onClick={handleCloseModal}
+      />
+      <h1 className="text-3xl font-bold mb-4 border-b pb-2">
+        <input
+          type="text"
+          value={editEventData.eventname}
+          onChange={handleChange}
+          name="eventname"
+          className="border-b border-gray-300 w-full focus:outline-none focus:border-blue-500"
+          placeholder="Event Name"
+        />
+      </h1>
+      <div className="space-y-6 mb-4">
+        {/* Departments with radio buttons */}
+        <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+          Departments
+        </label>
+        <div className="flex flex-wrap mb-4">
+          {departmentOptions.map((department) => (
+            <div key={department.shortName} className="mr-4 mb-2">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="departments"
+                  value={department.fullName}
+                  checked={formData.departments.includes(department.fullName)}
+                  onChange={handleChange}
+                  className="form-radio h-5 w-5 text-blue-600"
+                />
+                <span className="ml-2 text-gray-800">{department.shortName}</span>
               </label>
-              <div className="flex flex-wrap mb-4">
-                {departmentOptions.map((department) => (
-                  <div key={department.shortName} className="mr-4 mb-2">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        name="departments"
-                        value={department.fullName}
-                        checked={formData.departments.includes(
-                          department.fullName
-                        )}
-                        onChange={handleChange}
-                        className="form-checkbox h-5 w-5 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-800">
-                        {department.shortName}
-                      </span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-              <div className="p-6 bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto custom-scrollbar">
-                <div className="space-y-6">
-                  {[
-                    {
-                      label: "Resource Person",
-                      name: "resourceperson",
-                      type: "text",
-                    },
-                    { label: "Event Title", name: "eventname", type: "text" },
-                    { label: "Venue", name: "venue", type: "text" },
-                    {
-                      label: "Start Date",
-                      name: "eventstartdate",
-                      type: "date",
-                    },
-                    { label: "End Date", name: "eventenddate", type: "date" },
-                    {
-                      label: "Start Time",
-                      name: "eventstarttime",
-                      type: "time",
-                    },
-                    { label: "End Time", name: "eventendtime", type: "time" },
-                    { label: "Status", name: "status", type: "text" },
-                  ].map(({ label, name, type }) => (
-                    <label key={name} className="block">
-                      <span className="text-gray-800 font-semibold">
-                        {label}:
-                      </span>
-                      <input
-                        type={type}
-                        value={
-                          type === "date"
-                            ? formatDateToInput(editEventData[name])
-                            : editEventData[name]
-                        }
-                        onChange={(e) => handleChange(e, name)}
-                        name={name}
-                        className="border border-gray-300 rounded-lg p-3 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      />
-                    </label>
-                  ))}
-
-                  {/* Event Type Radio Buttons */}
-                  <div>
-                    <span className="text-gray-800 font-semibold">
-                      Event Type:
-                    </span>
-                    <div className="mt-3 flex space-x-4">
-                      {["Technical", "Non-Technical", "Placement"].map(
-                        (eventType) => (
-                          <label
-                            key={eventType}
-                            className="inline-flex items-center"
-                          >
-                            <input
-                              type="radio"
-                              name="typeofevent"
-                              value={eventType}
-                              checked={editEventData.typeofevent === eventType}
-                              onChange={handleChange}
-                              className="form-radio text-blue-600"
-                            />
-                            <span className="ml-2 text-gray-700">
-                              {eventType}
-                            </span>
-                          </label>
-                        )
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-green-500 text-white rounded px-4 py-2 mr-2 hover:bg-green-600 transition-colors"
-                onClick={handleSaveEdit}
-              >
-                Save
-              </button>
-              <button
-                className="bg-gray-500 text-white rounded px-4 py-2 hover:bg-gray-600 transition-colors"
-                onClick={handleCloseModal}
-              >
-                Cancel
-              </button>
+          ))}
+        </div>
+
+        {/* Event Details */}
+        <div className="space-y-6">
+          {[
+            { label: "Resource Person", name: "resourceperson", type: "text" },
+            { label: "Event Title", name: "eventname", type: "text" },
+            { label: "Venue", name: "venue", type: "text" },
+            { label: "Start Date", name: "eventstartdate", type: "date" },
+            { label: "End Date", name: "eventenddate", type: "date" },
+            { label: "Start Time", name: "eventstarttime", type: "time" },
+            { label: "End Time", name: "eventendtime", type: "time" },
+          ].map(({ label, name, type }) => (
+            <label key={name} className="block">
+              <span className="text-gray-800 font-semibold">{label}:</span>
+              <input
+                type={type}
+                value={
+                  type === "date"
+                    ? formatDateToInput(editEventData[name]) // Ensure this function formats correctly
+                    : editEventData[name]
+                }
+                onChange={(e) => handleChange(e, name)} // Make sure this updates state correctly
+                name={name}
+                className="border border-gray-300 rounded-lg p-3 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </label>
+          ))}
+
+          {/* Event Type Radio Buttons */}
+          <div>
+            <span className="text-gray-800 font-semibold">Event Type:</span>
+            <div className="mt-3 flex space-x-4">
+              {["Technical", "Nontechnical", "Placement"].map((eventType) => (
+                <label key={eventType} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="typeofevent"
+                    value={eventType}
+                    checked={editEventData.typeofevent === eventType}
+                    onChange={handleChange}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-700">{eventType}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Status Radio Buttons */}
+          <div>
+            <span className="text-gray-800 font-semibold">Status:</span>
+            <div className="mt-3 flex space-x-4">
+              {["pending", "decline", "completed"].map((status) => (
+                <label key={status} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="status"
+                    value={status}
+                    checked={editEventData.status === status}
+                    onChange={handleChange}
+                    className="form-radio text-blue-600"
+                  />
+                  <span className="ml-2 text-gray-700">{status}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end mt-4">
+        <button
+          className="bg-green-500 text-white rounded px-4 py-2 mr-2 hover:bg-green-600 transition-colors"
+          onClick={handleSaveEdit}
+        >
+          Save
+        </button>
+        <button
+          className="bg-gray-500 text-white rounded px-4 py-2 hover:bg-gray-600 transition-colors"
+          onClick={handleCloseModal}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedEvent && (
