@@ -8,4 +8,5 @@ router.post("/modify_event", jsonwebtoken, Event.updateevent);
 router.get("/geteventdata/:id", jsonwebtoken, Event.Get_Detailed_Info);
 router.post("/getalldata", jsonwebtoken, Event.getallevents);
 router.get("/generatedpdf-doc", jsonwebtoken, pdf.generatePdf);
+router.get("/gettotalcounts", jsonwebtoken, Event.getTotalCount);
 module.exports = router;
