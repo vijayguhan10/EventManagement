@@ -124,17 +124,22 @@ function Departments() {
         `${process.env.REACT_APP_BASE_URL}/event/getdepartmentdata`,
         { department: event }
       );
+      
       console.log("Response data: ", response.data);
       setIsEventListOpen(true);
+  
       if (response.data && response.data.length > 0) {
         setEvents(response.data);
+        console.log("😤😤", response.data); // Use response.data instead of events
       } else {
+        setEvents([]); // Set an empty array to ensure the UI updates correctly
         console.log("No events found for this department.");
       }
     } catch (error) {
       console.error("Error fetching department events: ", error);
     }
   };
+  
   
 
   const openEventModal = (event) => {
@@ -300,28 +305,36 @@ function Departments() {
         })}
       </h2>
       <ul className="event-list">
-        {eventsForSelectedDate.length > 0 ? (
-          eventsForSelectedDate.map((event, index) => (
-            <li
-              key={index}
-              className="event-item"
-              onClick={() => openEventModal(event)}
-            >
-              <div className="event-row">
-                <span className="event-name">{event.eventname}</span>
-                <span className={`event-category ${event.category.toLowerCase()}`}>
-                  {event.category}
-                </span>
-                <span className={`event-icon ${event.category.toLowerCase()}`}>
-                  {event.category === "Tech" ? "📘" : "📕"}
-                </span>
-              </div>
-              <hr className="event-divider" />
-            </li>
-          ))
-        ) : (
-          <p>No events for this date.</p>
-        )}
+      {events.length > 0 ? (
+  events.filter(event => event.status === "pending").length > 0 ? (
+    events
+      .filter(event => event.status === "pending") // Filter for pending events
+      .map((event, index) => (
+        <li
+          key={index}
+          className="event-item"
+          onClick={() => openEventModal(event)}
+        >
+          <div className="event-row">
+            <span className="event-name">{event.eventname}</span>
+            <span className={`event-category ${event.typeofevent.toLowerCase()}`}>
+              {event.typeofevent} {/* Use typeofevent instead of type */}
+            </span>
+            <span className={`event-icon ${event.typeofevent.toLowerCase()}`}>
+              {event.typeofevent === "Technical" ? "📘" : "📕"}
+            </span>
+          </div>
+          <hr className="event-divider" />
+        </li>
+      ))
+  ) : (
+    <p>No pending events available.</p>
+  )
+) : (
+  <p>No events available.</p> // Message when no events at all
+)}
+
+
       </ul>
     </div>
   </div>
@@ -341,17 +354,23 @@ function Departments() {
       />
       <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
       <p className="custom-modal-description">
-        <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-        <br />
-        <strong>Description:</strong> {selectedEvent.description}
-        <br />
-        <strong>Location:</strong> {selectedEvent.venue}
-        <br />
-        <strong>Contact:</strong> {selectedEvent.contact}
+      <strong>Department:</strong> {selectedEvent.departments}
+            <br />
+              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
+              <br />
+              <strong>End Time:</strong> {selectedEvent.eventendtime}
+              <br />
+              <strong>End End date:</strong> {selectedEvent.eventstartdate}
+              <br />
+              <strong>start Date:</strong> {selectedEvent.eventenddate}
+              <br />
+            
+              <strong>Venue:</strong> {selectedEvent.venue}
+              <br />
       </p>
-      <p className="modal-date">
+      {/* <p className="modal-date">
         <strong>{selectedDate.toLocaleDateString()}</strong>
-      </p>
+      </p> */}
     </div>
   </div>
 )}
