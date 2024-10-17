@@ -357,6 +357,29 @@ exports.getallevents = async (req, res) => {
     });
   }
 };
+exports.departmentevent = async (req, res) => {
+  try {
+    const { department } = req.body; 
+    const userId = req.userId;
+    const isValidUser = await validateUser(userId);
+    
+    if (!isValidUser) {
+      return res.status(401).json({ message: "Oops, Invalid User" });
+    }
+    
+    console.log(department, "😎 Department received");
+    const events = await Event.find({ departments: { $in: department } });
+
+    // Instead of returning 404, return an empty array
+    if (!events) {
+      return res.status(200).json([]); // Return an empty array
+    }
+
+    console.log(events, "Retrieved events");
+    return res.status(200).json(events);
+  } catch (err) {
+    console.error("Error fetching department events: ", err);
+    return res.status(500).json({ message: 'Server Error' });
 exports.getTotalCount = async (req, res) => {
   const userid = req.userId;
   const isValidUser = await validateUser(userid);
