@@ -10,7 +10,7 @@ import "../Modal.css";
 import axios from "axios";
 import "../Calender.css";
 import { toast, ToastContainer } from "react-toastify";
-const today = new Date(); // Get today's date
+const today = new Date();
 
 const products = [
   {
@@ -348,8 +348,8 @@ function Departments() {
         &times;
       </button>
       <img
-        src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-        alt="Event"
+        src={selectedEvent.imageurl}
+        alt={selectedEvent.eventname}
         className="custom-modal-image"
       />
       <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>

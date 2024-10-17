@@ -203,6 +203,7 @@ exports.updateevent = async (req, res) => {
       eventstartdate,
       eventenddate,
       departments,
+      typeofevent,
     } = req.body;
 
     const st_date = formatDate(eventstartdate);
@@ -231,6 +232,7 @@ exports.updateevent = async (req, res) => {
       eventendtime,
       eventstartdate: st_date,
       eventenddate: end_date,
+      typeofevent,
     };
 
     if (departments && departments.length > 0) {

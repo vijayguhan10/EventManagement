@@ -1,0 +1,16 @@
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  background-color: transparent; /* Ensures no background color shows through */
+}
+
+/* For Chrome, Safari, and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+
+/* For Edge (modern) and IE11 */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile */
+  background: none !important; /* Forces no background color */
+}
