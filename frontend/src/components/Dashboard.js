@@ -18,6 +18,8 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [Loading, setLoading] = useState(true);
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const closeEventModal = () => {
     setSelectedEvent(null);
   };

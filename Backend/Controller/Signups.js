@@ -68,7 +68,7 @@ exports.Login = async (req, res) => {
         email: user.email,
       },
       secretKey,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
