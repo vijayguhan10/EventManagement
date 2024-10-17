@@ -1,8 +1,6 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import secelogo from "../assets/secelogo.png";
-import backgroundVideo from "../assets/WhatsApp Video 2024-10-07 at 15.20.59_42f13499.mp4"; // Add your video path
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,29 +21,27 @@ function Login() {
     e.preventDefault();
 
     try {
+      const BaseURL = process.env.REACT_APP_BASE_URL;
+      console.log("Base url of the application  : ", BaseURL);
       const response = await axios.post(
-        "http://127.0.0.1:8000/sece/Login",
+        `${process.env.REACT_APP_BASE_URL}/sece/Login`,
         credentials
       );
 
       if (response.status === 200) {
-        const { token } = response.data; // Assuming the token is in the response data
-        localStorage.setItem("authToken", token); // Save token in localStorage
-
-        // Set the token in Axios default headers for future requests
+        const { token } = response.data;
+        localStorage.setItem("authToken", token);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        // Successful login
         toast.success("Login successful!", {
           onClose: () => {
-            navigate("/Dashboard"); // Redirect to Dashboard after the toast closes
+            navigate("/Dashboard");
           },
         });
       } else {
         toast.error("Login failed! Please check your credentials.");
       }
     } catch (error) {
-      // Handle errors (like 401)
       if (error.response && error.response.status === 401) {
         toast.error("Unauthorized! Incorrect email or password.");
       } else {
@@ -56,12 +52,8 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 relative">
-      {/* Toast Container */}
       <ToastContainer />
-
-      {/* Login Container */}
       <div className="relative bg-white rounded-lg shadow-lg p-10 w-full max-w-md z-10 bg-opacity-90">
-        {/* Logo Section */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={secelogo}
@@ -72,10 +64,7 @@ function Login() {
             Event Management
           </h2>
         </div>
-
-        {/* Login Form */}
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Email
@@ -104,7 +93,6 @@ function Login() {
               required
             />
           </div>
-
           <button
             type="submit"
             className="w-full bg-[#7848F4] text-white font-semibold py-2 rounded-md hover:bg-[#5e38c4] transition duration-300 text-center block"

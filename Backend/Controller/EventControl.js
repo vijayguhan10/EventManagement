@@ -1,6 +1,6 @@
 const Event = require("../Schema/EventSchema");
 const { validateUser, formatDate } = require("../utilities/EventHelper");
-
+const images_dept = require("../other/Images");
 exports.CreateEvent = async (req, res) => {
   try {
     const {
@@ -14,7 +14,9 @@ exports.CreateEvent = async (req, res) => {
       eventenddate,
       typeofevent,
       status,
+      departments,
     } = req.body;
+
     const userId = req.userId;
 
     const isValidUser = await validateUser(userId);
@@ -22,24 +24,46 @@ exports.CreateEvent = async (req, res) => {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
-    const New_Event_Registration = new Event({
-      userid: userId,
-      eventname,
-      resourceperson,
-      organizer,
-      venue,
-      eventstarttime,
-      eventendtime,
-      eventstartdate: formatDate(eventstartdate),
-      eventenddate: formatDate(eventenddate),
-      status,
-      typeofevent,
-    });
+    const createdEvents = [];
 
-    await New_Event_Registration.save();
+    let departmentsToProcess = departments.includes("All")
+      ? images_dept.map((item) => item.name)
+      : departments;
+
+    for (const department of departmentsToProcess) {
+      const departmentData = images_dept.find(
+        (item) => item.name === department
+      );
+
+      const imageKey = departmentData
+        ? Object.keys(departmentData).find((key) => key !== "name")
+        : null;
+
+      const imageUrl = imageKey ? departmentData[imageKey] : null;
+
+      const newEvent = new Event({
+        userid: userId,
+        eventname,
+        resourceperson,
+        organizer,
+        venue,
+        eventstarttime,
+        eventendtime,
+        eventstartdate: formatDate(eventstartdate),
+        eventenddate: formatDate(eventenddate),
+        status,
+        typeofevent,
+        departments: department,
+        imageurl: imageUrl,
+      });
+
+      const savedEvent = await newEvent.save();
+      createdEvents.push(savedEvent);
+    }
+
     return res.status(201).json({
-      message: "Event created successfully",
-      event: New_Event_Registration,
+      message: "Events created successfully",
+      events: createdEvents,
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -63,6 +87,7 @@ exports.updateevent = async (req, res) => {
       eventstartdate,
       eventenddate,
       status,
+      departments,
     } = req.body;
     const userId = req.userId;
 
@@ -83,6 +108,7 @@ exports.updateevent = async (req, res) => {
         eventstartdate: formatDate(eventstartdate),
         eventenddate: formatDate(eventenddate),
         status,
+        departments,
       },
       { new: true }
     );
@@ -112,7 +138,6 @@ exports.deleteEvent = async (req, res) => {
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
-
     const deletedEvent = await Event.findByIdAndDelete(eventid);
     if (!deletedEvent) {
       return res.status(404).json({ message: "Event not found" });

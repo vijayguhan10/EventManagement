@@ -42,8 +42,8 @@ const CalendarComponent = () => {
   ];
 
   const onClickDay = (value) => {
-    setSelectedDate(value); 
-    setIsEventListOpen(true); 
+    setSelectedDate(value);
+    setIsEventListOpen(true);
   };
 
   const closeEventList = () => {
@@ -51,7 +51,7 @@ const CalendarComponent = () => {
   };
 
   const closeEventModal = () => {
-    setSelectedEvent(null); 
+    setSelectedEvent(null);
   };
 
   const onChange = (newDate) => {
@@ -76,7 +76,6 @@ const CalendarComponent = () => {
 
   const openEventModal = (event) => {
     setSelectedEvent(event); // Set the selected event
-
   };
 
   const eventsForSelectedDate = events.filter(
@@ -115,37 +114,36 @@ const CalendarComponent = () => {
         />
       </div>
 
-      <div className="flex flex-row items-center justify-between w-[90%] xl:w-[92%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-10 transition-transform transform hover:scale-105">
-  <div className="ml-3 xl:ml-5 py-5">
-    <p className="text-2xl font-bold text-gray-800 font-Afacad">
-      {selectedDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })}
-    </p>
-    <p className="text-[#7848F4] text-xl font-medium font-Afacad">
-      {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
-    </p>
-  </div>
+      <div className="flex flex-row items-center justify-between w-[90%] xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
+        <div className="ml-3 xl:ml-5 py-5">
+          <p className="text-2xl font-bold text-gray-800 font-Afacad">
+            {selectedDate.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+          <p className="text-[#7848F4] text-xl font-medium font-Afacad">
+            {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
+          </p>
+        </div>
 
-  {isFutureOrToday(selectedDate) ? (
-    <Link
-      to="/Form"
-      className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-    >
-      Add Event
-    </Link>
-  ) : (
-    <button
-      className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
-      disabled
-    >
-      Add Event
-    </button>
-  )}
-</div>
-
+        {isFutureOrToday(selectedDate) ? (
+          <Link
+            to="/Form"
+            className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+          >
+            Add Event
+          </Link>
+        ) : (
+          <button
+            className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
+            disabled
+          >
+            Add Event
+          </button>
+        )}
+      </div>
 
       {/* Event List Modal */}
       {isEventListOpen && (
@@ -155,7 +153,8 @@ const CalendarComponent = () => {
               &times;
             </button>
             <h2 className="modal-date-title">
-              Events for {selectedDate.toLocaleDateString("en-GB", {
+              Events for{" "}
+              {selectedDate.toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
@@ -171,10 +170,14 @@ const CalendarComponent = () => {
                   >
                     <div className="event-row">
                       <span className="event-name">{event.eventname}</span>
-                      <span className={`event-category ${event.category.toLowerCase()}`}>
+                      <span
+                        className={`event-category ${event.category.toLowerCase()}`}
+                      >
                         {event.category}
                       </span>
-                      <span className={`event-icon ${event.category.toLowerCase()}`}>
+                      <span
+                        className={`event-icon ${event.category.toLowerCase()}`}
+                      >
                         {event.category === "Tech" ? "📘" : "📕"}
                       </span>
                     </div>

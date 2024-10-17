@@ -20,7 +20,7 @@ function History() {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/event/getalldata"
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
         console.log("responsed data frm the events : ", response.data);
         const filteredData = response.data.eventdata.filter(
@@ -34,7 +34,7 @@ function History() {
       }
     };
     fetchData();
-  }, [data,loading]);
+  }, [data, loading]);
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
@@ -107,7 +107,7 @@ function History() {
             </button>
             <img
               className="w-96 h-40 rounded-lg"
-              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              src="https://i.ibb.co/LNvgTTn/cce.jpg"
               alt={event.eventname}
             />
             <div className="ml-5 mt-3 flex flex-row gap-1">

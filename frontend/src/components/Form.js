@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Forms() {
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
   const [formData, setFormData] = useState({
     eventTitle: "",
     eventVenue: "",
@@ -14,7 +18,28 @@ function Forms() {
     specialization: "",
     eventType: "",
     eventDescription: "",
+    departments: [],
   });
+
+  const departmentOptions = [
+    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+    { fullName: "Computer Science Engineering", shortName: "CSE" },
+    {
+      fullName: "Artificial Intelligence and Data Science",
+      shortName: "AI & DS",
+    },
+    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+    { fullName: "Information Technology", shortName: "IT" },
+    { fullName: "Mechanical Engineering", shortName: "MECH" },
+    {
+      fullName: "Artificial Intelligence and Machine Learning",
+      shortName: "AI & ML",
+    },
+    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+    { fullName: "Cybersecurity", shortName: "Cyber" },
+    {fullName:"All",shortName:"All"},
+  ];
 
   const [errors, setErrors] = useState({});
 
@@ -24,6 +49,17 @@ function Forms() {
     const { name, value, type } = e.target;
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
+    } else if (type === "checkbox" && name === "departments") {
+      const selectedDepartments = [...formData.departments];
+      if (e.target.checked) {
+        selectedDepartments.push(value);
+      } else {
+        const index = selectedDepartments.indexOf(value);
+        if (index !== -1) {
+          selectedDepartments.splice(index, 1);
+        }
+      }
+      setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -46,6 +82,8 @@ function Forms() {
       newErrors.eventType = "Please select an event type";
     if (!formData.eventDescription)
       newErrors.eventDescription = "Event description is required";
+    if (formData.departments.length === 0)
+      newErrors.departments = "Please select at least one department";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -54,7 +92,7 @@ function Forms() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/event/create_event",
+        `${process.env.REACT_APP_BASE_URL}/event/create_event`,
         {
           eventname: formData.eventTitle,
           resourceperson: formData.resourcePerson,
@@ -62,14 +100,16 @@ function Forms() {
           venue: formData.eventVenue,
           eventstarttime: formData.startTime,
           eventendtime: formData.endTime,
-          eventstartdate: formData.startDate.replace(/-/g, "/"), // Convert date format to YYYY/MM/DD
-          eventenddate: formData.endDate.replace(/-/g, "/"), // Convert date format to YYYY/MM/DD
+          eventstartdate: formData.startDate.replace(/-/g, "/"),
+          eventenddate: formData.endDate.replace(/-/g, "/"),
           typeofevent: formData.eventType,
-          status: "pending", // Add the status field
+          departments: formData.departments,
+          status: "pending",
         }
       );
 
       if (response.status === 201) {
+        console.log("sucessfull response : ", response);
         toast.success("Event added successfully!");
       }
     } catch (error) {
@@ -77,25 +117,12 @@ function Forms() {
       toast.error("Error adding event. Please try again.");
     }
 
-    // Reset form data
-    // setFormData({
-    //   eventTitle: "",
-    //   eventVenue: "",
-    //   startDate: "",
-    //   endDate: "",
-    //   startTime: "",
-    //   endTime: "",
-    //   resourcePerson: "",
-    //   specialization: "",
-    //   eventType: "",
-    //   eventDescription: "",
-    // });
-
     setErrors({});
   };
 
   return (
     <div className="p-10">
+      <ToastContainer />
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
           Create Event
@@ -104,6 +131,35 @@ function Forms() {
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+              Departments
+            </label>
+            <div className="flex flex-wrap">
+              {departmentOptions.map((department) => (
+                <div key={department.shortName} className="mr-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="departments"
+                      value={department.fullName}
+                      checked={formData.departments.includes(
+                        department.fullName
+                      )}
+                      onChange={handleChange}
+                      className="form-checkbox"
+                    />
+                    <span className="ml-2">{department.shortName}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {errors.departments && (
+              <span className="text-red-500">{errors.departments}</span>
+            )}
+          </div>
+
+          {/* Event Title */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Title
@@ -120,6 +176,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Event Venue */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Venue
@@ -136,6 +193,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Start Date */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Start Date
@@ -153,6 +211,7 @@ function Forms() {
             )}
           </div>
 
+          {/* End Date */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               End Date
@@ -163,15 +222,14 @@ function Forms() {
               value={formData.endDate}
               onChange={handleChange}
               min={formData.startDate || today} // Restrict past dates and set min to start date
-              className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
-                !formData.startDate ? "hidden" : ""
-              }`}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
             {errors.endDate && (
               <span className="text-red-500">{errors.endDate}</span>
             )}
           </div>
 
+          {/* Start and End Time */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
@@ -205,6 +263,7 @@ function Forms() {
             </div>
           </div>
 
+          {/* Resource Person */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Resource Person
@@ -221,6 +280,7 @@ function Forms() {
             )}
           </div>
 
+          {/* Specialization */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Specialization
@@ -237,44 +297,52 @@ function Forms() {
             )}
           </div>
 
+          {/* Event Type */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-              Type of Event
+              Event Type
             </label>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="eventType"
-                value="Placement"
-                onChange={handleChange}
-                checked={formData.eventType === "Placement"}
-                className="mr-2"
-              />
-              <label className="mr-4">Placement</label>
-              <input
-                type="radio"
-                name="eventType"
-                value="Technical"
-                onChange={handleChange}
-                checked={formData.eventType === "Technical"}
-                className="mr-2"
-              />
-              <label className="mr-4">Technical</label>
-              <input
-                type="radio"
-                name="eventType"
-                value="Nontechnical"
-                onChange={handleChange}
-                checked={formData.eventType === "Nontechnical"}
-                className="mr-2"
-              />
-              <label>Nontechnical</label>
+            <div className="flex">
+              <label className="mr-4">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Technical"
+                  checked={formData.eventType === "Technical"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Technical
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Nontechnical"
+                  checked={formData.eventType === "Nontechnical"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Nontechnical{" "}
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="Placement"
+                  checked={formData.eventType === "Placement"}
+                  onChange={handleChange}
+                  className="mr-1"
+                />
+                Placement{" "}
+              </label>
             </div>
             {errors.eventType && (
               <span className="text-red-500">{errors.eventType}</span>
             )}
           </div>
 
+          {/* Event Description */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Description
@@ -293,13 +361,12 @@ function Forms() {
 
           <button
             type="submit"
-            className="bg-[#7848F4] text-white px-4 py-2 rounded-md"
+            className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded"
           >
-            Submit
+            Create Event
           </button>
         </form>
       </div>
-      <ToastContainer />
     </div>
   );
 }

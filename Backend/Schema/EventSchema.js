@@ -21,6 +21,23 @@ const EventDataSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  departments: {
+    required: true,
+    type: [String],
+    enum: [
+      "Computer and Communication Engineering",
+      "Computer Science Engineering",
+      "Artificial Intelligence and Data Science",
+      "Electronics and Communication Engineering",
+      "Information Technology",
+      "Mechanical Engineering",
+      "Artificial Intelligence and Machine Learning",
+      "Computer Science and Business Systems",
+      "Electrical and Electronics Engineering",
+      "Cybersecurity",
+      "All",
+    ],
+  },
   eventstarttime: {
     required: true,
     type: String,
@@ -46,6 +63,9 @@ const EventDataSchema = new mongoose.Schema({
     type: String,
     enum: ["pending", "completed", "notcompleted"],
     required: true,
+  },
+  imageurl: {
+    type: String,
   },
 });
 

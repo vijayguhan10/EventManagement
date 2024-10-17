@@ -7,5 +7,5 @@ router.post("/delete_event", jsonwebtoken, Event.deleteEvent);
 router.post("/modify_event", jsonwebtoken, Event.updateevent);
 router.get("/geteventdata/:id", jsonwebtoken, Event.Get_Detailed_Info);
 router.post("/getalldata", jsonwebtoken, Event.getallevents);
-router.get("/generated pdf-doc", pdf);
+router.get("/generatedpdf-doc", jsonwebtoken, pdf.generatePdf);
 module.exports = router;

@@ -10,6 +10,11 @@
     align-items: center;
     z-index: 1000;
   }
+  .scrollable-form {
+    max-height: 400px; /* Adjust as needed */
+    overflow-y: auto;  /* Enables vertical scrolling */
+    padding-right: 10px; /* Optional, adds space for scrollbar */
+  }
   
   /* Modal Content */
   .modal-content {

@@ -27,7 +27,7 @@ const ScheduledCompletion = cron.schedule("* * * * * ", async () => {
         event.eventendtime
       );
       console.log("Checking event with end date and time:", eventEndDateTime);
-
+      
       if (eventEndDateTime <= currentDate) {
         await Event.updateOne(
           { _id: event._id },
