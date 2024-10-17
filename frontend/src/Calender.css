@@ -139,38 +139,37 @@
   color: #6a1b9a;
   margin-bottom: 20px;
 }
-
 .event-list {
-  list-style: none;
+  max-height: 400px; /* Set a fixed max height for the list */
+  overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
   padding: 0;
   margin: 0;
+  list-style-type: none;
 }
-
 .event-item {
   padding: 10px;
   cursor: pointer;
 }
-
 .event-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-between; /* Space out the elements */
+  align-items: center; /* Vertically align all elements in the center */
 }
 
 .event-name {
-  font-weight: bold;
-  font-size: 1em;
+  flex: 2; /* Make the event name take up more space */
 }
 
 .event-category {
-  font-weight: bold;
-  text-align: right;
+  flex: 1; /* The event type takes up a balanced amount of space */
+  text-align: center; /* Center the event type text */
 }
 
 .event-icon {
-  font-size: 1.5em;
-  margin-left: 10px;
+  flex: 0.5; /* Smaller space for the icon */
+  text-align: right; /* Align the icon to the right */
 }
+
 
 .tech {
   color: #6200ea;

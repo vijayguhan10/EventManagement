@@ -1,21 +1,27 @@
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 const Event = require("../Schema/EventSchema");
-
 const convertToDateTime = (dateString, timeString) => {
+  // Parse the date string (expected format: DD/MM/YYYY)
   const [day, month, year] = dateString.split("/").map(Number);
   const fullYear = year < 100 ? 2000 + year : year;
 
-  const [hours, minutes, period] = timeString.split(/[: ]/);
-  let hours24 = parseInt(hours, 10);
-  if (period.toLowerCase() === "pm" && hours24 < 12) {
-    hours24 += 12;
-  } else if (period.toLowerCase() === "am" && hours24 === 12) {
-    hours24 = 0;
-  }
+  // Parse the railway time string (expected format: HH:mm)
+  const [hours, minutes] = timeString.split(":").map(Number);
+  
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
 
-  return new Date(fullYear, month - 1, day, hours24, parseInt(minutes, 10));
+  console.log(`Converted Time: ${hours12}:${minutes} ${period}`);
+  return new Date(fullYear, month - 1, day, hours, minutes);
 };
+
+const dateString = "17/10/2024"; 
+const railwayTimeString = "15:30"; 
+
+const convertedDateTime = convertToDateTime(dateString, railwayTimeString);
+console.log("Converted DateTime:", convertedDateTime);
+
 const ScheduledCompletion = cron.schedule("* * * * * ", async () => {
   try {
     const currentDate = new Date();
