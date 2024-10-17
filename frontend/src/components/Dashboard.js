@@ -155,20 +155,14 @@ const Dashboard = () => {
     >
       <SideBar />
       <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
-        <div className="absolute top-4 flex left-[20%] items-center">
+        <div className="absolute top-4 flex left-[18%] items-center">
           <div className="text-nowrap flex mb-5">
-            <h1 className="text-3xl font-bold mb-3 text-white-800">
+            <h1 className="text-3xl font-bold mb-28 text-white-800">
               Welcome, <span>Vijay Guhan</span>
             </h1>
-            <button
-              onClick={popupopen}
-              to="/Form"
-              className="bg-gradient-to-r ml-80 mb-28 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-            >
-              Generate PDF
-            </button>
+          
           </div>
-          <div className="relative ml-[5%] mb-32">
+          <div className="relative ml-[90%] mb-32">
             <input
               type="text"
               placeholder="Search events..."
@@ -253,68 +247,72 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      <div className="container  absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black  rounded-xl shadow-lg">
-        <h1 className="text-xl font-bold text-center text-green-700 mb-4">
+      <div className="container absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
+        <h1 className="text-xl font-bold text-center text-black mb-4">
           Department Report Generator
         </h1>
 
-        {!isFullYear && (
-          <div className="flex   justify-between mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-gray-700">From Date</h2>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="p-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
-            </div>
-
-            <div>
-              <h2 className="text-sm font-semibold text-gray-700">To Date</h2>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="p-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Full Year Option */}
-        <div className="mb-4">
-          <label className="inline-flex items-center">
+        {/* Date Range Selection and Full Year Option */}
+        <div className="flex justify-between items-center space-x-4 mb-4">
+          {/* From Date */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
             <input
-              type="radio"
-              checked={isFullYear}
-              onChange={handleFullYearChange}
-              className="form-radio h-4 w-4 text-green-600"
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear} // Disable when Full Year is selected
             />
-            <span className="ml-2 text-gray-700 font-semibold">Full Year</span>
-          </label>
+          </div>
+
+          {/* To Date */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear} // Disable when Full Year is selected
+            />
+          </div>
+
+          {/* Full Year Option */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox" // Use checkbox for toggle functionality
+              checked={isFullYear}
+              onChange={handleFullYearChange} // Toggle functionality
+              className="form-checkbox h-4 w-4 text-green-600"
+            />
+            <label className="text-gray-700 text-xl font-semibold">
+              Full Year
+            </label>
+          </div>
         </div>
 
         {/* Department Selection */}
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-2">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">
             Departments
           </h2>
-          <div className="flex flex-wrap">
+          <div className="flex flex-wrap gap-4">
             {departmentOptions.map((department) => (
-              <div key={department.shortName} className="mr-2 mb-2">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    value={department.shortName}
-                    checked={departments.includes(department.fullName)}
-                    onChange={handleDepartmentChange}
-                    className="form-checkbox h-4 w-4 text-green-600"
-                  />
-                  <span className="ml-1 text-gray-700">
-                    {department.shortName}
-                  </span>
-                </label>
+              <div
+                key={department.shortName}
+                className="flex items-center font-Afacad font-bold space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  value={department.shortName}
+                  checked={departments.includes(department.fullName)}
+                  onChange={handleDepartmentChange}
+                  className="form-checkbox font-Afacad font-bold h-4 w-4 text-green-600"
+                />
+                <span className="text-gray-700 font-Afacad font-bold text-lg">
+                  {department.shortName}
+                </span>
               </div>
             ))}
           </div>
@@ -322,12 +320,14 @@ const Dashboard = () => {
 
         {/* Generate PDF Button */}
         <div className="text-center">
+         
           <button
             onClick={handleGeneratePDF}
-            className="bg-green-500 text-white px-4 py-1 rounded-lg shadow-lg hover:bg-green-600 transition-all"
-          >
-            Generate PDF
-          </button>
+            to="/Form"
+              className="bg-gradient-to-r ml-80  from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+            >
+              Generate PDF
+            </button>
         </div>
       </div>
     </div>
