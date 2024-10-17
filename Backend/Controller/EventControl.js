@@ -2,50 +2,47 @@ const Event = require("../Schema/EventSchema");
 const { validateUser, formatDate } = require("../utilities/EventHelper");
 const images_dept = require("../other/Images");
 const TotalCount = require("../Schema/TotalCount");
+const initializeTotalCount = async () => {
+  const count = await TotalCount.findOne({});
+  if (!count) {
+    const newTotalCount = new TotalCount({
+      totalCounts: {
+        "Computer and Communication Engineering": 0,
+        "Computer Science Engineering": 0,
+        "Artificial Intelligence and Data Science": 0,
+        "Electronics and Communication Engineering": 0,
+        "Information Technology": 0,
+        "Mechanical Engineering": 0,
+        "Artificial Intelligence and Machine Learning": 0,
+        "Computer Science and Business Systems": 0,
+        "Electrical and Electronics Engineering": 0,
+        Cybersecurity: 0,
+      },
+    });
+    await newTotalCount.save();
+    console.log("TotalCount document initialized.");
+  }
+};
+
 const incrementDepartmentCount = async (departments) => {
   console.log("departments : ", departments);
   if (departments.includes("All")) {
     await TotalCount.updateOne(
       {},
-      { $inc: { "totalCounts.Computer and Communication Engineering": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Computer Science Engineering": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Artificial Intelligence and Data Science": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Electronics and Communication Engineering": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Information Technology": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Mechanical Engineering": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
       {
-        $inc: { "totalCounts.Artificial Intelligence and Machine Learning": 1 },
+        $inc: {
+          "totalCounts.Computer and Communication Engineering": 1,
+          "totalCounts.Computer Science Engineering": 1,
+          "totalCounts.Artificial Intelligence and Data Science": 1,
+          "totalCounts.Electronics and Communication Engineering": 1,
+          "totalCounts.Information Technology": 1,
+          "totalCounts.Mechanical Engineering": 1,
+          "totalCounts.Artificial Intelligence and Machine Learning": 1,
+          "totalCounts.Computer Science and Business Systems": 1,
+          "totalCounts.Electrical and Electronics Engineering": 1,
+          "totalCounts.Cybersecurity": 1,
+        },
       }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Computer Science and Business Systems": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Electrical and Electronics Engineering": 1 } }
-    );
-    await TotalCount.updateOne(
-      {},
-      { $inc: { "totalCounts.Cybersecurity": 1 } }
     );
   } else {
     for (const department of departments) {
@@ -56,15 +53,53 @@ const incrementDepartmentCount = async (departments) => {
     }
   }
 };
-
 const updateDepartmentCount = async (oldDepartment, newDepartment) => {
-  if (oldDepartment) {
+  if (oldDepartment === "All") {
+    // Decrement for all departments if the old value was "All"
+    await TotalCount.updateOne(
+      {},
+      {
+        $inc: {
+          "totalCounts.Computer and Communication Engineering": -1,
+          "totalCounts.Computer Science Engineering": -1,
+          "totalCounts.Artificial Intelligence and Data Science": -1,
+          "totalCounts.Electronics and Communication Engineering": -1,
+          "totalCounts.Information Technology": -1,
+          "totalCounts.Mechanical Engineering": -1,
+          "totalCounts.Artificial Intelligence and Machine Learning": -1,
+          "totalCounts.Computer Science and Business Systems": -1,
+          "totalCounts.Electrical and Electronics Engineering": -1,
+          "totalCounts.Cybersecurity": -1,
+        },
+      }
+    );
+  } else if (oldDepartment) {
     await TotalCount.updateOne(
       {},
       { $inc: { [`totalCounts.${oldDepartment}`]: -1 } }
     );
   }
-  if (newDepartment) {
+
+  if (newDepartment === "All") {
+    // Increment for all departments if the new value is "All"
+    await TotalCount.updateOne(
+      {},
+      {
+        $inc: {
+          "totalCounts.Computer and Communication Engineering": 1,
+          "totalCounts.Computer Science Engineering": 1,
+          "totalCounts.Artificial Intelligence and Data Science": 1,
+          "totalCounts.Electronics and Communication Engineering": 1,
+          "totalCounts.Information Technology": 1,
+          "totalCounts.Mechanical Engineering": 1,
+          "totalCounts.Artificial Intelligence and Machine Learning": 1,
+          "totalCounts.Computer Science and Business Systems": 1,
+          "totalCounts.Electrical and Electronics Engineering": 1,
+          "totalCounts.Cybersecurity": 1,
+        },
+      }
+    );
+  } else if (newDepartment) {
     await TotalCount.updateOne(
       {},
       { $inc: { [`totalCounts.${newDepartment}`]: 1 } }
@@ -131,8 +166,12 @@ exports.CreateEvent = async (req, res) => {
       console.log("Saved event:", savedEvent);
       createdEvents.push(savedEvent);
     }
-
-    await incrementDepartmentCount(departments);
+    const count = await TotalCount.findOne({});
+    if (!count) {
+      await initializeTotalCount();
+    } else {
+      await incrementDepartmentCount(departments);
+    }
 
     const updatedCounts = await TotalCount.find({});
     console.log("Incremented model data:", updatedCounts);
@@ -151,7 +190,7 @@ exports.CreateEvent = async (req, res) => {
 };
 
 exports.updateevent = async (req, res) => {
-  console.log("rrrrrrrrrrrrrrrr : ",req.body);
+  console.log("rrrrrrrrrrrrrrrr : ", req.body);
   try {
     const {
       eventId,
@@ -341,5 +380,24 @@ exports.departmentevent = async (req, res) => {
   } catch (err) {
     console.error("Error fetching department events: ", err);
     return res.status(500).json({ message: 'Server Error' });
+exports.getTotalCount = async (req, res) => {
+  const userid = req.userId;
+  const isValidUser = await validateUser(userid);
+
+  if (!isValidUser) {
+    return res.status(401).json({ message: "Oops, Invalid User" });
+  }
+
+  try {
+    const TotalCounts = await TotalCount.find({});
+    console.log("Incremented model data:", TotalCounts);
+
+    res.status(200).json({
+      message: "Total events passed successfully",
+      TotalCountsDept: TotalCounts,
+    });
+  } catch (error) {
+    console.error("Error fetching total counts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
