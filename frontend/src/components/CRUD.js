@@ -38,6 +38,20 @@ function CRUD() {
   const [deleteEventName, setDeleteEventName] = useState("");
   const [Loading, setLoading] = useState(true);
 
+  const [formData, setFormData] = useState({
+    eventTitle: "",
+    eventVenue: "",
+    startDate: "",
+    endDate: "",
+    startTime: "",
+    endTime: "",
+    resourcePerson: "",
+    specialization: "",
+    eventType: "",
+    eventDescription: "",
+    departments: [],
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -63,11 +77,25 @@ function CRUD() {
   if (Loading) {
     return <div>Loading...</div>;
   }
-
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
     setIsOpen(true);
     setIsEditing(true);
+
+    // Populate form data including departments
+    setFormData({
+      eventTitle: event.eventname,
+      eventVenue: event.venue,
+      startDate: event.eventstartdate,
+      endDate: event.eventenddate,
+      startTime: event.eventstarttime,
+      endTime: event.eventendtime,
+      resourcePerson: event.resourceperson,
+      specialization: event.specialization,
+      eventType: event.typeofevent,
+      eventDescription: event.description || "",
+      departments: event.departments || [], // Set departments from backend data
+    });
     setEditEventData({ ...event });
   };
 
@@ -80,6 +108,15 @@ function CRUD() {
   const handleDeleteConfirmation = (event) => {
     setSelectedEvent(event);
     setShowDeleteModal(true);
+  };
+  const formatDateToInput = (dateStr) => {
+    const [day, month, year] = dateStr.split("/");
+    return `20${year}-${month}-${day}`;
+  };
+
+  const formatDateFromInput = (dateStr) => {
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year.slice(-2)}`; // Get last two digits of year
   };
 
   const handleDelete = async () => {
@@ -104,18 +141,58 @@ function CRUD() {
     }
   };
 
+  const departmentOptions = [
+    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+    { fullName: "Computer Science Engineering", shortName: "CSE" },
+    {
+      fullName: "Artificial Intelligence and Data Science",
+      shortName: "AI & DS",
+    },
+    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+    { fullName: "Information Technology", shortName: "IT" },
+    { fullName: "Mechanical Engineering", shortName: "MECH" },
+    {
+      fullName: "Artificial Intelligence and Machine Learning",
+      shortName: "AI & ML",
+    },
+    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+    { fullName: "Cybersecurity", shortName: "Cyber" },
+  ];
+
   const handleEdit = (event) => {
+    console.log(event, "🎉🎉🎉🎉🎉");
     handleOpenModal(event);
   };
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditEventData({ ...editEventData, [name]: value });
+    if (type === "checkbox") {
+      // Update the departments array
+      if (checked) {
+        // Add department if checked
+        setFormData((prev) => ({
+          ...prev,
+          departments: [...prev.departments, value],
+        }));
+      } else {
+        // Remove department if unchecked
+        setFormData((prev) => ({
+          ...prev,
+          departments: prev.departments.filter((dept) => dept !== value),
+        }));
+      }
+    } else {
+      // For other input types
+      setEditEventData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSaveEdit = async () => {
     try {
-      console.log("updating the event data : ", editEventData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
         {
@@ -123,7 +200,7 @@ function CRUD() {
           ...editEventData,
         }
       );
-      console.log("return response while updating : ", response);
+      console.log(response);
 
       if (response.status === 200) {
         const updatedEvents = events.map((event) =>
@@ -231,143 +308,129 @@ function CRUD() {
           <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open">
             <FaTimes
               size={30}
-              className="absolute top-4 right-4 text-gray-600 cursor-pointer"
+              className="absolute top-4 right-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
               onClick={handleCloseModal}
             />
-            <h1 className="text-3xl font-bold mb-4">
+            <h1 className="text-3xl font-bold mb-4 border-b pb-2">
               <input
                 type="text"
                 value={editEventData.eventname}
                 onChange={handleChange}
                 name="eventname"
-                className="border rounded p-2 w-full"
+                className="border-b border-gray-300 w-full focus:outline-none focus:border-blue-500"
+                placeholder="Event Name"
               />
             </h1>
-            <div className="space-y-4">
-              <label>
-                Resource Person:
-                <input
-                  type="text"
-                  value={editEventData.resourceperson}
-                  onChange={handleChange}
-                  name="resourceperson"
-                  className="border rounded p-2 w-full"
-                />
+            <div className="scrollable-form mb-4 overflow-y-auto max-h-60">
+              {" "}
+              {/* Scrollable container */}
+              <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+                Departments
               </label>
-              <label>
-                Organizer:
-                <input
-                  type="text"
-                  value={editEventData.organizer}
-                  onChange={handleChange}
-                  name="organizer"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Venue:
-                <input
-                  type="text"
-                  value={editEventData.venue}
-                  onChange={handleChange}
-                  name="venue"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Event Start Date:
-                <input
-                  type="date"
-                  value={editEventData.eventstartdate}
-                  onChange={handleChange}
-                  name="eventstartdate"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Event End Date:
-                <input
-                  type="date"
-                  value={editEventData.eventenddate}
-                  onChange={handleChange}
-                  name="eventenddate"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Event Start Time:
-                <input
-                  type="time"
-                  value={editEventData.eventstarttime}
-                  onChange={handleChange}
-                  name="eventstarttime"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Event End Time:
-                <input
-                  type="time"
-                  value={editEventData.eventendtime}
-                  onChange={handleChange}
-                  name="eventendtime"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Type of Event:
-                <input
-                  type="text"
-                  value={editEventData.typeofevent}
-                  onChange={handleChange}
-                  name="typeofevent"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <label>
-                Status:
-                <input
-                  type="text"
-                  value={editEventData.status}
-                  onChange={handleChange}
-                  name="status"
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-              <button
-                onClick={handleSaveEdit}
-                className="bg-green-500 text-white p-2 rounded mt-4 hover:bg-green-600 transition duration-300"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex flex-wrap mb-4">
+                {departmentOptions.map((department) => (
+                  <div key={department.shortName} className="mr-4 mb-2">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="departments"
+                        value={department.fullName}
+                        checked={formData.departments.includes(
+                          department.fullName
+                        )}
+                        onChange={handleChange}
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                      />
+                      <span className="ml-2 text-gray-800">
+                        {department.shortName}
+                      </span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <div className="space-y-6">
+                  {[
+                    {
+                      label: "Resource Person",
+                      name: "resourceperson",
+                      type: "text",
+                    },
+                    { label: "Event Title", name: "eventname", type: "text" },
+                    { label: "Venue", name: "venue", type: "text" },
+                    {
+                      label: "Start Date",
+                      name: "eventstartdate",
+                      type: "date",
+                    },
+                    { label: "End Date", name: "eventenddate", type: "date" },
+                    {
+                      label: "Start Time",
+                      name: "eventstarttime",
+                      type: "time",
+                    },
+                    { label: "End Time", name: "eventendtime", type: "time" },
+                    { label: "Status", name: "status", type: "text" },
+                  ].map(({ label, name, type }) => (
+                    <label key={name} className="block">
+                      <span className="text-gray-800 font-semibold">
+                        {label}:
+                      </span>
+                      <input
+                        type={type}
+                        value={
+                          type === "date"
+                            ? formatDateToInput(editEventData[name])
+                            : editEventData[name]
+                        }
+                        onChange={(e) => handleChange(e, name)}
+                        name={name}
+                        className="border border-gray-300 rounded-lg p-3 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </label>
+                  ))}
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-lg mx-4">
-            <h2 className="text-lg mb-4">
-              Confirm Deletion of {selectedEvent.eventname}?
-            </h2>
-            <p>Type the event name to confirm:</p>
-            <input
-              type="text"
-              value={deleteEventName}
-              onChange={(e) => setDeleteEventName(e.target.value)}
-              className="border rounded p-2 w-full mb-4"
-            />
-            <div className="flex justify-between">
+                  {/* Event Type Radio Buttons */}
+                  <div>
+                    <span className="text-gray-800 font-semibold">
+                      Event Type:
+                    </span>
+                    <div className="mt-3 flex space-x-4">
+                      {["Technical", "Non-Technical", "Placement"].map(
+                        (eventType) => (
+                          <label
+                            key={eventType}
+                            className="inline-flex items-center"
+                          >
+                            <input
+                              type="radio"
+                              name="typeofevent"
+                              value={eventType}
+                              checked={editEventData.typeofevent === eventType}
+                              onChange={handleChange}
+                              className="form-radio text-blue-600"
+                            />
+                            <span className="ml-2 text-gray-700">
+                              {eventType}
+                            </span>
+                          </label>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
               <button
-                onClick={handleDelete}
-                className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition duration-300"
+                className="bg-green-500 text-white rounded px-4 py-2 mr-2 hover:bg-green-600 transition-colors"
+                onClick={handleSaveEdit}
               >
-                Delete
+                Save
               </button>
               <button
-                onClick={() => setShowDeleteModal(false)}
-                className="bg-gray-300 p-2 rounded hover:bg-gray-400 transition duration-300"
+                className="bg-gray-500 text-white rounded px-4 py-2 hover:bg-gray-600 transition-colors"
+                onClick={handleCloseModal}
               >
                 Cancel
               </button>
@@ -376,6 +439,39 @@ function CRUD() {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+            <p>
+              Are you sure you want to delete the event{" "}
+              <strong>{selectedEvent.eventname}</strong>? Type the event name to
+              confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mt-2"
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-500 text-white rounded px-4 py-2"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer />
     </div>
   );
