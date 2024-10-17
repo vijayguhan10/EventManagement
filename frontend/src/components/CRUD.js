@@ -1,609 +1,392 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   FaCalendar,
-//   FaSearchLocation,
-//   FaSearch,
-//   FaTimes,
-//   FaEdit,
-//   FaTrash,
-// } from "react-icons/fa";
-// import SideBar from "./SideBar";
-// import "../Modal.css";
-// import axios from "axios";
-// import { toast, ToastContainer } from "react-toastify";
+import React, { useState, useEffect } from "react";
+import {
+  FaCalendar,
+  FaSearchLocation,
+  FaSearch,
+  FaEdit,
+  FaTrashAlt,
+  FaTimesCircle,
+} from "react-icons/fa";
+import SideBar from "./SideBar";
+import "../Modal.css";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+const departmentOptions = [
+  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+  { fullName: "Computer Science Engineering", shortName: "CSE" },
+  {
+    fullName: "Artificial Intelligence and Data Science",
+    shortName: "AI & DS",
+  },
+  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+  { fullName: "Information Technology", shortName: "IT" },
+  { fullName: "Mechanical Engineering", shortName: "MECH" },
+  {
+    fullName: "Artificial Intelligence and Machine Learning",
+    shortName: "AI & ML",
+  },
+  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+  { fullName: "Cybersecurity", shortName: "Cyber" },
+  { fullName: "All", shortName: "All" },
+];
 
-// function CRUD() {
-//   const token = localStorage.getItem("authToken");
-//   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+function CRUD() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    eventname: "",
+    resourceperson: "",
+    organizer: "",
+    venue: "",
+    department: "",
+    eventstarttime: "",
+    eventendtime: "",
+    eventstartdate: "",
+    eventenddate: "",
+    typeofevent: "",
+  });
 
-//   const [data, setData] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [selectedEvent, setSelectedEvent] = useState(null);
-//   const [events, setEvents] = useState([]);
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [editEventData, setEditEventData] = useState({
-//     eventname: "",
-//     resourceperson: "",
-//     organizer: "",
-//     venue: "",
-//     eventstarttime: "",
-//     eventendtime: "",
-//     eventstartdate: "",
-//     eventenddate: "",
-//     typeofevent: "",
-//     status: "",
-//   });
-//   const [showDeleteModal, setShowDeleteModal] = useState(false);
-//   const [deleteEventName, setDeleteEventName] = useState("");
-//   const [Loading, setLoading] = useState(true);
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-//   const [formData, setFormData] = useState({
-//     eventTitle: "",
-//     eventVenue: "",
-//     startDate: "",
-//     endDate: "",
-//     startTime: "",
-//     endTime: "",
-//     resourcePerson: "",
-//     specialization: "",
-//     eventType: "",
-//     eventDescription: "",
-//     departments: [],
-//   });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
+        );
+        if (response.status === 401) {
+          console.error("Unauthorized access - redirecting to login.");
+          return;
+        }
+        const filteredData = response.data.eventdata.filter(
+          (elem) => elem.status === "pending"
+        );
+        setData(filteredData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const response = await axios.post(
-//           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
-//         );
-//         const filteredData = response.data.eventdata.filter(
-//           (elem) => elem.status === "pending"
-//         );
-//         setData(filteredData);
-//         console.log("😒😒😒",filteredData)
-//         setEvents(filteredData);
-//       } catch (error) {
-//         console.error("Failed to fetch data:", error);
-//         toast.error("Failed to fetch data.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+    fetchData();
+  }, [data, loading]);
 
-//     fetchData();
-//   }, []);
+  const handleOpenModal = (event) => {
+    function formatDate(date) {
+      const parts = date.split("/");
+      if (parts.length !== 3) {
+        console.error("Invalid date format:", date);
+        return "";
+      }
 
-//   if (Loading) {
-//     return <div>Loading...</div>;
-//   }
-//   const handleOpenModal = (event) => {
-//     setSelectedEvent(event);
-//     setIsOpen(true);
-//     setIsEditing(true);
+      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+      const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
 
-//     // Populate form data including departments
-//     setFormData({
-//       eventTitle: event.eventname,
-//       eventVenue: event.venue,
-//       startDate: event.eventstartdate,
-//       endDate: event.eventenddate,
-//       startTime: event.eventstarttime,
-//       endTime: event.eventendtime,
-//       resourcePerson: event.resourceperson,
-//       specialization: event.specialization,
-//       eventType: event.typeofevent,
-//       eventDescription: event.description || "",
-//       departments: event.departments || [], // Set departments from backend data
-//     });
-//     setEditEventData({ ...event });
-//   };
+      const dateObj = new Date(formattedDate);
+      if (isNaN(dateObj)) {
+        console.error("Invalid date provided:", formattedDate);
+        return "";
+      }
 
-//   const handleCloseModal = () => {
-//     setIsOpen(false);
-//     setSelectedEvent(null);
-//     setIsEditing(false);
-//   };
+      return formattedDate;
+    }
+    setSelectedEvent(event);
+    setFormData({
+      eventname: event.eventname,
+      resourceperson: event.resourceperson,
+      organizer: event.organizer,
+      venue: event.venue,
+      department:
+        departmentOptions.find((dept) => dept.fullName === event.departments[0])
+          ?.shortName || "",
+      eventstarttime: event.eventstarttime,
+      eventendtime: event.eventendtime,
+      eventstartdate: formatDate(event.eventstartdate),
+      eventenddate: formatDate(event.eventenddate),
+      typeofevent: event.typeofevent,
+    });
+    setIsOpen(true);
+    console.log("edit button is clicked");
+  };
 
-//   const handleDeleteConfirmation = (event) => {
-//     setSelectedEvent(event);
-//     setShowDeleteModal(true);
-//   };
-//   const formatDateToInput = (date) => {
-//     if (!date) return "";
-//     const d = new Date(date);
-//     const day = String(d.getDate()).padStart(2, '0');
-//     const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-//     const year = d.getFullYear();
-//     return `${year}-${month}-${day}`; // Return as YYYY-MM-DD
-//   };
+  const handleCloseModal = () => {
+    setIsOpen(false);
+    setSelectedEvent(null);
+  };
 
-//   const formatDateFromInput = (dateStr) => {
-//     const [year, month, day] = dateStr.split("-");
-//     return `${day}/${month}/${year.slice(-2)}`; // Get last two digits of year
-//   };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-//   const handleDelete = async () => {
-//     if (deleteEventName === selectedEvent.eventname) {
-//       try {
-//         await axios.post(
-//           `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
-//           { eventid: selectedEvent._id }
-//         );
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
-//         const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
-//         setEvents(updatedEvents);
-//         toast.success("Event deleted successfully!");
-//       } catch (error) {
-//         toast.error("Failed to delete the event.");
-//       }
-//       setShowDeleteModal(false);
-//       setDeleteEventName("");
-//       handleCloseModal();
-//     } else {
-//       alert("Event name does not match. Please try again.");
-//     }
-//   };
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedEvent = {
+        eventId: selectedEvent._id,
+        eventname: formData.eventname,
+        resourceperson: formData.resourceperson,
+        organizer: formData.organizer,
+        venue: formData.venue,
+        departments: [
+          departmentOptions.find(
+            (dept) => dept.shortName === formData.department
+          )?.fullName,
+        ],
+        eventstarttime: formData.eventstarttime,
+        eventendtime: formData.eventendtime,
+        eventstartdate: formData.eventstartdate,
+        eventenddate: formData.eventenddate,
+        typeofevent: formData.typeofevent,
+      };
 
-//   const departmentOptions = [
-//     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
-//     { fullName: "Computer Science Engineering", shortName: "CSE" },
-//     {
-//       fullName: "Artificial Intelligence and Data Science",
-//       shortName: "AI & DS",
-//     },
-//     { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
-//     { fullName: "Information Technology", shortName: "IT" },
-//     { fullName: "Mechanical Engineering", shortName: "MECH" },
-//     {
-//       fullName: "Artificial Intelligence and Machine Learning",
-//       shortName: "AI & ML",
-//     },
-//     { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
-//     { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
-//     { fullName: "Cybersecurity", shortName: "Cyber" },
-//   ];
 
-//   const handleEdit = (event) => {
-//     console.log(event, "🎉🎉🎉🎉🎉");
-//     handleOpenModal(event);
-//   };
-//   const handleChange = (event) => {
-//     console.log("dateeeeeeeeeee : ", event.target.value);
-//     var { name, value, type, checked } = event.target;
-//     const [year, month, date] = value.split("-");
-//     console.log("date formated : ", year, month, date);
-//     console.log("val", value, name);
-//     if (type === "radio") {
-//       // Update the departments array
-//       if (checked) {
-//         // Add department if checked
-//         setFormData((prev) => ({
-//           ...prev,
-//           departments: [...prev.departments, value],
-//         }));
-//       } else {
-//         // Remove department if unchecked
-//         setFormData((prev) => ({
-//           ...prev,
-//           departments: prev.departments.filter((dept) => dept !== value),
-//         }));
-//       }
-//     } else {
-//       // For other input types
-// <<<<<<< HEAD
-//       setEditEventData((prev) => ({
-//         ...prev,
-//         name: `${year}/${month}/${date}`,
-// =======
-//       setEditEventData((prevData) => ({
-//         ...prevData,
-//         [name]: value, // Update the specific field in state
-// >>>>>>> dad02f57659267490f6a5735f90b90694f088551
-//       }));
-//       console.log("Updated formData:", formData);
-//       console.log("updated values of date : ", `${year}/${month}/${date}`);
-//     }
-//   };
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
+        updatedEvent
+      );
+      handleCloseModal();
+      if (response.status === 201 || response.status === 200) {
+        console.log("sucessfull response : ", response);
+        toast.success("Event added successfully!");
+      }
+      // setLoading(true);
+    } catch (error) {
+      handleCloseModal();
 
-//   const handleSaveEdit = async () => {
-//     try {
-//       const response = await axios.post(
-//         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
-//         {
-//           eventId: selectedEvent._id,
-//           ...editEventData,
-//         }
-//       );
-//       console.log(response);
+      toast.error(error.message);
+      console.error("Error updating event:", error);
+    }
+  };
 
-//       if (response.status === 200) {
-//         const updatedEvents = events.map((event) =>
-//           event._id === selectedEvent._id
-//             ? { ...event, ...editEventData }
-//             : event
-//         );
-//         setEvents(updatedEvents);
-//         toast.success("Event updated successfully!");
-//       } else {
-//         toast.error("Failed to update the event.");
-//       }
+  const filteredData = data.filter((event) =>
+    event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-//       handleCloseModal();
-//     } catch (error) {
-//       if (error.response && error.response.status) {
-//         if (error.response.status === 400) {
-//           toast.error("Bad request. Please check your input.");
-//         } else if (error.response.status === 404) {
-//           toast.error("Event not found.");
-//         } else if (error.response.status === 500) {
-//           toast.error("Server error. Please try again later.");
-//         } else {
-//           toast.error("Failed to update the event.");
-//         }
-//       } else {
-//         toast.error("Failed to update the event.");
-//       }
-//     }
-//   };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
+  return (
+    <div className="xl:ml-72 overflow-x-hidden">
+      <SideBar />
+      <div className="xl:flex flex-row justify-between items-center mb-3">
+        <div className="absolute top-3 xl:relative xl:ml-[66%] xl:mt-5 flex justify-center xl:justify-end">
+          <h1 className="text-xl ml-72 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center xl:mb-3 shadow-md shadow-[#00000013] rounded-lg text-[#7848F4]">
+            IQAC
+          </h1>
+        </div>
+      </div>
 
-//   const filteredEvents = events.filter((event) =>
-//     event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
-//   );
+      <div className="xl:flex xl:flex-row justify-between">
+        <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
+          Edit the events awaiting
+        </h1>
+        <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
+          <input
+            type="text"
+            placeholder="Enter the event name"
+            value={searchTerm}
+            onChange={handleSearch}
+            className="xl:w-full xl:h-14 w-96 pl-5 h-14 xl:pl-10 xl:pr-16 border-[#7848F4] border rounded-md"
+          />
+          <div className="xl:absolute xl:left-2 xl:top-14 -mt-7 transform -translate-y-1/2 text-gray-400">
+            <FaSearch className="xl:block hidden" />
+          </div>
+          <button className="xl:absolute font-Afacad right-2 top-1/2 ml-72 transform -translate-y-1/2 bg-[#7848F4] text-white px-4 py-1 rounded-sm">
+            Search
+          </button>
+        </div>
+      </div>
 
-//   return (
-//     <div className="xl:ml-72 overflow-x-hidden">
-//       <SideBar />
-//       <div className="m-4 xl:mt-5">
-//         <input
-//           type="text"
-//           placeholder="Search events..."
-//           value={searchTerm}
-//           onChange={(e) => setSearchTerm(e.target.value)}
-//           className="border p-2 rounded mb-4 w-full"
-//         />
-//       </div>
-//       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-//         {filteredEvents.map((event, index) => (
-//           <div
-//             key={index}
-//             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative transition-transform transform hover:scale-105 duration-300"
-//           >
-//             <button className="bg-violet-600 mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28">
-//               {event.typeofevent}
-//             </button>
-//             <img
-//               className="w-96 h-40 rounded-lg object-cover"
-//               src={event.imageurl}
-//               alt={event.eventname}
-//             />
-//             <div className="ml-5 mt-3 flex flex-row gap-1">
-//               <FaCalendar size={20} className="mt-1" color="#46459d" />
-//               <h1 className="text-xl text-[#8b21e8] font-Afacad">
-//                 {event.eventenddate}
-//               </h1>
-//             </div>
-//             <div className="ml-5 flex flex-col gap-3 mt-3">
-//               <h1 className="font-bold text-3xl font-Afacad">
-//                 {event.eventname}
-//               </h1>
-//               <h1 className="font-bold text-gray-500 text-xl font-Afacad">
-//                 {event.organizer}
-//               </h1>
-//               <div className="flex flex-row">
-//                 <FaSearchLocation
-//                   className="mt-1 mr-1 font-Afacad"
-//                   color="#06060b9b"
-//                 />
-//                 <h1 className="font-bold text-xl text-[#06060b9b]">
-//                   {event.venue}
-//                 </h1>
-//               </div>
-//               <div className="flex gap-2 mt-3">
-//                 <button
-//                   className="text-white p-2 rounded-md bg-blue-500 hover:bg-blue-600 transition duration-300"
-//                   onClick={() => handleEdit(event)}
-//                 >
-//                   <FaEdit color="#fff" />
-//                 </button>
-//                 <button
-//                   className="text-white p-2 rounded-md bg-red-500 hover:bg-red-600 transition duration-300"
-//                   onClick={() => handleDeleteConfirmation(event)}
-//                 >
-//                   <FaTrash color="#fff" />
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
+      <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
+        {filteredData.map((event, index) => (
+          <div
+            key={index}
+            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
+          >
+            <button
+              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                new Date(event.eventenddate) < new Date()
+                  ? "bg-[#2cef5d]"
+                  : "bg-[#f92d2d]"
+              }`}
+            >
+              {new Date(event.eventenddate) < new Date()
+                ? "Completed"
+                : "Not Completed"}
+            </button>
+            <img
+              className="w-96 h-40 rounded-lg"
+              src={event.imageurl}
+              alt={event.eventname}
+            />
 
-//       {isOpen && selectedEvent && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-//           <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open">
-//             <FaTimes
-//               size={30}
-//               className="absolute top-4 right-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
-//               onClick={handleCloseModal}
-//             />
-//             <h1 className="text-3xl font-bold mb-4 border-b pb-2">
-//               <input
-//                 type="text"
-//                 value={editEventData.eventname}
-//                 onChange={handleChange}
-//                 name="eventname"
-//                 className="border-b border-gray-300 w-full focus:outline-none focus:border-blue-500"
-//                 placeholder="Event Name"
-//               />
-//             </h1>
-//             <div className="scrollable-form mb-4 overflow-y-auto max-h-60">
-//               <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-//                 Departments
-//               </label>
-//               <div className="flex flex-wrap mb-4">
-//                 {departmentOptions.map((department) => (
-//                   <div key={department.shortName} className="mr-4 mb-2">
-//                     <label className="inline-flex items-center">
-//                       <input
-//                         type="radio"
-//                         name="departments"
-//                         value={department.fullName}
-//                         checked={formData.departments.includes(
-//                           department.fullName
-//                         )}
-//                         onChange={handleChange}
-//                         className="form-checkbox h-5 w-5 text-blue-600"
-//                       />
-//                       <span className="ml-2 text-gray-800">
-//                         {department.shortName}
-//                       </span>
-//                     </label>
-//                   </div>
-//                 ))}
-//               </div>
-//               <div className="p-6 bg-white rounded-lg shadow-lg max-h-[80vh] overflow-y-auto custom-scrollbar">
-//                 <div className="space-y-6">
-//                   {[
-//                     {
-//                       label: "Resource Person",
-//                       name: "resourceperson",
-//                       type: "text",
-//                     },
-//                     { label: "Event Title", name: "eventname", type: "text" },
-//                     { label: "Venue", name: "venue", type: "text" },
-//                     {
-//                       label: "Start Date",
-//                       name: "eventstartdate",
-//                       type: "date",
-//                     },
-//                     { label: "End Date", name: "eventenddate", type: "date" },
-//                     {
-//                       label: "Start Time",
-//                       name: "eventstarttime",
-//                       type: "time",
-//                     },
-//                     { label: "End Time", name: "eventendtime", type: "time" },
-//                     { label: "Status", name: "status", type: "text" },
-//                   ].map(({ label, name, type }) => (
-//                     <label key={name} className="block">
-//                       <span className="text-gray-800 font-semibold">
-//                         {label}:
-//                       </span>
-//                       <input
-//                         type={type}
-//                         value={
-//                           type === "date"
-//                             ? formatDateToInput(editEventData[name])
-//                             : editEventData[name]
-//                         }
-//                         onChange={(e) => handleChange(e, name)}
-//                         name={name}
-//                         className="border border-gray-300 rounded-lg p-3 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-//                       />
-//                     </label>
-//                   ))}
+            <div className="ml-5 mt-3 flex flex-row gap-1">
+              <FaCalendar size={20} className="mt-1" color="#46459d" />
+              <h1 className="text-xl text-[#8b21e8] font-Afacad">
+                {event.eventstartdate}- {event.eventenddate}
+              </h1>
+            </div>
+            <div className="ml-5 flex flex-col gap-3 mt-3">
+              <h1 className="font-bold text-3xl font-Afacad">
+                {event.eventname}
+              </h1>
+              <h1 className="font-bold text-gray-500 text-xl font-Afacad">
+                {event.organizer}
+              </h1>
+              <div className="flex flex-row">
+                <FaSearchLocation
+                  className="mt-1 mr-1 font-Afacad"
+                  color="#06060b9b"
+                />
+                <h1 className="font-bold text-xl text-[#06060b9b]">
+                  {event.venue}
+                </h1>
+              </div>
+              <div className=" flex justify-between">
+                <button
+                  className="bg-violet-800 mb-2 text-white rounded-md p-1 flex flex-row justify-center gap-2"
+                  onClick={() => handleOpenModal(event)}
+                >
+                  <FaEdit size={24} />
+                  Edit
+                </button>
+                <button className="bg-red-600 mb-2 text-white rounded-md p-1 flex flex-row justify-center gap-2">
+                  <FaTrashAlt size={24} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-//                   <div>
-//                     <span className="text-gray-800 font-semibold">
-//                       Event Type:
-//                     </span>
-//                     <div className="mt-3 flex space-x-4">
-//                       {["Technical", "Non-Technical", "Placement"].map(
-//                         (eventType) => (
-//                           <label
-//                             key={eventType}
-//                             className="inline-flex items-center"
-//                           >
-//                             <input
-//                               type="radio"
-//                               name="typeofevent"
-//                               value={eventType}
-//                               checked={editEventData.typeofevent === eventType}
-//                               onChange={handleChange}
-//                               className="form-radio text-blue-600"
-//                             />
-//                             <span className="ml-2 text-gray-700">
-//                               {eventType}
-//                             </span>
-//                           </label>
-//                         )
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-//     <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open overflow-y-auto max-h-[80vh] custom-scrollbar">
-//       <FaTimes
-//         size={30}
-//         className="absolute top-4 right-4 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
-//         onClick={handleCloseModal}
-//       />
-//       <h1 className="text-3xl font-bold mb-4 border-b pb-2">
-//         <input
-//           type="text"
-//           value={editEventData.eventname}
-//           onChange={handleChange}
-//           name="eventname"
-//           className="border-b border-gray-300 w-full focus:outline-none focus:border-blue-500"
-//           placeholder="Event Name"
-//         />
-//       </h1>
-//       <div className="space-y-6 mb-4">
-//         {/* Departments with radio buttons */}
-//         <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-//           Departments
-//         </label>
-//         <div className="flex flex-wrap mb-4">
-//           {departmentOptions.map((department) => (
-//             <div key={department.shortName} className="mr-4 mb-2">
-//               <label className="inline-flex items-center">
-//                 <input
-//                   type="radio"
-//                   name="departments"
-//                   value={department.fullName}
-//                   checked={formData.departments.includes(department.fullName)}
-//                   onChange={handleChange}
-//                   className="form-radio h-5 w-5 text-blue-600"
-//                 />
-//                 <span className="ml-2 text-gray-800">{department.shortName}</span>
-//               </label>
-//             </div>
-//           ))}
-//         </div>
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
+            <span
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={handleCloseModal}
+              aria-label="Close"
+            >
+              <FaTimesCircle className="text-red-500 hover:text-red-700 text-xl" />
+            </span>
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Edit Event
+            </h2>
+            <form onSubmit={handleFormSubmit}>
+              {[
+                { label: "Event Name", name: "eventname", type: "text" },
+                {
+                  label: "Resource Person",
+                  name: "resourceperson",
+                  type: "text",
+                },
+                { label: "Organizer", name: "organizer", type: "text" },
+                { label: "Venue", name: "venue", type: "text" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                    placeholder={`Enter ${label.toLowerCase()}`}
+                  />
+                </label>
+              ))}
 
-//         {/* Event Details */}
-//         <div className="space-y-6">
-//           {[
-//             { label: "Resource Person", name: "resourceperson", type: "text" },
-//             { label: "Event Title", name: "eventname", type: "text" },
-//             { label: "Venue", name: "venue", type: "text" },
-//             { label: "Start Date", name: "eventstartdate", type: "date" },
-//             { label: "End Date", name: "eventenddate", type: "date" },
-//             { label: "Start Time", name: "eventstarttime", type: "time" },
-//             { label: "End Time", name: "eventendtime", type: "time" },
-//           ].map(({ label, name, type }) => (
-//             <label key={name} className="block">
-//               <span className="text-gray-800 font-semibold">{label}:</span>
-//               <input
-//                 type={type}
-//                 value={
-//                   type === "date"
-//                     ? formatDateToInput(editEventData[name]) // Ensure this function formats correctly
-//                     : editEventData[name]
-//                 }
-//                 onChange={(e) => handleChange(e, name)} // Make sure this updates state correctly
-//                 name={name}
-//                 className="border border-gray-300 rounded-lg p-3 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-//               />
-//             </label>
-//           ))}
+              <label className="block mb-4">
+                <span className="text-gray-700">Department:</span>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                >
+                  {departmentOptions.map((dept) => (
+                    <option key={dept.shortName} value={dept.shortName}>
+                      {dept.fullName}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-//           {/* Event Type Radio Buttons */}
-//           <div>
-//             <span className="text-gray-800 font-semibold">Event Type:</span>
-//             <div className="mt-3 flex space-x-4">
-//               {["Technical", "Nontechnical", "Placement"].map((eventType) => (
-//                 <label key={eventType} className="inline-flex items-center">
-//                   <input
-//                     type="radio"
-//                     name="typeofevent"
-//                     value={eventType}
-//                     checked={editEventData.typeofevent === eventType}
-//                     onChange={handleChange}
-//                     className="form-radio text-blue-600"
-//                   />
-//                   <span className="ml-2 text-gray-700">{eventType}</span>
-//                 </label>
-//               ))}
-//             </div>
-//           </div>
+              {/* Radio Buttons for Type of Event */}
+              <fieldset className="mb-4">
+                <legend className="text-gray-700">Type of Event:</legend>
+                {["Technical", "Nontechnical", "Placement"].map((type) => (
+                  <label key={type} className="block mb-2">
+                    <input
+                      type="radio"
+                      name="typeofevent"
+                      value={type}
+                      checked={formData.typeofevent === type}
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </fieldset>
 
-//           {/* Status Radio Buttons */}
-//           <div>
-//             <span className="text-gray-800 font-semibold">Status:</span>
-//             <div className="mt-3 flex space-x-4">
-//               {["pending", "decline", "completed"].map((status) => (
-//                 <label key={status} className="inline-flex items-center">
-//                   <input
-//                     type="radio"
-//                     name="status"
-//                     value={status}
-//                     checked={editEventData.status === status}
-//                     onChange={handleChange}
-//                     className="form-radio text-blue-600"
-//                   />
-//                   <span className="ml-2 text-gray-700">{status}</span>
-//                 </label>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-//       </div>
+              {[
+                {
+                  label: "Event Start Time",
+                  name: "eventstarttime",
+                  type: "time",
+                },
+                { label: "Event End Time", name: "eventendtime", type: "time" },
+                {
+                  label: "Event Start Date",
+                  name: "eventstartdate",
+                  type: "date",
+                },
+                { label: "Event End Date", name: "eventenddate", type: "date" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+                  />
+                </label>
+              ))}
 
-//       {/* Buttons */}
-//       <div className="flex justify-end mt-4">
-//         <button
-//           className="bg-green-500 text-white rounded px-4 py-2 mr-2 hover:bg-green-600 transition-colors"
-//           onClick={handleSaveEdit}
-//         >
-//           Save
-//         </button>
-//         <button
-//           className="bg-gray-500 text-white rounded px-4 py-2 hover:bg-gray-600 transition-colors"
-//           onClick={handleCloseModal}
-//         >
-//           Cancel
-//         </button>
-//       </div>
-//     </div>
-//   </div>
-// )}
-
-//       {/* Delete Confirmation Modal */}
-//       {showDeleteModal && selectedEvent && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-//           <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-//             <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-//             <p>
-//               Are you sure you want to delete the event{" "}
-//               <strong>{selectedEvent.eventname}</strong>? Type the event name to
-//               confirm:
-//             </p>
-//             <input
-//               type="text"
-//               value={deleteEventName}
-//               onChange={(e) => setDeleteEventName(e.target.value)}
-//               className="border rounded p-2 w-full mt-2"
-//             />
-//             <div className="flex justify-end mt-4">
-//               <button
-//                 className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-//                 onClick={handleDelete}
-//               >
-//                 Delete
-//               </button>
-//               <button
-//                 className="bg-gray-500 text-white rounded px-4 py-2"
-//                 onClick={() => setShowDeleteModal(false)}
-//               >
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//       <ToastContainer />
-//     </div>
-//   );
-// }
-
-// export default CRUD;
-import React from "react";
-
-const CRUD = () => {
-  return <div>CRUD</div>;
-};
+              <button
+                type="submit"
+                className="mt-4 w-full bg-blue-500 text-white font-semibold rounded-lg py-2 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Update Event
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      <ToastContainer />
+    </div>
+  );
+}
 
 export default CRUD;
