@@ -5,7 +5,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function Login() {
+function Login({ setToken }) {
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
@@ -19,25 +19,27 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const BaseURL = process.env.REACT_APP_BASE_URL;
-      console.log("Base url of the application  : ", BaseURL);
       const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/sece/Login`,
+        `${BaseURL}/sece/Login`,
         credentials
       );
-
+  
       if (response.status === 200) {
         const { token } = response.data;
         localStorage.setItem("authToken", token);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+  
+        setToken(token);
+  
         toast.success("Login successful!", {
-          onClose: () => {
-            navigate("/Dashboard");
-          },
         });
+  
+        setTimeout(() => {
+          navigate("/Dashboard");
+        }, 1500);
       } else {
         toast.error("Login failed! Please check your credentials.");
       }
@@ -49,6 +51,7 @@ function Login() {
       }
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 relative">

@@ -345,7 +345,7 @@ exports.getallevents = async (req, res) => {
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
-    }
+    } 
 
     const todayEvents = await Event.find({});
 
