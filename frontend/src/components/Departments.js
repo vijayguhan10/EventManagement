@@ -3,10 +3,12 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
-  FaTimes,
+  FaEdit,
+  FaTrashAlt,
+  FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
-import "../Modal.css";
+import "../editmodal.css";
 import axios from "axios";
 import "../Calender.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -65,6 +67,25 @@ const products = [
     date: today,
   },
 ];
+const departmentOptions = [
+  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+  { fullName: "Computer Science Engineering", shortName: "CSE" },
+  {
+    fullName: "Artificial Intelligence and Data Science",
+    shortName: "AI & DS",
+  },
+  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+  { fullName: "Information Technology", shortName: "IT" },
+  { fullName: "Mechanical Engineering", shortName: "MECH" },
+  {
+    fullName: "Artificial Intelligence and Machine Learning",
+    shortName: "AI & ML",
+  },
+  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+  { fullName: "Cybersecurity", shortName: "Cyber" },
+  { fullName: "All", shortName: "All" },
+];
 function Departments() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -74,8 +95,132 @@ function Departments() {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date("2024-10-14"));
   const [isEventListOpen, setIsEventListOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEventName, setDeleteEventName] = useState("");
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+  const [formData, setFormData] = useState({
+    eventname: "",
+    resourceperson: "",
+    organizer: "",
+    venue: "",
+    department: "",
+    eventstarttime: "",
+    eventendtime: "",
+    eventstartdate: "",
+    eventenddate: "",
+    typeofevent: "",
+  });
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const handleDelete = async () => {
+    if (deleteEventName === selectedEvent.eventname) {
+      try {
+        const response=await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
+          { eventid: selectedEvent._id }
+        );
+     console.log(response.data,"after deletion 😎😎😎")
+        const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
+        setEvents(updatedEvents);
+        console.log("toast")
+        toast.success("Event deleted successfully!");
+        console.log("idvbifdbv  ")
+      } catch (error) {
+        toast.error("Failed to delete the event.");
+      }
+      setShowDeleteModal(false);
+      setDeleteEventName("");
+      handleCloseModal();
+    } else {
+      alert("Event name does not match. Please try again.");
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedEvent = {
+        eventId: selectedEvent._id,
+        eventname: formData.eventname,
+        resourceperson: formData.resourceperson,
+        organizer: formData.organizer,
+        venue: formData.venue,
+        departments: [
+          departmentOptions.find(
+            (dept) => dept.shortName === formData.department
+          )?.fullName,
+        ],
+        eventstarttime: formData.eventstarttime,
+        eventendtime: formData.eventendtime,
+        eventstartdate: formData.eventstartdate,
+        eventenddate: formData.eventenddate,
+        typeofevent: formData.typeofevent,
+      };
+
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
+        updatedEvent
+      );
+      handleCloseModal();
+      if (response.status === 201 || response.status === 200) {
+        console.log("sucessfull response : ", response);
+        toast.success("Event added successfully!");
+      }
+      // setLoading(true);
+    } catch (error) {
+      handleCloseModal();
+
+      toast.error(error.message);
+      console.error("Error updating event:", error);
+    }
+  };
+
+  const handleOpeneditModal = (event) => {
+    console.log("ccvcccccccccc😤😤😤")
+    function formatDate(date) {
+      const parts = date.split("/");
+      if (parts.length !== 3) {
+        console.error("Invalid date format:", date);
+        return "";
+      }
+
+      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+      const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
+
+      const dateObj = new Date(formattedDate);
+      if (isNaN(dateObj)) {
+        console.error("Invalid date provided:", formattedDate);
+        return "";
+      }
+
+      return formattedDate;
+    }
+    setSelectedEvent(event);
+    setFormData({
+      eventname: event.eventname,
+      resourceperson: event.resourceperson,
+      organizer: event.organizer,
+      venue: event.venue,
+      department:
+        departmentOptions.find((dept) => dept.fullName === event.departments[0])
+          ?.shortName || "",
+      eventstarttime: event.eventstarttime,
+      eventendtime: event.eventendtime,
+      eventstartdate: formatDate(event.eventstartdate),
+      eventenddate: formatDate(event.eventenddate),
+      typeofevent: event.typeofevent,
+    });
+    setIsOpen(true);
+    console.log("edit button is clicked");
+  };
+
   useEffect(() => {
     const getcount = async () => {
       try {
@@ -106,7 +251,10 @@ function Departments() {
 
     getcount(); // Invoke the function
   }, []); // Dependency array includes products to ensure updates when products change
-  
+  const handleDeleteConfirmation = (event) => {
+    setSelectedEvent(event);
+    setShowDeleteModal(true);
+  };
   const closeEventModal = () => {
     setSelectedEvent(null); 
   };
@@ -335,6 +483,7 @@ function Departments() {
 )}
 
 {/* Event Modal */}
+{/* Event Modal */}
 {selectedEvent && (
   <div className="custom-modal-overlay">
     <div className="custom-modal-content">
@@ -348,26 +497,177 @@ function Departments() {
       />
       <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
       <p className="custom-modal-description">
-      <strong>Department:</strong> {selectedEvent.departments}
-            <br />
-              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-              <br />
-              <strong>End Time:</strong> {selectedEvent.eventendtime}
-              <br />
-              <strong>End End date:</strong> {selectedEvent.eventstartdate}
-              <br />
-              <strong>start Date:</strong> {selectedEvent.eventenddate}
-              <br />
-            
-              <strong>Venue:</strong> {selectedEvent.venue}
-              <br />
+        <strong>Department:</strong> {selectedEvent.departments}
+        <br />
+        <strong>Start Time:</strong> {selectedEvent.eventstarttime}
+        <br />
+        <strong>End Time:</strong> {selectedEvent.eventendtime}
+        <br />
+        <strong>Start Date:</strong> {selectedEvent.eventstartdate}
+        <br />
+        <strong>End Date:</strong> {selectedEvent.eventenddate}
+        <br />
+        <strong>Venue:</strong> {selectedEvent.venue}
+        <br />
       </p>
-      {/* <p className="modal-date">
-        <strong>{selectedDate.toLocaleDateString()}</strong>
-      </p> */}
+      {showDeleteModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+            <p>
+              Are you sure you want to delete the event{" "}
+              <strong>{selectedEvent.eventname}</strong>? Type the event name to
+              confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mt-2"
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-500 text-white rounded px-4 py-2"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Button Container */}
+      <div className="custom-modal-buttons">
+        <button
+          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28 mr-4" 
+          onClick={() => handleOpeneditModal(selectedEvent)}
+        >
+          Edit
+        </button>
+        <button
+          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28" 
+          onClick={() => handleDeleteConfirmation(selectedEvent)}
+        >
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 )}
+ {isOpen && (
+        <div style={{zIndex:1000}} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
+            <span
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={handleCloseModal}
+              aria-label="Close"
+            >
+              <FaTimesCircle className="text-red-500 hover:text-red-700 text-xl" />
+            </span>
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Edit Event
+            </h2>
+            <form onSubmit={handleFormSubmit}>
+              {[
+                { label: "Event Name", name: "eventname", type: "text" },
+                {
+                  label: "Resource Person",
+                  name: "resourceperson",
+                  type: "text",
+                },
+                { label: "Organizer", name: "organizer", type: "text" },
+                { label: "Venue", name: "venue", type: "text" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                    placeholder={`Enter ${label.toLowerCase()}`}
+                  />
+                </label>
+              ))}
+
+              <label className="block mb-4">
+                <span className="text-gray-700">Department:</span>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                >
+                  {departmentOptions.map((dept) => (
+                    <option key={dept.shortName} value={dept.shortName}>
+                      {dept.fullName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {/* Radio Buttons for Type of Event */}
+              <fieldset className="mb-4">
+                <legend className="text-gray-700">Type of Event:</legend>
+                {["Technical", "Nontechnical", "Placement"].map((type) => (
+                  <label key={type} className="block mb-2">
+                    <input
+                      type="radio"
+                      name="typeofevent"
+                      value={type}
+                      checked={formData.typeofevent === type}
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </fieldset>
+
+              {[
+                {
+                  label: "Event Start Time",
+                  name: "eventstarttime",
+                  type: "time",
+                },
+                { label: "Event End Time", name: "eventendtime", type: "time" },
+                {
+                  label: "Event Start Date",
+                  name: "eventstartdate",
+                  type: "date",
+                },
+                { label: "Event End Date", name: "eventenddate", type: "date" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+                  />
+                </label>
+              ))}
+
+              <button
+                type="submit"
+                className="mt-4 w-full bg-blue-500 text-white font-semibold rounded-lg py-2 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Update Event
+              </button>
+            </form>
+          </div>
+        </div>
+      )} && <ToastContainer />
+
 </div>
   )}
 
