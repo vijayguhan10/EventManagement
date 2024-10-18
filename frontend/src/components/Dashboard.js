@@ -87,7 +87,6 @@ const Dashboard = () => {
       console.error("Error fetching PDF:", error);
     }
   };
-
   const [data, setData] = useState([]);
   const currentEvents = data.currentEvents || [];
   const futureEvents = data.futureEvents || [];
@@ -97,6 +96,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [Loading, setLoading] = useState(true);
   const token = localStorage.getItem("authToken");
+  
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const closeEventModal = () => {
     setSelectedEvent(null);
@@ -104,6 +104,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("token",axios.defaults.headers.common["Authorization"] = `Bearer ${token}`)
         console.log("😪");
         const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`

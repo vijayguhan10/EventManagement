@@ -258,6 +258,7 @@ function Departments() {
   const closeEventModal = () => {
     setSelectedEvent(null); 
   };
+  
   const handleOpenModal = async (event) => {
     try {
       console.log(event, "😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️");

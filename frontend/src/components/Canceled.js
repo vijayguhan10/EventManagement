@@ -9,12 +9,13 @@ import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
 
-function Canceled() {
+function History() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true); // To handle loading state
+  const [loading, setLoading] = useState(true);
+  const [eventType, setEventType] = useState("All");
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
@@ -23,17 +24,14 @@ function Canceled() {
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
-
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //     "Content-Type": "application/json",
-          //   },
-          // }
         );
         const filteredData = response.data.eventdata.filter(
-          (elem) => elem.status === "decline"
+          (elem) =>
+            ["Placement", "Technical", "Nontechnical"].includes(
+              elem.typeofevent
+            ) && elem.status === "decline"
         );
+        console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
         setData(filteredData);
         setLoading(false);
       } catch (error) {
@@ -42,7 +40,21 @@ function Canceled() {
       }
     };
     fetchData();
-  }, [data, loading]);
+  }, []);
+
+  const datafetch = (event) => {
+    setEventType(event);
+    const newFilteredData = data.filter((event) => {
+      return eventType === "All" || event.typeofevent === event; // Update the condition as per your field
+    });
+
+    // Check if the first event exists after filtering
+    if (newFilteredData.length > 0) {
+      setSelectedEvent(newFilteredData[0]); // Set the first event as selected
+    } else {
+      setSelectedEvent(null); // Reset if no events match
+    }
+  };
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
@@ -58,9 +70,14 @@ function Canceled() {
     setSearchTerm(e.target.value);
   };
 
-  const filteredData = data.filter((event) =>
-    event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = data.filter((event) => {
+    const matchesSearchTerm = event.eventname
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesEventType =
+      eventType === "All" || event.typeofevent === eventType; // Assuming your event data has a 'typeofevent' field
+    return matchesSearchTerm && matchesEventType;
+  });
 
   if (loading) {
     return (
@@ -83,8 +100,23 @@ function Canceled() {
 
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
-          Explore the Non-Technical Events
+          Explore the {eventType} Events
         </h1>
+
+        {/* Filter UI */}
+        <div className="mt-3 ml-5">
+          <select
+            value={eventType}
+            onChange={(e) => datafetch(e.target.value)}
+            className="p-2 border border-[#7848F4] rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-[#7848F4] transition"
+          >
+            <option value="All">All</option>
+            <option value="Technical">Technical</option>
+            <option value="Nontechnical">Non-Technical</option>
+            <option value="Placement">Placement</option>
+          </select>
+        </div>
+
         <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
           <input
             type="text"
@@ -108,27 +140,18 @@ function Canceled() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button
-              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
-                new Date(event.eventenddate) < new Date()
-                  ? "bg-[#2cef5d]"
-                  : "bg-[#f92d2d]"
-              }`}
-            >
-              {new Date(event.eventenddate) < new Date()
-                ? "Completed"
-                : "Not Completed"}
+            <button className="mb-2  bg-[#2cef5d] font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ">
+              {event.status}
             </button>
             <img
               className="w-96 h-40 rounded-lg"
               src={event.imageurl}
               alt={event.eventname}
             />
-
             <div className="ml-5 mt-3 flex flex-row gap-1">
               <FaCalendar size={20} className="mt-1" color="#46459d" />
               <h1 className="text-xl text-[#8b21e8] font-Afacad">
-                {event.eventstartdate}- {event.eventenddate}
+                {event.eventstartdate} - {event.eventenddate}
               </h1>
             </div>
             <div className="ml-5 flex flex-col gap-3 mt-3">
@@ -166,6 +189,11 @@ function Canceled() {
               className="absolute top-4 right-4 text-gray-600 cursor-pointer"
               onClick={handleCloseModal}
             />
+            <img
+              src={selectedEvent.imageurl}
+              alt="Event"
+              className="custom-modal-image"
+            />
             <h1 className="text-3xl font-bold mb-4">
               {selectedEvent.eventname}
             </h1>
@@ -175,36 +203,26 @@ function Canceled() {
                 {selectedEvent.typeofevent}
               </p>
               <p>
-                <strong className="xl:text-xl font-bold">Description:</strong>{" "}
-                {selectedEvent.eventDescription}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">Organizer:</strong>{" "}
-                {selectedEvent.organizer}
+                <strong className="xl:text-xl font-bold">
+                  Eventstarttime:
+                </strong>{" "}
+                {selectedEvent.eventstarttime}
               </p>
               <p>
                 <strong className="xl:text-xl font-bold">Venue:</strong>{" "}
                 {selectedEvent.venue}
               </p>
               <p>
-                <strong className="xl:text-xl font-bold">Start:</strong>{" "}
-                {selectedEvent.eventstartdate} at {selectedEvent.eventstarttime}
+                <strong className="xl:text-xl font-bold">Organizer:</strong>{" "}
+                {selectedEvent.organizer}
               </p>
               <p>
-                <strong className="xl:text-xl font-bold">End:</strong>{" "}
-                {selectedEvent.eventenddate} at {selectedEvent.eventendtime}
+                <strong className="xl:text-xl font-bold">Start Date:</strong>{" "}
+                {selectedEvent.eventstartdate}
               </p>
               <p>
-                <strong className="xl:text-xl font-bold">
-                  Specialization:
-                </strong>{" "}
-                {selectedEvent.specialization}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">
-                  Resource Person:
-                </strong>{" "}
-                {selectedEvent.resourceperson}
+                <strong className="xl:text-xl font-bold">End Date:</strong>{" "}
+                {selectedEvent.eventenddate}
               </p>
             </div>
           </div>
@@ -214,4 +232,4 @@ function Canceled() {
   );
 }
 
-export default Canceled;
+export default History;
