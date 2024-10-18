@@ -35,6 +35,7 @@ exports.Signup = async (req, res) => {
       },
       secretKey,
       { expiresIn: "1m" }
+
     );
 
     res.status(201).json({

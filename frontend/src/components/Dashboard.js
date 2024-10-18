@@ -36,7 +36,6 @@ const Dashboard = () => {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
-
   const handleDepartmentChange = (event) => {
     const selectedDeptFullName = departmentOptions.find(
       (dept) => dept.shortName === event.target.value
@@ -48,7 +47,6 @@ const Dashboard = () => {
         : [...prevDepartments, selectedDeptFullName]
     );
   };
-
   const handleFullYearChange = () => {
     setIsFullYear(!isFullYear);
     if (!isFullYear) {
@@ -56,15 +54,12 @@ const Dashboard = () => {
       setToDate("");
     }
   };
-
   const handleGeneratePDF = async () => {
     const selectedData = {
       departments: departments,
       ...(isFullYear ? {} : { fromDate, toDate }),
     };
-
     console.log(selectedData);
-
     try {
       const response = await axios({
         url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
@@ -75,10 +70,8 @@ const Dashboard = () => {
       console.log("response passed return to the frontend :", response);
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
-
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
-
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -88,11 +81,10 @@ const Dashboard = () => {
     }
   };
   const [data, setData] = useState([]);
-  const currentEvents = data.currentEvents || [];
-  const futureEvents = data.futureEvents || [];
+  // const currentEvents = data.currentEvents || [];
+  // const futureEvents = data.futureEvents || [];
   const [popupPDF, SetPopupPdf] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [Loading, setLoading] = useState(true);
   const token = localStorage.getItem("authToken");
