@@ -93,7 +93,7 @@ const SideBar = () => {
               </Link>
             </li>
             <li>
-              <Link
+              {/* <Link
                 to=""
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
@@ -101,10 +101,10 @@ const SideBar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Upcoming
                 </span>
-              </Link>
+              </Link> */}
             </li>
             <li>
-              <Link
+              {/* <Link
                 to="/Technical"
                 className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
@@ -112,7 +112,7 @@ const SideBar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Technology
                 </span>
-              </Link>
+              </Link> */}
             </li>
             <li>
               <Link
@@ -121,12 +121,12 @@ const SideBar = () => {
               >
                 <FaAddressBook />
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Placements
+                  Events
                 </span>
               </Link>
             </li>
             <li>
-              <Link
+              {/* <Link
                 to="/NonTechnical"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
@@ -134,10 +134,10 @@ const SideBar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Non-Technical
                 </span>
-              </Link>
+              </Link> */}
             </li>
             <li>
-              <Link
+              {/* <Link
                 to="/CanceledEvents"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
@@ -145,10 +145,10 @@ const SideBar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Canceled Events
                 </span>
-              </Link>
+              </Link> */}
             </li>
             <li>
-              <Link
+              {/* <Link
                 to="/Editdata"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
@@ -156,7 +156,7 @@ const SideBar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Edit Data
                 </span>
-              </Link>
+              </Link> */}
             </li>
 
             <li>
