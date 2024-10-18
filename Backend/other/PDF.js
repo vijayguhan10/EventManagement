@@ -2,25 +2,50 @@ const { jsPDF } = require("jspdf");
 const Event = require("../Schema/EventSchema");
 
 exports.generatePdf = async (req, res) => {
+  console.log(req);
   try {
-    const currentYear = new Date().getFullYear();
+    const { fromDate, toDate, departments, fulldata } = req.query; 
+    console.log("Required data for the pdf:", req.query);
+
     const events = await Event.find({});
+    console.log("All events fetched:", events);
 
     const filteredEvents = events.filter((event) => {
       const eventStartDate = new Date(event.eventstartdate.replace(/-/g, "/"));
-      const eventEndDate = new Date(event.eventenddate.replace(/-/g, "/"));
-      const startYear = eventStartDate.getFullYear();
-      const endYear = eventEndDate.getFullYear();
 
-      return startYear === currentYear || endYear === currentYear;
+     
+      if (fromDate && toDate) {
+        const from = new Date(fromDate);
+        const to = new Date(toDate);
+        if (!(eventStartDate >= from && eventStartDate <= to)) {
+          return false;
+        }
+      }
+      if (departments) {
+        const departmentArray = Array.isArray(departments)
+          ? departments
+          : [departments]; 
+        if (departmentArray.includes("all")) {
+          return true;
+        }
+        if (!departmentArray.includes(event.department)) {
+          return false; 
+        }
+      }
+
+      return true; 
     });
 
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(`Events Report for ${currentYear}`, 10, 10);
+    doc.text(
+      `Events Report for ${
+        fromDate && toDate ? `${fromDate} to ${toDate}` : "All Events"
+      }`,
+      10,
+      10
+    );
     doc.setFontSize(12);
-
-    console.log("Filtered events data: ", filteredEvents);
 
     let y = 20;
     const pageHeight = doc.internal.pageSize.height;

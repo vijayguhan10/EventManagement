@@ -2,7 +2,7 @@ const Signups = require("../Schema/Authorization");
 
 const validateUser = async (userId) => {
   const user = await Signups.findById(userId);
-  return user ? true : false;
+  return user ? true : false; 
 };
 
 const formatDate = (date) => {

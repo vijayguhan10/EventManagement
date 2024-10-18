@@ -57,14 +57,35 @@ const Dashboard = () => {
     }
   };
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     const selectedData = {
       departments: departments,
       ...(isFullYear ? {} : { fromDate, toDate }),
     };
 
-    console.log("Selected Data:", selectedData);
-    // You can integrate the PDF generation logic here
+    console.log(selectedData);
+
+    try {
+      const response = await axios({
+        url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
+        method: "GET",
+        params: selectedData,
+        responseType: "blob",
+      });
+      console.log("response passed return to the frontend :", response);
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "events-report.pdf";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("Error fetching PDF:", error);
+    }
   };
 
   const [data, setData] = useState([]);
@@ -160,7 +181,6 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold mb-28 text-white-800">
               Welcome, <span>Vijay Guhan</span>
             </h1>
-          
           </div>
           <div className="relative ml-[90%] mb-32">
             <input
@@ -320,14 +340,13 @@ const Dashboard = () => {
 
         {/* Generate PDF Button */}
         <div className="text-center">
-         
           <button
             onClick={handleGeneratePDF}
             to="/Form"
-              className="bg-gradient-to-r ml-80  from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-            >
-              Generate PDF
-            </button>
+            className="bg-gradient-to-r ml-80  from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+          >
+            Generate PDF
+          </button>
         </div>
       </div>
     </div>
