@@ -276,32 +276,40 @@ exports.updateevent = async (req, res) => {
     });
   }
 };
-
 exports.deleteEvent = async (req, res) => {
   try {
-    const { eventid } = req.body;
-    const userId = req.userId;
+    const { eventid } = req.body; 
+    const userId = req.userId; 
 
+  
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
-    const deletedEvent = await Event.findByIdAndDelete(eventid);
-    if (!deletedEvent) {
+
+    const updatedEvent = await Event.findByIdAndUpdate(
+      eventid,
+      { status: 'decline' },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Event deleted successfully", event: deletedEvent });
+    return res.status(200).json({
+      message: "Event status updated to declined successfully",
+      event: updatedEvent
+    });
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({
-      message: "Sorry, error in deleting the event",
+      message: "Sorry, error in updating the event status",
       error: error.message,
     });
   }
 };
+
 
 exports.Get_Detailed_Info = async (req, res) => {
   try {

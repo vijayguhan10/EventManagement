@@ -16,26 +16,23 @@ const products = [
   {
     name: "Computer and Communication Engineering",
     imageurl: "https://i.ibb.co/LNvgTTn/cce.jpg",
-    date: today, 
-    count: 6
+    date: today,
+    count:0
   },
   {
     name: "Computer Science Engineering",
     imageurl: "https://i.ibb.co/pjx192W/cse.jpg",
-    date: today,
-    count: 6
+    date: today
   },
   {
     name: "Artificial Intelligence and Data Science",
     imageurl: "https://i.ibb.co/K6WmSZS/aids.jpg",
-    date: today, 
-    count: 7
+    date: today
   },
   {
     name: "Electronics and Communication Engineering",
     imageurl: "https://i.ibb.co/48jZq57/ece.jpg",
-    date: today, 
-    count: 8
+    date: today,
   },
   {
     name: "Information Technology",
@@ -68,36 +65,6 @@ const products = [
     date: today,
   },
 ];
-
-// const events = [
-//   {
-//     date: "2024-10-14",
-//     eventname: "IOT Workshop",
-//     category: "Tech",
-//     starttime: "12:00 PM",
-//     description: "A workshop on the latest trends in IoT.",
-//     location: "Event Hall A, Main Campus",
-//     contact: "iotworkshop@example.com",
-//   },
-//   {
-//     date: "2024-10-14",
-//     eventname: "Onam Celebration",
-//     category: "Non Tech",
-//     starttime: "02:00 PM",
-//     description: "Cultural events to celebrate Onam.",
-//     location: "Central Auditorium",
-//     contact: "onamcelebration@example.com",
-//   },
-//   {
-//     date: "2024-10-15",
-//     eventname: "DSA Bootcamp",
-//     category: "Tech",
-//     starttime: "10:00 AM",
-//     description: "Data Structures and Algorithms bootcamp.",
-//     location: "Room 204, Main Campus",
-//     contact: "dsabootcamp@example.com",
-//   },
-// ];
 function Departments() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -110,9 +77,36 @@ function Departments() {
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   useEffect(() => {
-    setData(events);
-    
-  }, []);
+    const getcount = async () => {
+      try {
+        // Fetch total department counts from the API
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`);
+        const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
+
+        console.log("Received Department Counts:", totalCountsDept);
+
+        // Map over the products array to assign counts
+        const updatedProducts = products.map(product => {
+          const departmentName = product.name; // Normalize department name
+
+          // Match the department name directly from totalCountsDept
+          const count = totalCountsDept[departmentName] || 0; // Use count or default to 0
+
+          return {
+            ...product,
+            count: count // Assign the count to the product
+          };
+        });
+        console.log("1233333333333333333 : ",updatedProducts)
+        setData(updatedProducts); // Update state with updated products array
+      } catch (error) {
+        console.error("Error fetching department counts: ", error);
+      }
+    };
+
+    getcount(); // Invoke the function
+  }, []); // Dependency array includes products to ensure updates when products change
+  
   const closeEventModal = () => {
     setSelectedEvent(null); 
   };
@@ -249,7 +243,7 @@ function Departments() {
       </div>
 
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-      {filteredProducts.map((dept, index) => (
+      {data.map((dept, index) => (
   <div
     key={index}
     className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative pb-16" // Added padding bottom

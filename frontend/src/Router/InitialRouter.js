@@ -9,6 +9,7 @@ import Nontechnical from "../components/NonTechnical";
 import Technical from "../components/Technical";
 import History from "../components/History";
 import Departments from "../components/Departments";
+import Canceled from "../components/Canceled";
 const InitialRouter = () => {
   return (
     <Routes>
@@ -21,6 +22,8 @@ const InitialRouter = () => {
       <Route path="/Form" element={<Forms />}></Route>
       <Route path="/Editdata" element={<CRUD />}></Route>
       <Route path="/Departments" element={<Departments />}></Route>
+      <Route path="/CanceledEvents" element={<Canceled />}></Route>
+
     </Routes>
   );
 };

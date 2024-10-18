@@ -138,6 +138,17 @@ const SideBar = () => {
             </li>
             <li>
               <Link
+                to="/CanceledEvents"
+                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <FaSmoking />
+                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                  Canceled Events
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/Editdata"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
