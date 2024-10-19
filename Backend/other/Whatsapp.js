@@ -69,10 +69,10 @@ const sendTodaysEvents = async () => {
   }
 };
 
-cron.schedule("* *  * * *", () => {
-  console.log("Sending today's events...");
-  sendTodaysEvents().catch((err) => console.error(err));
-});
+// cron.schedule("* *  * * *", () => {
+//   console.log("Sending today's events...");
+//   sendTodaysEvents().catch((err) => console.error(err));
+// });
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
