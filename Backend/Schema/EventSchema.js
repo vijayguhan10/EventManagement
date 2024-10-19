@@ -67,6 +67,10 @@ const EventDataSchema = new mongoose.Schema({
   imageurl: {
     type: String,
   },
+  year:{
+    type:String,
+    required:true
+  }
 });
 
 const EventData = mongoose.model("EventData", EventDataSchema);

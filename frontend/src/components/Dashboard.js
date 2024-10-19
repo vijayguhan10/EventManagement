@@ -248,34 +248,33 @@ const Dashboard = () => {
       </div>
       {/* Event Modal */}
       {selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={closeEventModal}>
-              &times;
-            </button>
-            <img
-              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            <p className="custom-modal-description">
-              <strong>Department:</strong> {selectedEvent.departments}
-              <br />
-              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-              <br />
-              <strong>End Time:</strong> {selectedEvent.eventendtime}
-              <br />
-              <strong>End End date:</strong> {selectedEvent.eventstartdate}
-              <br />
-              <strong>start Date:</strong> {selectedEvent.eventenddate}
-              <br />
-              <strong>Venue:</strong> {selectedEvent.venue}
-              <br />
-            </p>
-          </div>
-        </div>
-      )}
+  <div className="custom-modal-overlay">
+    <div className="custom-modal-content">
+      <button className="custom-close-modal" onClick={closeEventModal}>
+        &times;
+      </button>
+      <img
+        src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+        alt="Event"
+        className="custom-modal-image"
+      />
+      <div className="custom-modal-header">
+        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+        <span className="custom-modal-date">{selectedEvent.eventstartdate}</span>
+      </div>
+      <div className="custom-modal-body">
+        <p><strong>Department:</strong> {selectedEvent.departments}</p>
+        <p><strong>Venue:</strong> {selectedEvent.venue}</p>
+        <p><strong>Resource Person:</strong> {selectedEvent.resourceperson}</p>
+        <p><strong>Participants:</strong> {selectedEvent.participants}</p>
+        <p><strong>Time:</strong> {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}</p>
+        <p><strong>Event Type:</strong> {selectedEvent.eventtype}</p>
+        <p className="custom-event-description"><strong>Description:</strong> {selectedEvent.description}</p>
+      </div>
+    </div>
+  </div>
+)}
+
       <div className="container absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
         <h1 className="text-xl font-bold text-center text-black mb-4">
           Department Report Generator

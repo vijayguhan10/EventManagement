@@ -19,6 +19,7 @@ function Forms() {
     eventType: "",
     eventDescription: "",
     departments: [],
+    year:""
   });
 
   const departmentOptions = [
@@ -70,6 +71,7 @@ function Forms() {
     const newErrors = {};
     if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
     if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
+    if (!formData.year) newErrors.year = "Event year is required";
     if (!formData.startDate) newErrors.startDate = "Start date is required";
     if (!formData.endDate) newErrors.endDate = "End date is required";
     if (!formData.startTime) newErrors.startTime = "Start time is required";
@@ -105,11 +107,13 @@ function Forms() {
           typeofevent: formData.eventType,
           departments: formData.departments,
           status: "pending",
+          year:"2"
         }
       );
 
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
+        console.log("year🤣🤣🤣🤣🤣",response.data.year)
         toast.success("Event added successfully!");
       }
     } catch (error) {
@@ -119,7 +123,23 @@ function Forms() {
 
     setErrors({});
   };
-
+  const yearOptions = [
+    { value: "1", label: "1st Year" },
+    { value: "2", label: "2nd Year" },
+    { value: "3", label: "3rd Year" },
+    { value: "4", label: "4th Year" },
+    { value: "All", label: "All" }, // Represents all years
+    { value: "1 and 2", label: "1st Year and 2nd Year" },
+    { value: "1 and 3", label: "1st Year and 3rd Year" },
+    { value: "1 and 4", label: "1st Year and 4th Year" },
+    { value: "2 and 3", label: "2nd Year and 3rd Year" },
+    { value: "2 and 4", label: "2nd Year and 4th Year" },
+    { value: "3 and 4", label: "3rd Year and 4th Year" },
+    { value: "1, 2, and 3", label: "1st Year, 2nd Year, and 3rd Year" },
+    { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
+    { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
+    { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" }// Represents all years
+  ];
   return (
     <div className="p-10">
       <ToastContainer />
@@ -158,7 +178,25 @@ function Forms() {
               <span className="text-red-500">{errors.departments}</span>
             )}
           </div>
-
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+              Year
+            </label>
+            <select
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Select Year</option>
+              {yearOptions.map((year) => (
+                <option key={year.value} value={year.value}>
+                  {year.label}
+                </option>
+              ))}
+            </select>
+            {errors.year && <span className="text-red-500">{errors.year}</span>}
+          </div>
           {/* Event Title */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">

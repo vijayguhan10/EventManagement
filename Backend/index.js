@@ -23,10 +23,9 @@ mongoose
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
   });
-
-app.use("/sece", router);
-app.use("/event", Event);
-app.use("/messages", messages);
+  app.use("/api/sece", router);
+  app.use("/api/event", Event);
+  app.use("/api/messages", messages);
 
 updateevents;
 const PORT = 8000;

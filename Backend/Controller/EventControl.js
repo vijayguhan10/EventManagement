@@ -122,6 +122,7 @@ exports.CreateEvent = async (req, res) => {
       typeofevent,
       status,
       departments,
+      year
     } = req.body;
     const userId = req.userId;
 
@@ -160,6 +161,7 @@ exports.CreateEvent = async (req, res) => {
         typeofevent,
         departments: department,
         imageurl: imageUrl,
+        year
       });
 
       const savedEvent = await newEvent.save();
@@ -179,6 +181,7 @@ exports.CreateEvent = async (req, res) => {
     return res.status(201).json({
       message: "Events created successfully",
       events: createdEvents,
+      year:year
     });
   } catch (error) {
     console.error("Error in CreateEvent:", error.message);

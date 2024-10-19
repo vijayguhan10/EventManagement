@@ -75,7 +75,7 @@ function History() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesEventType =
-      eventType === "All" || event.typeofevent === eventType; // Assuming your event data has a 'typeofevent' field
+      eventType === "All" || event.typeofevent === eventType;
     return matchesSearchTerm && matchesEventType;
   });
 

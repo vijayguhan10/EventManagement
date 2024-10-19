@@ -14,3 +14,84 @@
   -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile */
   background: none !important; /* Forces no background color */
 }
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-modal-content {
+  background: #fff;
+  padding: 20px;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 10px;
+  position: relative;
+  font-family: 'Arial', sans-serif;
+}
+
+.custom-close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #8e44ad;
+}
+
+.custom-modal-image {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  height: 200px;
+  object-fit: cover;
+}
+
+.custom-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.custom-modal-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000; /* Dark title */
+}
+
+.custom-modal-date {
+  background: #8e44ad; /* Purple background for date */
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.custom-modal-body {
+  margin-top: 20px;
+  color: #000; /* Primary text color */
+}
+
+.custom-modal-body p {
+  margin: 15px 0; /* Add space between the paragraphs */
+  font-size: 16px;
+  color: #555; /* Lighter gray for regular text */
+}
+
+.custom-event-description {
+  margin-top: 20px;
+  font-style: italic;
+  color: #777; /* Lighter gray for the description */
+}
+
+.custom-modal-body strong {
+  color: #000; /* Make the labels bold and black */
+}
