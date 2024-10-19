@@ -36,6 +36,7 @@ const Dashboard = () => {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
+
   const handleDepartmentChange = (event) => {
     const selectedDeptFullName = departmentOptions.find(
       (dept) => dept.shortName === event.target.value
@@ -47,6 +48,7 @@ const Dashboard = () => {
         : [...prevDepartments, selectedDeptFullName]
     );
   };
+
   const handleFullYearChange = () => {
     setIsFullYear(!isFullYear);
     if (!isFullYear) {
@@ -54,12 +56,15 @@ const Dashboard = () => {
       setToDate("");
     }
   };
+
   const handleGeneratePDF = async () => {
     const selectedData = {
       departments: departments,
       ...(isFullYear ? {} : { fromDate, toDate }),
     };
+
     console.log(selectedData);
+
     try {
       const response = await axios({
         url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
@@ -70,8 +75,10 @@ const Dashboard = () => {
       console.log("response passed return to the frontend :", response);
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
+
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -80,15 +87,16 @@ const Dashboard = () => {
       console.error("Error fetching PDF:", error);
     }
   };
+
   const [data, setData] = useState([]);
-  // const currentEvents = data.currentEvents || [];
-  // const futureEvents = data.futureEvents || [];
+  const currentEvents = data.currentEvents || [];
+  const futureEvents = data.futureEvents || [];
   const [popupPDF, SetPopupPdf] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [Loading, setLoading] = useState(true);
   const token = localStorage.getItem("authToken");
-  
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const closeEventModal = () => {
     setSelectedEvent(null);
@@ -96,7 +104,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("token",axios.defaults.headers.common["Authorization"] = `Bearer ${token}`)
         console.log("😪");
         const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
@@ -163,6 +170,15 @@ const Dashboard = () => {
   const popupopen = () => {
     SetPopupPdf(!popupPDF);
   };
+  if (Loading
+    
+  ) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
   return (
     <div
       className={`${popupPDF ? "bg-[#000000]" : ""} xl:overflow-y-hidden h-fit`}

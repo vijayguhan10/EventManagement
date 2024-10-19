@@ -54,21 +54,19 @@ const CalendarComponent = () => {
   };
 
   const formatDate = (dateString) => {
-    // Format "17/10/24" to a Date object
     const parts = dateString.split('/');
     if (parts.length === 3) {
       const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1; // Month is zero-indexed
-      const year = parseInt(parts[2], 10) + 2000; // Assuming 20xx for '24'
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10) + 2000; 
       return new Date(year, month, day);
     }
-    // Fallback to returning an invalid date
     return new Date(NaN);
   };
 
   const eventsForSelectedDate = events.filter((event) => {
-    const eventDate = new Date(event.date); // Assuming 'event.date' is in format "2024-10-14"
-    const eventStartDate = formatDate(event.eventstartdate); // Format "17/10/24" to Date object
+    const eventDate = new Date(event.date); 
+    const eventStartDate = formatDate(event.eventstartdate); 
 
     return (
       eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||

@@ -19,17 +19,17 @@ const products = [
     name: "Computer and Communication Engineering",
     imageurl: "https://i.ibb.co/LNvgTTn/cce.jpg",
     date: today,
-    count:0
+    count: 0,
   },
   {
     name: "Computer Science Engineering",
     imageurl: "https://i.ibb.co/pjx192W/cse.jpg",
-    date: today
+    date: today,
   },
   {
     name: "Artificial Intelligence and Data Science",
     imageurl: "https://i.ibb.co/K6WmSZS/aids.jpg",
-    date: today
+    date: today,
   },
   {
     name: "Electronics and Communication Engineering",
@@ -86,10 +86,11 @@ const departmentOptions = [
   { fullName: "Cybersecurity", shortName: "Cyber" },
   { fullName: "All", shortName: "All" },
 ];
+
 function Departments() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-    const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState([]);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -118,19 +119,18 @@ function Departments() {
   });
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
   const handleDelete = async () => {
     if (deleteEventName === selectedEvent.eventname) {
       try {
-        const response=await axios.post(
+        const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
           { eventid: selectedEvent._id }
         );
-     console.log(response.data,"after deletion 😎😎😎")
+        console.log(response.data, "after deletion 😎😎😎");
         const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
         setEvents(updatedEvents);
-        console.log("toast")
         toast.success("Event deleted successfully!");
-        console.log("idvbifdbv  ")
       } catch (error) {
         toast.error("Failed to delete the event.");
       }
@@ -163,43 +163,35 @@ function Departments() {
         typeofevent: formData.typeofevent,
       };
 
-
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
         updatedEvent
       );
       handleCloseModal();
       if (response.status === 201 || response.status === 200) {
-        console.log("sucessfull response : ", response);
         toast.success("Event added successfully!");
       }
-      // setLoading(true);
     } catch (error) {
       handleCloseModal();
-
       toast.error(error.message);
       console.error("Error updating event:", error);
     }
   };
 
   const handleOpeneditModal = (event) => {
-    console.log("ccvcccccccccc😤😤😤")
     function formatDate(date) {
       const parts = date.split("/");
       if (parts.length !== 3) {
         console.error("Invalid date format:", date);
         return "";
       }
-
-      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
       const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
-
       const dateObj = new Date(formattedDate);
       if (isNaN(dateObj)) {
         console.error("Invalid date provided:", formattedDate);
         return "";
       }
-
       return formattedDate;
     }
     setSelectedEvent(event);
@@ -218,93 +210,67 @@ function Departments() {
       typeofevent: event.typeofevent,
     });
     setIsOpen(true);
-    console.log("edit button is clicked");
   };
 
   useEffect(() => {
-    const getcount = async () => {
+    const getCount = async () => {
       try {
-        // Fetch total department counts from the API
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
+        );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
-
-        console.log("Received Department Counts:", totalCountsDept);
-
-        // Map over the products array to assign counts
-        const updatedProducts = products.map(product => {
-          const departmentName = product.name; // Normalize department name
-
-          // Match the department name directly from totalCountsDept
-          const count = totalCountsDept[departmentName] || 0; // Use count or default to 0
-
+        const updatedProducts = products.map((product) => {
+          const departmentName = product.name;
+          const count = totalCountsDept[departmentName] || 0;
           return {
             ...product,
-            count: count // Assign the count to the product
+            count: count,
           };
         });
-        console.log("1233333333333333333 : ",updatedProducts)
-        setData(updatedProducts); // Update state with updated products array
+        setData(updatedProducts);
       } catch (error) {
         console.error("Error fetching department counts: ", error);
       }
     };
+    setLoading(true);
+    getCount();
+  }, []); // Merged useEffect for fetching department counts
 
-    getcount(); // Invoke the function
-  }, []); // Dependency array includes products to ensure updates when products change
   const handleDeleteConfirmation = (event) => {
     setSelectedEvent(event);
     setShowDeleteModal(true);
   };
   const closeEventModal = () => {
-    setSelectedEvent(null); 
+    setSelectedEvent(null);
   };
-  
+
   const handleOpenModal = async (event) => {
     try {
-      console.log(event, "😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️");
-      console.log(event, "event startdate");
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/getdepartmentdata`,
         { department: event }
       );
-      
-      console.log("Response data: ", response.data);
       setIsEventListOpen(true);
-  
       if (response.data && response.data.length > 0) {
         setEvents(response.data);
-        console.log("😤😤", response.data); // Use response.data instead of events
       } else {
-        setEvents([]); // Set an empty array to ensure the UI updates correctly
-        console.log("No events found for this department.");
+        setEvents([]);
       }
     } catch (error) {
       console.error("Error fetching department events: ", error);
     }
   };
-  
-  
 
   const openEventModal = (event) => {
-    setSelectedEvent(event); 
+    setSelectedEvent(event);
   };
-  // const fetchEventsForDepartment = async (departmentName) => {
-  //   try {
-  //     const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/event/getalldata`, { departmentName });
-  //     const filteredData = response.data.eventdata.filter((elem) => elem.status === "pending");
-  //     setEvents(filteredData);
-  //     console.log("Fetched events for department:", filteredData);
-  //   } catch (error) {
-  //     console.error("Failed to fetch department events:", error);
-  //     toast.error("Failed to fetch department events.");
-  //   }
-  // };
+
   const handleCloseModal = () => {
     setIsOpen(false);
     setSelectedEvent(null);
   };
   const closeEventList = () => {
-    setIsEventListOpen(false); // Close the event list
+    setIsEventListOpen(false);
   };
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -319,39 +285,10 @@ function Departments() {
   const filteredProducts = products.filter((dept) =>
     dept.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
   console.log("Filtered Products:❤️‍🔥❤️‍🔥❤️‍🔥", filteredProducts);
-  
-  
-// useEffect(() => {
-//   const fetchData = async () => {
-//     try {
-//       console.log("😪😍");
-//       const response = await axios.post(
-//         `${process.env.REACT_APP_BASE_URL}/event/getalldata`
-//       );
-//       console.log(response.data.eventdata[0].departments,"👏👏👏👏👏👏😍😍")
-//       // const filteredData = response.data.eventdata.filter(
-//       //   (elem) => elem.status === "pending"
-//       // );
-//       setData(response.data.eventdata);
-//       console.log("😒😒😒filtereddata",response.data.eventdata)
-//       setEvents(response.data.eventdata);
-      
-//       console.log("👏👏👏",events)
-//     } catch (error) {
-//       console.error("Failed to fetch data:", error);
-//       toast.error("Failed to fetch data.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
-//   fetchData();
-// }, []);
-
-
-  if (loading) {
+  if (!loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
@@ -369,7 +306,6 @@ function Departments() {
           </h1>
         </div>
       </div>
-
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
           Departments
@@ -390,179 +326,177 @@ function Departments() {
           </button>
         </div>
       </div>
-
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-      {data.map((dept, index) => (
-  <div
-    key={index}
-    className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative pb-16" // Added padding bottom
-  >
-    <img
-      className="w-96 h-40 rounded-lg"
-      src={dept.imageurl}
-      alt={dept.name}
-    />
-
-    <div className="ml-5 mt-3 flex flex-row gap-1">
-      <FaCalendar size={20} className="mt-1" color="#46459d" />
-      <h1 className="text-xl text-[#8b21e8] font-Afacad">
-        {dept.name}
-      </h1>
-    </div>
-
-    <div className="absolute bottom-5 left-5 right-5 flex justify-between items-center">
-      <button
-        className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-        onClick={() => handleOpenModal(dept.name)}
-      >
-        View More
-      </button>
-      
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8b21e8] text-white">
-        <span className="text-sm">{dept.count || 0}</span>
-      </div>
-    </div>
-  </div>
-))}
-
-
-      </div>
-
-
-
-
-
- 
-     {/* Event List Modal */}
-{isEventListOpen && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <button className="close-modal" onClick={closeEventList}>
-        &times;
-      </button>
-      <h2 className="modal-date-title">
-        Events for {selectedDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        })}
-      </h2>
-      <ul className="event-list">
-      {events.length > 0 ? (
-  events.filter(event => event.status === "pending").length > 0 ? (
-    events
-      .filter(event => event.status === "pending") // Filter for pending events
-      .map((event, index) => (
-        <li
-          key={index}
-          className="event-item"
-          onClick={() => openEventModal(event)}
-        >
-          <div className="event-row">
-            <span className="event-name">{event.eventname}</span>
-            <span className={`event-category ${event.typeofevent.toLowerCase()}`}>
-              {event.typeofevent} {/* Use typeofevent instead of type */}
-            </span>
-            <span className={`event-icon ${event.typeofevent.toLowerCase()}`}>
-              {event.typeofevent === "Technical" ? "📘" : "📕"}
-            </span>
-          </div>
-          <hr className="event-divider" />
-        </li>
-      ))
-  ) : (
-    <p>No pending events available.</p>
-  )
-) : (
-  <p>No events available.</p> // Message when no events at all
-)}
-
-
-      </ul>
-    </div>
-  </div>
-)}
-
-{/* Event Modal */}
-{/* Event Modal */}
-{selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={closeEventModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEvent.imageurl}
-        alt={selectedEvent.eventname}
-        className="custom-modal-image"
-      />
-      <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-      <p className="custom-modal-description">
-        <strong>Department:</strong> {selectedEvent.departments}
-        <br />
-        <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-        <br />
-        <strong>End Time:</strong> {selectedEvent.eventendtime}
-        <br />
-        <strong>Start Date:</strong> {selectedEvent.eventstartdate}
-        <br />
-        <strong>End Date:</strong> {selectedEvent.eventenddate}
-        <br />
-        <strong>Venue:</strong> {selectedEvent.venue}
-        <br />
-      </p>
-      {showDeleteModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-            <p>
-              Are you sure you want to delete the event{" "}
-              <strong>{selectedEvent.eventname}</strong>? Type the event name to
-              confirm:
-            </p>
-            <input
-              type="text"
-              value={deleteEventName}
-              onChange={(e) => setDeleteEventName(e.target.value)}
-              className="border rounded p-2 w-full mt-2"
+        {data.map((dept, index) => (
+          <div
+            key={index}
+            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative pb-16" // Added padding bottom
+          >
+            <img
+              className="w-96 h-40 rounded-lg"
+              src={dept.imageurl}
+              alt={dept.name}
             />
-            <div className="flex justify-end mt-4">
+
+            <div className="ml-5 mt-3 flex flex-row gap-1">
+              <FaCalendar size={20} className="mt-1" color="#46459d" />
+              <h1 className="text-xl text-[#8b21e8] font-Afacad">
+                {dept.name}
+              </h1>
+            </div>
+
+            <div className="absolute bottom-5 left-5 right-5 flex justify-between items-center">
               <button
-                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-                onClick={handleDelete}
+                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                onClick={() => handleOpenModal(dept.name)}
               >
-                Delete
+                View More
+              </button>
+
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8b21e8] text-white">
+                <span className="text-sm">{dept.count || 0}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Event List Modal */}
+      {isEventListOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-modal" onClick={closeEventList}>
+              &times;
+            </button>
+            <h2 className="modal-date-title">
+              Events for{" "}
+              {selectedDate.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+            </h2>
+            <ul className="event-list">
+              {events.length > 0 ? (
+                events.filter((event) => event.status === "pending").length >
+                0 ? (
+                  events
+                    .filter((event) => event.status === "pending") // Filter for pending events
+                    .map((event, index) => (
+                      <li
+                        key={index}
+                        className="event-item"
+                        onClick={() => openEventModal(event)}
+                      >
+                        <div className="event-row">
+                          <span className="event-name">{event.eventname}</span>
+                          <span
+                            className={`event-category ${event.typeofevent.toLowerCase()}`}
+                          >
+                            {event.typeofevent}{" "}
+                            {/* Use typeofevent instead of type */}
+                          </span>
+                          <span
+                            className={`event-icon ${event.typeofevent.toLowerCase()}`}
+                          >
+                            {event.typeofevent === "Technical" ? "📘" : "📕"}
+                          </span>
+                        </div>
+                        <hr className="event-divider" />
+                      </li>
+                    ))
+                ) : (
+                  <p>No pending events available.</p>
+                )
+              ) : (
+                <p>No events available.</p> // Message when no events at all
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+      {/* Event Modal */}
+      {/* Event Modal */}
+      {selectedEvent && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEvent.imageurl}
+              alt={selectedEvent.eventname}
+              className="custom-modal-image"
+            />
+            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            <p className="custom-modal-description">
+              <strong>Department:</strong> {selectedEvent.departments}
+              <br />
+              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
+              <br />
+              <strong>End Time:</strong> {selectedEvent.eventendtime}
+              <br />
+              <strong>Start Date:</strong> {selectedEvent.eventstartdate}
+              <br />
+              <strong>End Date:</strong> {selectedEvent.eventenddate}
+              <br />
+              <strong>Venue:</strong> {selectedEvent.venue}
+              <br />
+            </p>
+            {showDeleteModal && selectedEvent && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+                  <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+                  <p>
+                    Are you sure you want to delete the event{" "}
+                    <strong>{selectedEvent.eventname}</strong>? Type the event
+                    name to confirm:
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteEventName}
+                    onChange={(e) => setDeleteEventName(e.target.value)}
+                    className="border rounded p-2 w-full mt-2"
+                  />
+                  <div className="flex justify-end mt-4">
+                    <button
+                      className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                      onClick={handleDelete}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="bg-gray-500 text-white rounded px-4 py-2"
+                      onClick={() => setShowDeleteModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Button Container */}
+            <div className="custom-modal-buttons">
+              <button
+                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28 mr-4"
+                onClick={() => handleOpeneditModal(selectedEvent)}
+              >
+                Edit
               </button>
               <button
-                className="bg-gray-500 text-white rounded px-4 py-2"
-                onClick={() => setShowDeleteModal(false)}
+                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                onClick={() => handleDeleteConfirmation(selectedEvent)}
               >
-                Cancel
+                Delete
               </button>
             </div>
           </div>
         </div>
       )}
-      {/* Button Container */}
-      <div className="custom-modal-buttons">
-        <button
-          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28 mr-4" 
-          onClick={() => handleOpeneditModal(selectedEvent)}
+      {isOpen && (
+        <div
+          style={{ zIndex: 1000 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
         >
-          Edit
-        </button>
-        <button
-          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28" 
-          onClick={() => handleDeleteConfirmation(selectedEvent)}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
- {isOpen && (
-        <div style={{zIndex:1000}} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
             <span
               className="absolute top-4 right-4 cursor-pointer"
@@ -667,11 +601,10 @@ function Departments() {
             </form>
           </div>
         </div>
-      )} && <ToastContainer />
-
-</div>
-  )}
-
-
+      )}
+      <ToastContainer />
+    </div>
+  );
+}
 
 export default Departments;
