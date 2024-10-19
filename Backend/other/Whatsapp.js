@@ -75,7 +75,7 @@ const getMessage = async (req, res) => {
     const message = req.body.Body.trim();
     const num = "+918438434868";
     const today = new Date();
-
+    console.log("consoling the message : ", message);
     const formattedToday = `${String(today.getDate()).padStart(
       2,
       "0"
@@ -177,7 +177,7 @@ const getMessage = async (req, res) => {
           from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
           to: `whatsapp:${num}`,
         });
-
+        console.log("response for the department : ", responseMessage);
         return res.status(200).send("Message sent.");
       }
     }
