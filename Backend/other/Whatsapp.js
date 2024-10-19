@@ -69,7 +69,10 @@ const sendTodaysEvents = async () => {
     res.status(500).send("Error occurred while sending the message.");
   }
 };
-
+cron.schedule("* *  * * *", () => {
+  console.log("Sending today's events...");
+  sendTodaysEvents().catch((err) => console.error(err));
+});
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
