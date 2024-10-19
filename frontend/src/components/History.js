@@ -52,7 +52,7 @@ function History() {
     if (newFilteredData.length > 0) {
       setSelectedEvent(newFilteredData[0]); // Set the first event as selected
     } else {
-      setSelectedEvent(null); // Reset if no events match
+      setSelectedEvent(null); 
     }
   };
 
