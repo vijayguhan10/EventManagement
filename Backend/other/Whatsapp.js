@@ -25,12 +25,14 @@ const departmentOptions = [
   { fullName: "Cybersecurity", shortName: "Cyber" },
   { fullName: "All", shortName: "All" },
 ];
+
 const getMessage = async (req, res) => {
   try {
-    const message = req.body.Body.trim();
-    const num = "+918438434868";
+    const message = req.body.Body.trim().toLowerCase(); // Convert to lowercase for consistency
+    const num = "+918438434868"; // User's phone number for WhatsApp message
     const today = new Date();
 
+    // Format today's date in DD/MM/YY format
     const formattedToday = `${String(today.getDate()).padStart(
       2,
       "0"
@@ -38,9 +40,10 @@ const getMessage = async (req, res) => {
       today.getFullYear()
     ).slice(-2)}`;
 
-    if (message.toLowerCase() === "today") {
-      const eventsToday = await Event.find({ eventstartdate: formattedToday });
+    // Find today's events
+    const eventsToday = await Event.find({ eventstartdate: formattedToday });
 
+    if (message === "today") {
       if (eventsToday.length === 0) {
         const noEventsMessage = "No events scheduled for today.";
         await client.messages.create({
@@ -56,28 +59,27 @@ const getMessage = async (req, res) => {
         responseMessage += `*${event.typeofevent}*: ${event.eventname}\n\n`;
       });
 
-      const response = await client.messages.create({
+      await client.messages.create({
         body: responseMessage,
-        from: "whatsapp:+14155238886",
+        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
         to: `whatsapp:${num}`,
       });
 
       return res.status(200).send("Message sent.");
     }
-    if (message.toLowerCase() === "fulldata") {
-      const eventsToday = await Event.find({ eventstartdate: formattedToday });
 
+    if (message === "fulldata") {
       if (eventsToday.length === 0) {
         const noEventsMessage = "No events scheduled for today.";
         await client.messages.create({
           body: noEventsMessage,
-          from: "whatsapp:+14155238886",
+          from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
           to: `whatsapp:${num}`,
         });
         return res.status(200).send("No events found.");
       }
 
-      let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
+      let responseMessage = `Full event details for today (${formattedToday}):\n\n`;
       eventsToday.forEach((event) => {
         responseMessage += `*Event Name*: ${event.eventname}\n`;
         responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
@@ -89,33 +91,42 @@ const getMessage = async (req, res) => {
         responseMessage += `*Status*: ${event.status}\n\n`;
       });
 
-      const response = await client.messages.create({
+      await client.messages.create({
         body: responseMessage,
-        from: "whatsapp:+14155238886",
+        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
         to: `whatsapp:${num}`,
       });
 
       return res.status(200).send("Message sent.");
     }
-     
 
-    if (message.toLowerCase() === "cse") {
-      const department = eventsToday.filter(
-        (elem) => elem.departments[0] === "Computer Science Engineering"
-      );
+    // Check for department-specific queries dynamically
+    const departmentOption = departmentOptions.find(
+      (dept) => dept.shortName.toLowerCase() === message
+    );
 
-      if (department.length === 0) {
-        const noEventsMessage = "No events scheduled for today. for cse department";
-        await client.messages.create({
-          body: noEventsMessage,
-          from: "whatsapp:+14155238886",
-          to: `whatsapp:${num}`,
-        });
-        return res.status(200).send("No events found.");
+    if (departmentOption) {
+      let departmentEvents;
+      if (departmentOption.shortName === "All") {
+        departmentEvents = eventsToday;
+      } else {
+        departmentEvents = eventsToday.filter((event) =>
+          event.departments.includes(departmentOption.fullName)
+        );
       }
 
-      let responseMessage = `Events scheduled for today (${formattedToday}): for cse department\n\n`;
-      department.forEach((event) => {
+      if (departmentEvents.length === 0) {
+        const noEventsMessage = `No events scheduled for today for ${departmentOption.fullName} department.`;
+        await client.messages.create({
+          body: noEventsMessage,
+          from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+          to: `whatsapp:${num}`,
+        });
+        return res.status(200).send("No department events found.");
+      }
+
+      let responseMessage = `Events scheduled for today (${formattedToday}) in the ${departmentOption.fullName} department:\n\n`;
+      departmentEvents.forEach((event) => {
         responseMessage += `*Event Name*: ${event.eventname}\n`;
         responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
         responseMessage += `*Resource Person*: ${event.resourceperson}\n`;
@@ -126,22 +137,16 @@ const getMessage = async (req, res) => {
         responseMessage += `*Status*: ${event.status}\n\n`;
       });
 
-      const response = await client.messages.create({
+      await client.messages.create({
         body: responseMessage,
-        from: "whatsapp:+14155238886",
+        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
         to: `whatsapp:${num}`,
       });
 
-      return res.status(200).send("Message sent.");
+      return res.status(200).send("Department-specific message sent.");
     }
 
-
-
-
-
-
-
-
+    res.status(400).send("Invalid command.");
   } catch (err) {
     console.log(err);
     res.status(500).send("Error occurred while sending the message.");
