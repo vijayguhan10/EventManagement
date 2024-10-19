@@ -203,7 +203,7 @@ const Dashboard = () => {
         <div className="absolute top-4 flex left-[18%] items-center">
           <div className="text-nowrap flex mb-5">
             <h1 className="text-3xl font-bold mb-28 text-white-800">
-              Welcome, <span>Vijay Guhan</span>
+              Welcome, <span>{name}</span>
             </h1>
           </div>
           <div className="relative ml-[90%] mb-32">
