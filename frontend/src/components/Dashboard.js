@@ -5,18 +5,35 @@ import { FaSearch } from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import cup from "../assets/cup.png";
 import axios from "axios";
 // import cup from "../assets/cup.png";
 // import Departments from './Departments';
+import { jwtDecode } from "jwt-decode";
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [name, setName] = useState(""); 
+  const [role, setRole] = useState("");
   const [departments, setDepartments] = useState([]);
   const [isFullYear, setIsFullYear] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token: ", decoded); // This will help you see if the token contains name and role
+        setName(decoded.name || "Guest");
+        setRole(decoded.role || "User");
+      } catch (error) {
+        console.error("Error decoding token", error);
+      }
+    }
+  }, []);
+
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
     { fullName: "Computer Science Engineering", shortName: "CSE" },
@@ -170,9 +187,7 @@ const Dashboard = () => {
   const popupopen = () => {
     SetPopupPdf(!popupPDF);
   };
-  if (Loading
-    
-  ) {
+  if (Loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
@@ -208,7 +223,7 @@ const Dashboard = () => {
 
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
           <div className="mx-auto p-0">
-            <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white scrollbar-hide">
+            <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
               {filteredData.length > 0 ? (
                 filteredData.map((event, index) => (
                   <div
@@ -221,11 +236,6 @@ const Dashboard = () => {
                       <p className="text-lg font-light">{event.departments}</p>
                     </div>
                     <img src={cup} alt="Event Icon" className="w-20 h-20" />
-                    {/* <img
-                      src="https://path-to-your-back-cup-image.png"
-                      alt="Cup Icon"
-                      className="absolute top-0 right-0 w-32 opacity-20 transform translate-x-1/3 -translate-y-1/3"
-                    /> */}
                   </div>
                 ))
               ) : (
@@ -248,32 +258,49 @@ const Dashboard = () => {
       </div>
       {/* Event Modal */}
       {selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={closeEventModal}>
-        &times;
-      </button>
-      <img
-        src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-        alt="Event"
-        className="custom-modal-image"
-      />
-      <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-        <span className="custom-modal-date">{selectedEvent.eventstartdate}</span>
-      </div>
-      <div className="custom-modal-body">
-        <p><strong>Department:</strong> {selectedEvent.departments}</p>
-        <p><strong>Venue:</strong> {selectedEvent.venue}</p>
-        <p><strong>Resource Person:</strong> {selectedEvent.resourceperson}</p>
-        <p><strong>Participants:</strong> {selectedEvent.participants}</p>
-        <p><strong>Time:</strong> {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}</p>
-        <p><strong>Event Type:</strong> {selectedEvent.eventtype}</p>
-        <p className="custom-event-description"><strong>Description:</strong> {selectedEvent.description}</p>
-      </div>
-    </div>
-  </div>
-)}
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+              <span className="custom-modal-date">
+                {selectedEvent.eventstartdate}
+              </span>
+            </div>
+            <div className="custom-modal-body">
+              <p>
+                <strong>Department:</strong> {selectedEvent.departments}
+              </p>
+              <p>
+                <strong>Venue:</strong> {selectedEvent.venue}
+              </p>
+              <p>
+                <strong>Resource Person:</strong> {selectedEvent.resourceperson}
+              </p>
+              <p>
+                <strong>Participants:</strong> {selectedEvent.participants}
+              </p>
+              <p>
+                <strong>Time:</strong> {selectedEvent.eventstarttime} to{" "}
+                {selectedEvent.eventendtime}
+              </p>
+              <p>
+                <strong>Event Type:</strong> {selectedEvent.eventtype}
+              </p>
+              <p className="custom-event-description">
+                <strong>Description:</strong> {selectedEvent.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
         <h1 className="text-xl font-bold text-center text-black mb-4">

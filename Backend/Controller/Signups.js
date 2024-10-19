@@ -6,7 +6,7 @@ require("dotenv").config();
 const secretKey = process.env.JWT_SECRET_TOKEN || "yourDefaultSecretKey";
 console.log("secret key while creating token :", secretKey);
 exports.Signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const findAlreadyUserExist = await Signups.findOne({ email });
@@ -24,6 +24,7 @@ exports.Signup = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role,
     });
 
     await newUser.save();
@@ -32,10 +33,11 @@ exports.Signup = async (req, res) => {
       {
         userId: newUser._id,
         email: newUser.email,
+        role: newUser.role,
+        name: newUser.name,
       },
       secretKey,
       { expiresIn: "7d" }
-
     );
 
     res.status(201).json({
@@ -48,7 +50,7 @@ exports.Signup = async (req, res) => {
 };
 
 exports.Login = async (req, res) => {
-  console.log("request  to the body : ",req.body);
+  console.log("request  to the body : ", req.body);
   const { email, password } = req.body;
 
   try {
@@ -67,6 +69,8 @@ exports.Login = async (req, res) => {
       {
         userId: user._id,
         email: user.email,
+        name: user.name,
+        role: user.role,
       },
       secretKey,
       { expiresIn: "7d" }

@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-// Define the Signups schema
 const SignupsSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
   email: {
-    type: String, 
+    type: String,
     required: true,
     validate: {
-      validator: validator.isEmail, 
+      validator: validator.isEmail,
       message: "Sorry, please enter a valid email address",
     },
   },
@@ -22,6 +21,10 @@ const SignupsSchema = new mongoose.Schema({
       validator: validator.isStrongPassword,
       message: "Please ensure that you have entered a strong password",
     },
+  },
+  role: {
+    type: String,
+    require: true,
   },
 });
 
