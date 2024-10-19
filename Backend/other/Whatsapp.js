@@ -49,7 +49,7 @@ const sendTodaysEvents = async () => {
         from: `whatsapp:+14155238886`,
         to: `whatsapp:+918438434868`,
       });
-      return res.status(200).send("No events found.");
+      return; // No need for res.status here, just return
     }
 
     let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
@@ -63,12 +63,12 @@ const sendTodaysEvents = async () => {
       to: `whatsapp:${num}`,
     });
 
-    return res.status(200).send("Message sent.");
+    console.log("Message sent."); // Logging instead of res.status
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Error occurred while sending the message.");
+    console.log("Error occurred while sending the message:", err); // Log the error instead of using res.status
   }
 };
+
 cron.schedule("* *  * * *", () => {
   console.log("Sending today's events...");
   sendTodaysEvents().catch((err) => console.error(err));
