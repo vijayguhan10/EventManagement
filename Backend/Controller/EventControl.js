@@ -403,7 +403,6 @@ exports.getTotalCount = async (req, res) => {
   try {
     const TotalCounts = await TotalCount.find({});
     console.log("Incremented model data:", TotalCounts);
-
     res.status(200).json({
       message: "Total events passed successfully",
       TotalCountsDept: TotalCounts,

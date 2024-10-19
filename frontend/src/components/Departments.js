@@ -219,6 +219,7 @@ function Departments() {
           `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
         );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
+        console.log("count of events are,🔴🔴🔴 ",totalCountsDept)
         const updatedProducts = products.map((product) => {
           const departmentName = product.name;
           const count = totalCountsDept[departmentName] || 0;
