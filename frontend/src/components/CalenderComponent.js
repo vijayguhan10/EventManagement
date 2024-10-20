@@ -54,19 +54,19 @@ const CalendarComponent = () => {
   };
 
   const formatDate = (dateString) => {
-    const parts = dateString.split('/');
+    const parts = dateString.split("/");
     if (parts.length === 3) {
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10) + 2000; 
+      const year = parseInt(parts[2], 10) + 2000;
       return new Date(year, month, day);
     }
     return new Date(NaN);
   };
 
   const eventsForSelectedDate = events.filter((event) => {
-    const eventDate = new Date(event.date); 
-    const eventStartDate = formatDate(event.eventstartdate); 
+    const eventDate = new Date(event.date);
+    const eventStartDate = formatDate(event.eventstartdate);
 
     return (
       eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
@@ -87,9 +87,7 @@ const CalendarComponent = () => {
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
         console.log(response);
-        const filteredData = response.data.eventdata.filter(
-          (elem) => elem.status === "pending"
-        );
+        const filteredData = response.data.eventdata;
         setData(filteredData);
         console.log("Filtered data:", filteredData);
         setEvents(filteredData);
@@ -106,7 +104,7 @@ const CalendarComponent = () => {
 
   return (
     <div>
-      <ToastContainer /> {/* Toast container for notifications */}
+      <ToastContainer />
       <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
         <div className="calendar-navigation">
           <button onClick={prevMonth}>
@@ -177,100 +175,120 @@ const CalendarComponent = () => {
               })}
             </h2>
             <ul className="event-list">
-  {eventsForSelectedDate.length > 0 ? (
-    eventsForSelectedDate.map((event, index) => (
-      <li
-        key={index}
-        className="event-item"
-        onClick={() => openEventModal(event)}
-      >
-        <div className="event-row">
-          <span className="event-name">{event.eventname}</span>
-          <span
-            className={`event-category ${event.category ? event.category.toLowerCase() : 'default-category'}`}
-          >
-            {event.typeofevent || 'Unknown Category'}
-          </span>
-          <span
-            className={`event-category ${event.category ? event.category.toLowerCase() : 'default-category'}`}
-          >
-            {event.departments || 'Unknown Category'}
-          </span>
-          <span
-            className={`event-icon ${event.category ? event.category.toLowerCase() : 'default-category'}`}
-          >
-            {event.category === "Tech" ? "📘" : "📕"}
-          </span>
-        </div>
-        <hr className="event-divider" />
-      </li>
-    ))
-  ) : (
-    <p>No events for this date.</p>
-  )}
-</ul>
-
-
+              {eventsForSelectedDate.length > 0 ? (
+                eventsForSelectedDate.map((event, index) => (
+                  <li
+                    key={index}
+                    className="event-item"
+                    onClick={() => openEventModal(event)}
+                  >
+                    <div className="event-row">
+                      <span className="event-name">{event.eventname}</span>
+                      <span
+                        className={`event-category ${
+                          event.category
+                            ? event.category.toLowerCase()
+                            : "default-category"
+                        }`}
+                      >
+                        {event.typeofevent || "Unknown Category"}
+                      </span>
+                      <span
+                        className={`event-category ${
+                          event.category
+                            ? event.category.toLowerCase()
+                            : "default-category"
+                        }`}
+                      >
+                        {event.departments || "Unknown Category"}
+                      </span>
+                      <span
+                        className={`event-icon ${
+                          event.category
+                            ? event.category.toLowerCase()
+                            : "default-category"
+                        }`}
+                      >
+                        {event.category === "Tech" ? "📘" : "📕"}
+                      </span>
+                    </div>
+                    <hr className="event-divider" />
+                  </li>
+                ))
+              ) : (
+                <p>No events for this date.</p>
+              )}
+            </ul>
           </div>
         </div>
       )}
 
       {/* Event Modal */}
       {selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={closeEventModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEvent.imageurl}
-        alt="Event"
-        className="custom-modal-image"
-      />
-      <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-      </div>
-      <div className="custom-modal-body">
-        <div className="custom-modal-row">
-          <strong>Department:</strong>
-          <span className="custom-modal-value">{selectedEvent.departments}</span>
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEvent.imageurl}
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            </div>
+            <div className="custom-modal-body">
+              <div className="custom-modal-row">
+                <strong>Department:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.departments}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.resourceperson}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">{selectedEvent.year}</span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.typeofevent}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="custom-modal-row">
-          <strong>Venue:</strong>
-          <span className="custom-modal-value">{selectedEvent.venue}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Resource Person:</strong>
-          <span className="custom-modal-value">{selectedEvent.resourceperson}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Year:</strong>
-          <span className="custom-modal-value">{selectedEvent.year}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Start Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event End Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Time:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-          </span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Type:</strong>
-          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-
+      )}
     </div>
   );
 };

@@ -15,7 +15,7 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [name, setName] = useState(""); 
+  const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [departments, setDepartments] = useState([]);
   const [isFullYear, setIsFullYear] = useState(false);
@@ -125,9 +125,7 @@ const Dashboard = () => {
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
         console.log(response);
-        const filteredData = response.data.eventdata.filter(
-          (elem) => elem.status === "pending"
-        );
+        const filteredData = response.data.eventdata;
         setData(filteredData);
         console.log("😒😒😒", filteredData);
         setEvents(filteredData);
@@ -257,59 +255,70 @@ const Dashboard = () => {
       </div>
       {/* Event Modal */}
       {selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={closeEventModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEvent.imageurl}
-        alt="Event"
-        className="custom-modal-image"
-      />
-      <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-      </div>
-      <div className="custom-modal-body">
-        <div className="custom-modal-row">
-          <strong>Department:</strong>
-          <span className="custom-modal-value">{selectedEvent.departments}</span>
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEvent.imageurl}
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            </div>
+            <div className="custom-modal-body">
+              <div className="custom-modal-row">
+                <strong>Department:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.departments}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.resourceperson}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">{selectedEvent.year}</span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.typeofevent}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="custom-modal-row">
-          <strong>Venue:</strong>
-          <span className="custom-modal-value">{selectedEvent.venue}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Resource Person:</strong>
-          <span className="custom-modal-value">{selectedEvent.resourceperson}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Year:</strong>
-          <span className="custom-modal-value">{selectedEvent.year}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Start Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event End Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Time:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-          </span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Type:</strong>
-          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
 
       <div className="container absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
         <h1 className="text-xl font-bold text-center text-black mb-4">
