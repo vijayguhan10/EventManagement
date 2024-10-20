@@ -90,6 +90,7 @@ const departmentOptions = [
 function Departments() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEventclose, setSelectedEventclose] = useState(null);
   const [events, setEvents] = useState([]);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,6 +138,7 @@ function Departments() {
       setShowDeleteModal(false);
       setDeleteEventName("");
       handleCloseModal();
+      setSelectedEventclose(null)
     } else {
       alert("Event name does not match. Please try again.");
     }
@@ -239,10 +241,11 @@ function Departments() {
 
   const handleDeleteConfirmation = (event) => {
     setSelectedEvent(event);
+    // setSelectedEventclose(null)
     setShowDeleteModal(true);
   };
   const closeEventModal = () => {
-    setSelectedEvent(null);
+    setSelectedEventclose(null);
   };
 
   const handleOpenModal = async (event) => {
@@ -251,6 +254,7 @@ function Departments() {
         `${process.env.REACT_APP_BASE_URL}/event/getdepartmentdata`,
         { department: event }
       );
+      console.log("😍😎😎😎",response.data)
       setIsEventListOpen(true);
       if (response.data && response.data.length > 0) {
         setEvents(response.data);
@@ -263,7 +267,7 @@ function Departments() {
   };
 
   const openEventModal = (event) => {
-    setSelectedEvent(event);
+    setSelectedEventclose(event);
   };
 
   const handleCloseModal = () => {
@@ -355,7 +359,7 @@ function Departments() {
               </button>
 
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#8b21e8] text-white">
-                <span className="text-sm">{dept.count || 0}</span>
+                <span className="text-sm">{dept.count}</span>
               </div>
             </div>
           </div>
@@ -416,83 +420,106 @@ function Departments() {
         </div>
       )}
       {/* Event Modal */}
-      {/* Event Modal */}
-      {selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={closeEventModal}>
-              &times;
-            </button>
-            <img
-              src={selectedEvent.imageurl}
-              alt={selectedEvent.eventname}
-              className="custom-modal-image"
-            />
-            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            <p className="custom-modal-description">
-              <strong>Department:</strong> {selectedEvent.departments}
-              <br />
-              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-              <br />
-              <strong>End Time:</strong> {selectedEvent.eventendtime}
-              <br />
-              <strong>Start Date:</strong> {selectedEvent.eventstartdate}
-              <br />
-              <strong>End Date:</strong> {selectedEvent.eventenddate}
-              <br />
-              <strong>Venue:</strong> {selectedEvent.venue}
-              <br />
+      {selectedEventclose && (
+  <div className="custom-modal-overlay">
+    <div className="custom-modal-content">
+      <button className="custom-close-modal" onClick={closeEventModal}>
+        &times;
+      </button>
+      <img
+        src={selectedEventclose.imageurl}
+        alt={selectedEventclose.eventname}
+        className="custom-modal-image"
+      />
+ <div className="custom-modal-header">
+        <h2 className="custom-modal-title">{selectedEventclose.eventname}</h2>
+      </div>
+      <div className="custom-modal-body">
+        <div className="custom-modal-row">
+          <strong>Department:</strong>
+          <span className="custom-modal-value">{selectedEventclose.departments}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Venue:</strong>
+          <span className="custom-modal-value">{selectedEventclose.venue}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Resource Person:</strong>
+          <span className="custom-modal-value">{selectedEventclose.resourceperson}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Year:</strong>
+          <span className="custom-modal-value">{selectedEventclose.year}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Start Date:</strong>
+          <span className="custom-modal-value">{selectedEventclose.eventstartdate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event End Date:</strong>
+          <span className="custom-modal-value">{selectedEventclose.eventenddate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Time:</strong>
+          <span className="custom-modal-value">
+            {selectedEventclose.eventstarttime} to {selectedEventclose.eventendtime}
+          </span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Type:</strong>
+          <span className="custom-modal-value">{selectedEventclose.typeofevent}</span>
+        </div>
+        </div>
+      {showDeleteModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+            <p>
+              Are you sure you want to delete the event{" "}
+              <strong>{selectedEventclose.eventname}</strong>? Type the event name to confirm:
             </p>
-            {showDeleteModal && selectedEvent && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-                  <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-                  <p>
-                    Are you sure you want to delete the event{" "}
-                    <strong>{selectedEvent.eventname}</strong>? Type the event
-                    name to confirm:
-                  </p>
-                  <input
-                    type="text"
-                    value={deleteEventName}
-                    onChange={(e) => setDeleteEventName(e.target.value)}
-                    className="border rounded p-2 w-full mt-2"
-                  />
-                  <div className="flex justify-end mt-4">
-                    <button
-                      className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      className="bg-gray-500 text-white rounded px-4 py-2"
-                      onClick={() => setShowDeleteModal(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            {/* Button Container */}
-            <div className="custom-modal-buttons">
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mt-2"
+            />
+            <div className="flex justify-end mt-4">
               <button
-                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28 mr-4"
-                onClick={() => handleOpeneditModal(selectedEvent)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-                onClick={() => handleDeleteConfirmation(selectedEvent)}
+                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                onClick={handleDelete}
               >
                 Delete
+              </button>
+              <button
+                className="bg-gray-500 text-white rounded px-4 py-2"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>
         </div>
       )}
+      {/* Button Container */}
+      <div className="custom-modal-buttons flex justify-between mt-4">
+        <button
+          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+          onClick={() => handleOpeneditModal(selectedEventclose)}
+        >
+          Edit
+        </button>
+        <button
+          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+          onClick={() => handleDeleteConfirmation(selectedEventclose)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {isOpen && (
         <div
           style={{ zIndex: 1000 }}

@@ -22,3 +22,35 @@
 .animated-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #7312f1d3, #7d3cf4b5);
 }
+.custom-modal-body {
+  font-size: 1.1rem; /* Increase the font size as needed */
+}
+
+.custom-modal-row {
+  display: flex;
+  justify-content: space-between; /* Aligns items to the left and right */
+  padding: 0.5rem 0; /* Adds some space between rows */
+  border-bottom: 1px solid #e0e0e0; /* Optional: adds a line between rows for clarity */
+}
+
+.custom-modal-row:last-child {
+  border-bottom: none; /* Removes the border from the last row */
+}
+
+.custom-modal-value {
+  text-align: right; /* Aligns the values to the right */
+  flex: 1; /* Takes up the remaining space */
+  font-weight: 500; /* Optional: makes the answer text a bit bolder */
+  color: #555; /* Optional: changes the text color for better readability */
+}
+.custom-modal-title {
+  font-family: 'Bodoni Moda', serif; /* Use 'Stylish' if you prefer that font */
+  font-weight: 400; /* Adjust weight as needed */
+  font-size: 24px; /* Adjust the size as needed */
+  /* You can add other styles like color, margin, etc. */
+}
+
+
+.custom-modal-header {
+  margin-bottom: 1rem; /* Adds space between the header and body */
+}

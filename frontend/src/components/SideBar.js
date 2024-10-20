@@ -19,6 +19,7 @@ const SideBar = () => {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/");
+    window.location.reload()
   };
   return (
     <div className="flex max-h-full xl:overflow-hidden">
@@ -180,13 +181,14 @@ const SideBar = () => {
                 </span>
               </Link>
             </li>
-            <Link
-              to="/"
-              onClick={handleLogout}
-              className="text-xl bg-white ml-72  xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center xl:mb-3 shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff]"
-            >
-              Logout
-            </Link>
+          <Link
+  to="/"
+  onClick={handleLogout}
+  className="text-xl bg-white ml-72 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center xl:mb-3 shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff] transform -translate-x-[230%] -translate-y-[-1050%]"
+>
+  Logout
+</Link>
+
           </ul>
         </div>
       </aside>
