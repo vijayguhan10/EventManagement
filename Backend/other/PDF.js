@@ -5,7 +5,7 @@ const moment = require("moment");
 const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   const doc = new jsPDF();
 
-  // Adding the college name and address with elegant styling
+  // Adding the college name and address with professional styling
   doc.setFontSize(22);
   doc.setFont("Helvetica", "bold");
   doc.setTextColor(0, 51, 102); // Dark blue for a professional look
@@ -34,73 +34,70 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
     50
   );
 
-  // Defining table headers with bold font
-  const tableHeaders = [
-    "S.No",
-    "Department",
-    "Title",
-    "Organizer",
-    "Resource Person",
-    "Start Date",
-    "End Date",
-    "Venue",
-    "Type",
-    "Status",
-  ];
+  let y = 60; // Starting position for event content
+  const pageHeight = doc.internal.pageSize.height;
 
-  doc.setFontSize(12);
-  doc.setFont("Helvetica", "bold");
-  doc.setTextColor(0, 0, 0);
-
-  let startY = 60;
-  let colWidths = [10, 30, 40, 30, 40, 20, 20, 30, 15, 20]; // Column widths
-
-  // Draw table headers
-  let startX = 10;
-  tableHeaders.forEach((header, index) => {
-    doc.text(header, startX, startY);
-    startX += colWidths[index];
-  });
-
-  doc.setFont("Helvetica", "normal");
-
-  // Add a line under headers
-  doc.setDrawColor(0, 102, 204); // Blue line
-  doc.line(10, startY + 2, 200, startY + 2); // Draw a line under the header
-
-  // Table row details for each event
-  startY += 10; // Adjust Y position for rows
-
+  // Iterate through each event and present it as a separate table
   filteredEvents.forEach((event, index) => {
-    startX = 10;
-
-    if (startY + 10 > doc.internal.pageSize.height) {
+    if (y + 90 > pageHeight) {
       doc.addPage();
-      startY = 20;
+      y = 20;
     }
 
-    // Format event details as rows in the table
-    const row = [
-      (index + 1).toString(),
-      event.departments || "",
-      event.eventname || "",
-      event.organizer || "",
-      event.resourceperson || "",
-      moment(event.eventstartdate, "DD/MM/YYYY").format("DD-MM-YYYY") || "",
-      moment(event.eventenddate, "DD/MM/YYYY").format("DD-MM-YYYY") || "",
-      event.venue || "",
-      event.typeofevent || "",
-      event.status || "",
+    // Event title and section separator
+    doc.setFontSize(16);
+    doc.setFont("Helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Event ${index + 1}: ${event.eventname}`, 10, y);
+
+    y += 10;
+
+    // Define table rows (key-value pairs for the event details)
+    const eventDetails = [
+      { key: "Department", value: event.departments },
+      { key: "Organizer", value: event.organizer },
+      { key: "Resource Person", value: event.resourceperson },
+      {
+        key: "Start Date",
+        value: moment(event.eventstartdate, "DD/MM/YYYY").format("DD-MM-YYYY"),
+      },
+      {
+        key: "End Date",
+        value: moment(event.eventenddate, "DD/MM/YYYY").format("DD-MM-YYYY"),
+      },
+      { key: "Start Time", value: event.eventstarttime },
+      { key: "End Time", value: event.eventendtime },
+      { key: "Venue", value: event.venue },
+      { key: "Type of Event", value: event.typeofevent },
+      { key: "Status", value: event.status },
     ];
 
-    row.forEach((text, idx) => {
-      doc.text(text, startX, startY);
-      startX += colWidths[idx];
+    // Define table column positions
+    let startX = 10;
+    let rowHeight = 10;
+
+    // Draw the table row by row
+    eventDetails.forEach((row) => {
+      // Key column
+      doc.setFontSize(12);
+      doc.setFont("Helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${row.key}:`, startX, y);
+
+      // Value column
+      doc.setFontSize(12);
+      doc.setFont("Helvetica", "normal");
+      doc.text(row.value || "N/A", startX + 50, y); // Aligning value 50 units to the right
+
+      y += rowHeight;
     });
 
-    // Add a line separator for each row
-    doc.line(10, startY + 2, 200, startY + 2);
-    startY += 10;
+    // Add spacing before the next event
+    y += 10;
+
+    // Draw a line under the table for each event
+    doc.setDrawColor(0, 102, 204); // Blue border
+    doc.line(10, y - 2, 200, y - 2);
   });
 
   // Generating the PDF and sending the response
