@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   FaAddressBook,
   FaDiscourse,
   FaHistory,
   FaHome,
-  FaHotTub,
-  FaMobile,
-  FaSignOutAlt,
   FaSmoking,
   FaTimes,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 const SideBar = () => {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/");
+  };
   return (
     <div className="flex max-h-full xl:overflow-hidden">
       <button
@@ -179,6 +180,13 @@ const SideBar = () => {
                 </span>
               </Link>
             </li>
+            <Link
+              to="/"
+              onClick={handleLogout}
+              className="text-xl bg-white ml-72  xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center xl:mb-3 shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff]"
+            >
+              Logout
+            </Link>
           </ul>
         </div>
       </aside>

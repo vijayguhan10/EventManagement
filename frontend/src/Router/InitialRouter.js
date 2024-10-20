@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import Dashboard from "../components/Dashboard";
 import Forms from "../components/Form";
 import Login from "../components/Login";
@@ -11,21 +11,25 @@ import Technical from "../components/Technical";
 import History from "../components/History";
 import Departments from "../components/Departments";
 import Canceled from "../components/Canceled";
+import AdminDashBoard from "../components/AdminDashBoard";
 
 const InitialRouter = () => {
   const [token, setToken] = useState(localStorage.getItem("authToken"));
 
   const isTokenValid = (token) => {
-    if (!token) return false;
+    if (!token) return { isValid: false, role: null };
     try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime;
+      const isValid = decoded.exp > currentTime;
+      const role = decoded.role;
+      return { isValid, role };
     } catch (error) {
-      return false;
+      return { isValid: false, role: null };
     }
   };
-  const isAuthenticated = isTokenValid(token);
+
+  const { isValid: isAuthenticated, role } = isTokenValid(token);
 
   return (
     <Routes>
@@ -41,7 +45,17 @@ const InitialRouter = () => {
       />
       <Route
         path="/Dashboard"
-        element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
+        element={
+          isAuthenticated ? (
+            role === "admin" ? (
+              <AdminDashBoard />
+            ) : (
+              <Dashboard />
+            )
+          ) : (
+            <Navigate to="/" />
+          )
+        }
       />
       <Route
         path="/Placement"
