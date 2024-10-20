@@ -241,7 +241,6 @@ function Placement() {
       </div>
     );
   }
-
   return (
     <div className="xl:ml-72 overflow-x-hidden">
       <SideBar />
