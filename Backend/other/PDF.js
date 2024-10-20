@@ -5,99 +5,71 @@ const moment = require("moment");
 const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   const doc = new jsPDF();
 
-  // Adding the college name and address with professional styling
-  doc.setFontSize(22);
-  doc.setFont("Helvetica", "bold");
-  doc.setTextColor(0, 51, 102); // Dark blue for a professional look
-  doc.text("Sri Eshwar College of Engineering", 10, 20);
-  doc.setFontSize(16);
-  doc.setTextColor(50, 50, 50); // Gray for address text
-  doc.text("Coimbatore, Tamil Nadu", 10, 30);
+  // Adding the college name and address
+  doc.setFontSize(18);
+  doc.text("Sri Eshwar College of Engineering", 10, 10);
+  doc.setFontSize(14);
+  doc.text("Coimbatore", 10, 18);
 
-  // Adding the college logo image at the top right
+  // Adding the image of the college logo at the top right
   const imageUrl =
     "https://jgkfab.p3cdn1.secureserver.net/wp-content/uploads/2024/05/Sri-Eshwar-College-Of-Engineering-Coimbatore.png";
   const image = await fetch(imageUrl)
     .then((res) => res.arrayBuffer())
     .then((buffer) => Buffer.from(buffer));
 
-  doc.addImage(image, "PNG", 160, 5, 40, 25); // Adjusting position for styling
+  doc.addImage(image, "PNG", 160, 5, 40, 20); // Adjust the position and size as needed
 
-  // Adding the title for the event report with styling
-  doc.setFontSize(20);
+  // Adding the title for the event report
+  doc.setFontSize(18);
   doc.setTextColor(0, 102, 204); // Set text color to blue for the report title
   doc.text(
-    `Events Report: ${
+    `Events Report for ${
       fromDate && toDate ? `${fromDate} to ${toDate}` : "All Events"
     }`,
     10,
-    50
+    40
   );
+  doc.setFontSize(12);
 
-  let y = 60; // Starting position for event content
+  let y = 50;
   const pageHeight = doc.internal.pageSize.height;
 
-  // Iterate through each event and present it as a separate table
+  // Iterate through the filtered events and display them in the PDF
   filteredEvents.forEach((event, index) => {
-    if (y + 90 > pageHeight) {
+    if (y + 110 > pageHeight) {
       doc.addPage();
-      y = 20;
+      y = 10;
     }
 
-    // Event title and section separator
-    doc.setFontSize(16);
+    // Event section title
+    doc.setFontSize(14);
     doc.setFont("Helvetica", "bold");
     doc.setTextColor(0, 0, 0);
-    doc.text(`Event ${index + 1}: ${event.eventname}`, 10, y);
+    doc.text(`Event ${index + 1}:`, 10, y);
 
-    y += 10;
+    doc.setFontSize(12);
+    doc.setFont("Helvetica", "normal");
 
-    // Define table rows (key-value pairs for the event details)
-    const eventDetails = [
-      { key: "Department", value: event.departments },
-      { key: "Organizer", value: event.organizer },
-      { key: "Resource Person", value: event.resourceperson },
-      {
-        key: "Start Date",
-        value: moment(event.eventstartdate, "DD/MM/YYYY").format("DD-MM-YYYY"),
-      },
-      {
-        key: "End Date",
-        value: moment(event.eventenddate, "DD/MM/YYYY").format("DD-MM-YYYY"),
-      },
-      { key: "Start Time", value: event.eventstarttime },
-      { key: "End Time", value: event.eventendtime },
-      { key: "Venue", value: event.venue },
-      { key: "Type of Event", value: event.typeofevent },
-      { key: "Status", value: event.status },
-    ];
-
-    // Define table column positions
-    let startX = 10;
-    let rowHeight = 10;
-
-    // Draw the table row by row
-    eventDetails.forEach((row) => {
-      // Key column
-      doc.setFontSize(12);
-      doc.setFont("Helvetica", "bold");
-      doc.setTextColor(0, 0, 0);
-      doc.text(`${row.key}:`, startX, y);
-
-      // Value column
-      doc.setFontSize(12);
-      doc.setFont("Helvetica", "normal");
-      doc.text(row.value || "N/A", startX + 50, y); // Aligning value 50 units to the right
-
-      y += rowHeight;
-    });
-
-    // Add spacing before the next event
-    y += 10;
-
-    // Draw a line under the table for each event
+    // Draw a border for the event details
     doc.setDrawColor(0, 102, 204); // Blue border
-    doc.line(10, y - 2, 200, y - 2);
+    doc.rect(10, y + 2, 190, 110);
+
+    // Adding event details
+    doc.text(`Department: ${event.departments}`, 20, y + 10);
+    doc.text(`Title: ${event.eventname}`, 20, y + 20);
+    doc.text(`Organizer: ${event.organizer}`, 20, y + 30);
+    doc.text(`Resource Person: ${event.resourceperson}`, 20, y + 40);
+    doc.text(`Start Date: ${event.eventstartdate}`, 20, y + 50);
+    doc.text(`End Date: ${event.eventenddate}`, 20, y + 60);
+    doc.text(`Start Time: ${event.eventstarttime}`, 20, y + 70);
+    doc.text(`End Time: ${event.eventendtime}`, 20, y + 80);
+    doc.text(`Venue: ${event.venue}`, 20, y + 90);
+    doc.text(`Type of Event: ${event.typeofevent}`, 20, y + 100);
+    doc.text(`Status: ${event.status}`, 20, y + 110);
+
+    // Move to the next event
+    y += 120;
   });
 
   // Generating the PDF and sending the response
@@ -115,8 +87,10 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
 exports.generatePdf = async (req, res) => {
   try {
     const { fromDate, toDate, departments } = req.query;
+    console.log("Required data for the pdf:", req.query);
 
     const events = await Event.find({});
+    console.log("All events fetched:", events);
 
     const filteredEvents = events.filter((event) => {
       const eventStartDate = moment(event.eventstartdate, "DD/MM/YYYY").format(
