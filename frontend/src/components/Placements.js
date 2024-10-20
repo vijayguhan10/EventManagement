@@ -241,7 +241,6 @@ function Placement() {
       </div>
     );
   }
-
   return (
     <div className="xl:ml-72 overflow-x-hidden">
       <SideBar />
@@ -379,52 +378,60 @@ function Placement() {
         </div>
       )}  
 
-      {isOpen && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-3xl mx-4 animate-open">
-            <FaTimes
-              size={30}
-              className="absolute top-4 right-4 text-gray-600 cursor-pointer"
-              onClick={handleCloseModal}
-            />
-             <img
-              src={selectedEvent.imageurl}
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <h1 className="text-3xl font-bold mb-4">
-              {selectedEvent.eventname}
-            </h1>
-            <div className="space-y-4">
-              <p>
-                <strong className="xl:text-xl font-bold">Type:</strong>{" "}
-                {selectedEvent.typeofevent}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">Eventstarttime:</strong>{" "}
-                {selectedEvent.eventstarttime}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">Venue:</strong>{" "}
-                {selectedEvent.venue}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">Organizer:</strong>{" "}
-                {selectedEvent.organizer}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">Start Date:</strong>{" "}
-                {selectedEvent.eventstartdate}
-              </p>
-              <p>
-                <strong className="xl:text-xl font-bold">End Date:</strong>{" "}
-                {selectedEvent.eventenddate}
-              </p>
-            
-            </div>
-          </div>
+    
+{isOpen && selectedEvent && (
+  <div className="custom-modal-overlay">
+    <div className="custom-modal-content">
+      <button className="custom-close-modal" onClick={handleCloseModal}>
+        &times;
+      </button>
+      <img
+        src={selectedEvent.imageurl}
+        alt="Event"
+        className="custom-modal-image"
+      />
+      <div className="custom-modal-header">
+        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+      </div>
+      <div className="custom-modal-body">
+        <div className="custom-modal-row">
+          <strong>Department:</strong>
+          <span className="custom-modal-value">{selectedEvent.departments}</span>
         </div>
-      )} && <ToastContainer />
+        <div className="custom-modal-row">
+          <strong>Venue:</strong>
+          <span className="custom-modal-value">{selectedEvent.venue}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Resource Person:</strong>
+          <span className="custom-modal-value">{selectedEvent.resourceperson}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Year:</strong>
+          <span className="custom-modal-value">{selectedEvent.year}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Start Date:</strong>
+          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event End Date:</strong>
+          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Time:</strong>
+          <span className="custom-modal-value">
+            {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
+          </span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Type:</strong>
+          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)} && <ToastContainer />
              {iseditOpen && (
         <div style={{zIndex:1000}} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">

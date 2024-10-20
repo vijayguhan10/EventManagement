@@ -107,7 +107,7 @@ function Forms() {
           typeofevent: formData.eventType,
           departments: formData.departments,
           status: "pending",
-          year:"2"
+          year:formData.year
         }
       );
 
@@ -120,7 +120,6 @@ function Forms() {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
     }
-
     setErrors({});
   };
   const yearOptions = [
