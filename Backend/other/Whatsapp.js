@@ -57,7 +57,7 @@ const getMessage = async (req, res) => {
         });
         return res.status(200).send("No events found.");
       }
-
+//msg
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
       eventsToday.forEach((event) => {
         responseMessage += `*Event Name*: ${event.eventname}\n`;
