@@ -120,7 +120,6 @@ function Forms() {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
     }
-
     setErrors({});
   };
   const yearOptions = [
