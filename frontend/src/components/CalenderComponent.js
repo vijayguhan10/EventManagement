@@ -6,7 +6,7 @@ import prevarrow from "../assets/Forward Arrow (1).png";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-
+import "../Scroll.css";
 const CalendarComponent = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState([]);
@@ -217,36 +217,60 @@ const CalendarComponent = () => {
 
       {/* Event Modal */}
       {selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={closeEventModal}>
-              &times;
-            </button>
-            <img
-              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            <p className="custom-modal-description">
-            <strong>Department:</strong> {selectedEvent.departments}
-            <br />
-        
-              <strong>Start Time:</strong> {selectedEvent.eventstarttime}
-              <br />
-              <strong>End Time:</strong> {selectedEvent.eventendtime}
-              <br />
-              <strong>End End date:</strong> {selectedEvent.eventstartdate}
-              <br />
-              <strong>start Date:</strong> {selectedEvent.eventenddate}
-              <br />
-            
-              <strong>Venue:</strong> {selectedEvent.venue}
-              <br />
-            </p>
-          </div>
+  <div className="custom-modal-overlay">
+    <div className="custom-modal-content">
+      <button className="custom-close-modal" onClick={closeEventModal}>
+        &times;
+      </button>
+      <img
+        src={selectedEvent.imageurl}
+        alt="Event"
+        className="custom-modal-image"
+      />
+      <div className="custom-modal-header">
+        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+      </div>
+      <div className="custom-modal-body">
+        <div className="custom-modal-row">
+          <strong>Department:</strong>
+          <span className="custom-modal-value">{selectedEvent.departments}</span>
         </div>
-      )}
+        <div className="custom-modal-row">
+          <strong>Venue:</strong>
+          <span className="custom-modal-value">{selectedEvent.venue}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Resource Person:</strong>
+          <span className="custom-modal-value">{selectedEvent.resourceperson}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Year:</strong>
+          <span className="custom-modal-value">{selectedEvent.year}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Start Date:</strong>
+          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event End Date:</strong>
+          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Time:</strong>
+          <span className="custom-modal-value">
+            {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
+          </span>
+        </div>
+        <div className="custom-modal-row">
+          <strong>Event Type:</strong>
+          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };

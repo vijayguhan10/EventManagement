@@ -107,7 +107,7 @@ function Forms() {
           typeofevent: formData.eventType,
           departments: formData.departments,
           status: "pending",
-          year:"2"
+          year:formData.year
         }
       );
 

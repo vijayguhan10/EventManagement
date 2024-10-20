@@ -19,4 +19,55 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999; /* Ensure it's behind the modal */
   }
+  .custom-modal-buttons {
+    display: flex; /* Use Flexbox */
+    justify-content: space-between; /* Space buttons evenly */
+    margin-top: 1rem; /* Space above buttons */
+  }
   
+  .custom-modal-buttons button {
+    flex: 1; /* Allow buttons to grow evenly */
+    margin: 0 0.5rem; /* Optional: adds space between buttons */
+  }
+  .custom-modal-body {
+    font-size: 1.1rem; /* Increase the font size as needed */
+  }
+  
+  .custom-modal-row {
+    display: flex;
+    justify-content: space-between; /* Aligns items to the left and right */
+    padding: 0.5rem 0; /* Adds some space between rows */
+    border-bottom: 1px solid #e0e0e0; /* Optional: adds a line between rows for clarity */
+  }
+  
+  .custom-modal-row:last-child {
+    border-bottom: none; /* Removes the border from the last row */
+  }
+  
+  .custom-modal-value {
+    text-align: right; /* Aligns the values to the right */
+    flex: 1; /* Takes up the remaining space */
+    font-weight: 500; /* Optional: makes the answer text a bit bolder */
+    color: #555; /* Optional: changes the text color for better readability */
+  }
+  
+  .custom-modal-title {
+    font-size: 1.5rem; /* Adjust title size */
+    margin-bottom: 1rem; /* Space below the title */
+  }
+  
+  .custom-modal-header {
+    margin-bottom: 1rem; /* Adds space between the header and body */
+  }
+  
+  .custom-modal-buttons {
+    display: flex; /* Use Flexbox */
+    justify-content: space-between; /* Space buttons evenly */
+    margin-top: 1rem; /* Space above buttons */
+  }
+  
+  .custom-modal-buttons button {
+    flex: 1; /* Allow buttons to grow evenly */
+    margin: 0 0.5rem; /* Optional: adds space between buttons */
+  }
+    
