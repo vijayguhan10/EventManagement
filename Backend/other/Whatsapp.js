@@ -10,7 +10,7 @@ const clearQueuedMessages = async () => {
   try {
     const messages = await client.messages.list({
       status: "queued",
-      limit: 20, // Adjust based on your requirements
+      limit: 20, 
     });
 
     if (messages.length === 0) {
@@ -41,7 +41,6 @@ const getMessage = async (req, res) => {
       today.getFullYear()
     ).slice(-2)}`;
 
-    // Automatically clear queued messages if the status is "queued"
     await clearQueuedMessages();
 
     if (message.toLowerCase() === "today") {
@@ -68,7 +67,7 @@ const getMessage = async (req, res) => {
         to: `whatsapp:${num}`,
       });
       console.log("Response from WhatsApp: ", response);
-      return res.status(200).send("Message sent.");
+      return res.status(200).send("Message sent.",response);
     }
 
     if (message.toLowerCase() === "fulldata") {
@@ -81,7 +80,7 @@ const getMessage = async (req, res) => {
           from: "whatsapp:+14155238886",
           to: `whatsapp:${num}`,
         });
-        return res.status(200).send("No events found.");
+        return res.status(200).send("No events found.",response);
       }
 
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
@@ -102,11 +101,11 @@ const getMessage = async (req, res) => {
         to: `whatsapp:${num}`,
       });
 
-      return res.status(200).send("Message sent.");
+      return res.status(200).send("Message sent.",response);
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error occurred while processing the message.");
+    res.status(500).send("Error occurred while processing the message.",err);
   }
 };
 
