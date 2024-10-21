@@ -4,6 +4,7 @@ import {
   FaDiscourse,
   FaHistory,
   FaHome,
+  FaSafari,
   FaSmoking,
   FaTimes,
 } from "react-icons/fa";
@@ -170,7 +171,7 @@ const SideBar = () => {
                 to="/CanceledEvents"
                 className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <FaSmoking />
+                <FaHome />
                 <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                   Canceled Events
                 </span>
