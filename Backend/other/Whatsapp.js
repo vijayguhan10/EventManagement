@@ -60,7 +60,7 @@ const getMessage = async (req, res) => {
       // Send the response message back to WhatsApp
       await client.messages.create({
         body: responseMessage,
-        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+        from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
         to: `whatsapp:${num}`,
       });
 
@@ -70,7 +70,7 @@ const getMessage = async (req, res) => {
     }
   } catch (err) {
     console.error("Error:", err.message); // Log error message
-    res.status(500).send("Error occurred while sending the message.");
+    res.status(500).send("Error occurred while sending the message.",err);
   }
 };
 
