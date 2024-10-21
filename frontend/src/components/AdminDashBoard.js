@@ -181,39 +181,60 @@ const AdminDashBoard = () => {
               &times;
             </button>
             <img
-              src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?cs=srgb&dl=pexels-cottonbro-3171837.jpg&fm=jpg"
+              src={selectedEvent.imageurl}
               alt="Event"
               className="custom-modal-image"
             />
             <div className="custom-modal-header">
               <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-              <span className="custom-modal-date">
-                {selectedEvent.eventstartdate}
-              </span>
             </div>
             <div className="custom-modal-body">
-              <p>
-                <strong>Department:</strong> {selectedEvent.departments}
-              </p>
-              <p>
-                <strong>Venue:</strong> {selectedEvent.venue}
-              </p>
-              <p>
-                <strong>Resource Person:</strong> {selectedEvent.resourceperson}
-              </p>
-              <p>
-                <strong>Participants:</strong> {selectedEvent.participants}
-              </p>
-              <p>
-                <strong>Time:</strong> {selectedEvent.eventstarttime} to{" "}
-                {selectedEvent.eventendtime}
-              </p>
-              <p>
-                <strong>Event Type:</strong> {selectedEvent.eventtype}
-              </p>
-              <p className="custom-event-description">
-                <strong>Description:</strong> {selectedEvent.description}
-              </p>
+              <div className="custom-modal-row">
+                <strong>Department:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.departments}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.resourceperson}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">{selectedEvent.year}</span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.typeofevent}
+                </span>
+              </div>
             </div>
           </div>
         </div>
