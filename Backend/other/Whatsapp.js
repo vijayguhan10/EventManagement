@@ -11,7 +11,7 @@ const client = new twilio(
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
-    const num = "+918438434868"; // Receiver's WhatsApp number
+    const num = "+918438434868";
     const today = new Date();
 
     // Format today's date as dd/mm/yy
@@ -57,7 +57,6 @@ const getMessage = async (req, res) => {
         }
       });
 
-      // Send the response message back to WhatsApp
       await client.messages.create({
         body: responseMessage,
         from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
@@ -69,11 +68,9 @@ const getMessage = async (req, res) => {
       return res.status(400).send("Invalid command.");
     }
   } catch (err) {
-    console.error("Error:", err.message); // Log error message
-    res.status(500).send("Error occurred while sending the message.",err);
+    console.error("Error:", err.message);
+    res.status(500).send("Error occurred while sending the message.", err);
   }
 };
-
-
 
 module.exports = { getMessage };
