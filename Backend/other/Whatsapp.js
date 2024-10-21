@@ -34,7 +34,7 @@ const getMessage = async (req, res) => {
         const noEventsMessage = "No events scheduled for today.";
         await client.messages.create({
           body: noEventsMessage,
-          from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+          from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
           to: `whatsapp:${num}`,
         });
         return res.status(200).send("No events scheduled.");
