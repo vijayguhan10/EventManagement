@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "vercel-build": "echo 'Running Vercel build script' && npm install && npm run build"
   },
   "author": "Vijay Guhan",
   "license": "ISC",

@@ -6,6 +6,28 @@ const client = new twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
+const clearQueuedMessages = async () => {
+  try {
+    const messages = await client.messages.list({
+      status: "queued",
+      limit: 20, // Adjust based on your requirements
+    });
+
+    if (messages.length === 0) {
+      console.log("No queued messages found.");
+      return;
+    }
+
+    for (const message of messages) {
+      await client.messages(message.sid).update({ status: "canceled" });
+      console.log(`Canceled message SID: ${message.sid}`);
+    }
+    console.log("Queued messages cleared.");
+  } catch (err) {
+    console.error("Error clearing queued messages:", err);
+  }
+};
+
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
@@ -19,6 +41,9 @@ const getMessage = async (req, res) => {
       today.getFullYear()
     ).slice(-2)}`;
 
+    // Automatically clear queued messages if the status is "queued"
+    await clearQueuedMessages();
+
     if (message.toLowerCase() === "today") {
       const eventsToday = await Event.find({ eventstartdate: formattedToday });
 
@@ -29,7 +54,7 @@ const getMessage = async (req, res) => {
           from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
           to: `whatsapp:${num}`,
         });
-        return res.status(200).send(response);
+        return res.status(200).send("No events found.");
       }
 
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
@@ -38,13 +63,14 @@ const getMessage = async (req, res) => {
       });
 
       const response = await client.messages.create({
-        body: "new messaged",
+        body: responseMessage,
         from: "whatsapp:+14155238886",
         to: `whatsapp:${num}`,
       });
-      console.log("consoling the response from the whatsapp  : ",response);
+      console.log("Response from WhatsApp: ", response);
       return res.status(200).send("Message sent.");
     }
+
     if (message.toLowerCase() === "fulldata") {
       const eventsToday = await Event.find({ eventstartdate: formattedToday });
 
@@ -55,7 +81,7 @@ const getMessage = async (req, res) => {
           from: "whatsapp:+14155238886",
           to: `whatsapp:${num}`,
         });
-        return res.status(200).send(response);
+        return res.status(200).send("No events found.");
       }
 
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
@@ -80,7 +106,7 @@ const getMessage = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error occurred while sending the message.");
+    res.status(500).send("Error occurred while processing the message.");
   }
 };
 
