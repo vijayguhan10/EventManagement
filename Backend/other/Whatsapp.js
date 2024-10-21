@@ -29,8 +29,7 @@ const getMessage = async (req, res) => {
           from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
           to: `whatsapp:${num}`,
         });
-        return res.status(200).send("No events found.");
-      }
+    return res.status(200).send(response);      }
 
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
       eventsToday.forEach((event) => {
@@ -43,8 +42,7 @@ const getMessage = async (req, res) => {
         to: `whatsapp:${num}`,
       });
 
-      return res.status(200).send("Message sent.");
-    }
+    return res.status(200).send(response);    }
     if (message.toLowerCase() === "fulldata") {
       const eventsToday = await Event.find({ eventstartdate: formattedToday });
 
@@ -55,8 +53,7 @@ const getMessage = async (req, res) => {
           from: "whatsapp:+14155238886",
           to: `whatsapp:${num}`,
         });
-        return res.status(200).send("No events found.");
-      }
+    return res.status(200).send(response);      }
 
       let responseMessage = `Events scheduled for today (${formattedToday}):\n\n`;
       eventsToday.forEach((event) => {
@@ -76,11 +73,10 @@ const getMessage = async (req, res) => {
         to: `whatsapp:${num}`,
       });
 
-      return res.status(200).send("Message sent.");
-    }
+    return res.status(200).send(response);    }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error occurred while sending the message.");
+    res.status(500).send(err);
   }
 };
 
