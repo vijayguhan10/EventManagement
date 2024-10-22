@@ -75,7 +75,7 @@ const AdminDashBoard = () => {
     exportEnabled: true,
     animationEnabled: true,
     title: {
-      text: `Department Analytics (${formattedToday})`, // Add current date to the chart title
+      text: `Department Analytics (${formattedToday})`, 
     },
     data: [
       {
@@ -84,7 +84,7 @@ const AdminDashBoard = () => {
         toolTipContent: "<b>{label}</b>: {y}%",
         showInLegend: "true",
         legendText: "{label}",
-        indexLabelFontSize: 14, // Reduced font size for index labels
+        indexLabelFontSize: 14, 
         indexLabel: "{label} - {y}%",
         dataPoints: [
           { y: 10, label: "CSE" },

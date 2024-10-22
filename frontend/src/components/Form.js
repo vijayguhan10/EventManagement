@@ -6,7 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 function Forms() {
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+  const [disableIndividual, setDisableIndividual] = useState(false);
+  const [disableAll, setDisableAll] = useState(false);
   const [formData, setFormData] = useState({
     eventTitle: "",
     eventVenue: "",
@@ -19,7 +20,7 @@ function Forms() {
     eventType: "",
     eventDescription: "",
     departments: [],
-    year:""
+    year: "",
   });
 
   const departmentOptions = [
@@ -48,19 +49,37 @@ function Forms() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
+
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
     } else if (type === "checkbox" && name === "departments") {
       const selectedDepartments = [...formData.departments];
-      if (e.target.checked) {
-        selectedDepartments.push(value);
-      } else {
-        const index = selectedDepartments.indexOf(value);
-        if (index !== -1) {
-          selectedDepartments.splice(index, 1);
+
+      if (value === "All") {
+        // If "All" is checked, disable individual department selection
+        if (e.target.checked) {
+          setFormData((prev) => ({ ...prev, departments: ["All"] }));
+          setDisableIndividual(true); // Disable individual checkboxes
+        } else {
+          setFormData((prev) => ({ ...prev, departments: [] }));
+          setDisableIndividual(false); // Enable individual checkboxes
         }
+      } else {
+        // Handle individual department selection
+        if (e.target.checked) {
+          selectedDepartments.push(value);
+        } else {
+          const index = selectedDepartments.indexOf(value);
+          if (index !== -1) {
+            selectedDepartments.splice(index, 1);
+          }
+        }
+
+        setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
+
+        // Disable "All" checkbox if any individual department is selected
+        setDisableAll(selectedDepartments.length > 0);
       }
-      setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -107,13 +126,13 @@ function Forms() {
           typeofevent: formData.eventType,
           departments: formData.departments,
           status: "pending",
-          year:formData.year
+          year: formData.year,
         }
       );
 
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
-        console.log("year🤣🤣🤣🤣🤣",response.data.year)
+        console.log("year🤣🤣🤣🤣🤣", response.data.year);
         toast.success("Event added successfully!");
       }
     } catch (error) {
@@ -137,7 +156,7 @@ function Forms() {
     { value: "1, 2, and 3", label: "1st Year, 2nd Year, and 3rd Year" },
     { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
     { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
-    { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" }// Represents all years
+    { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" }, // Represents all years
   ];
   return (
     <div className="p-10">
@@ -167,6 +186,11 @@ function Forms() {
                       )}
                       onChange={handleChange}
                       className="form-checkbox"
+                      disabled={
+                        department.fullName === "All"
+                          ? disableAll
+                          : disableIndividual
+                      }
                     />
                     <span className="ml-2">{department.shortName}</span>
                   </label>
@@ -196,7 +220,6 @@ function Forms() {
             </select>
             {errors.year && <span className="text-red-500">{errors.year}</span>}
           </div>
-          {/* Event Title */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               Event Title
@@ -248,7 +271,6 @@ function Forms() {
             )}
           </div>
 
-          {/* End Date */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
               End Date
@@ -266,7 +288,6 @@ function Forms() {
             )}
           </div>
 
-          {/* Start and End Time */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
