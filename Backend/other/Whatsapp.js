@@ -77,7 +77,7 @@ const sendTodaysEvents = async () => {
   }
 };
 
-cron.schedule("41 23 * * *", () => {
+cron.schedule("50 23 * * *", () => {
   console.log("Scheduled job running at 11:35 PM...");
   sendTodaysEvents();
 });
