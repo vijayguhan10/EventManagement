@@ -15,10 +15,14 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const[select,isselect]=useState();
+
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [departments, setDepartments] = useState([]);
   const [isFullYear, setIsFullYear] = useState(false);
+  const [selectedYears, setSelectedYears] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -32,6 +36,28 @@ const Dashboard = () => {
       }
     }
   }, []);
+  const handleYearChange = (event, year) => {
+    if (year === "All") {
+      if (event.target.checked) {
+        setSelectedYears([1,2,3,4]);
+      } else {
+        // When "All" is deselected, clear the state
+        setSelectedYears([]);
+      }
+    } else {
+      setSelectedYears((prevSelected) => {
+        if (prevSelected.includes(year)) {
+          // If a specific year is deselected
+          return prevSelected.filter((y) => y !== year);
+        } else {
+          // If a specific year is selected
+          return [...prevSelected, year].filter((y) => y !== "All"); // Remove "All" if selecting individual years
+        }
+      });
+    }
+  };
+  
+  
 
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -52,19 +78,37 @@ const Dashboard = () => {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
-
   const handleDepartmentChange = (event) => {
-    const selectedDeptFullName = departmentOptions.find(
-      (dept) => dept.shortName === event.target.value
-    ).fullName;
-
-    setDepartments((prevDepartments) =>
-      prevDepartments.includes(selectedDeptFullName)
-        ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
-        : [...prevDepartments, selectedDeptFullName]
-    );
+    const selectedDeptShortName = event.target.value;
+  console.log(selectedDeptShortName,"bbvbvbvbvvbvbbvb")
+    if (selectedDeptShortName === "All") {
+      if (event.target.checked) {
+        setDepartments(["All"]);
+      } else {
+        // If "All" is unchecked, clear the departments
+        setDepartments([]);
+      }
+    } else {
+      // For any other department
+      const selectedDeptFullName = departmentOptions.find(
+        (dept) => dept.shortName === selectedDeptShortName
+      ).fullName;
+  
+      setDepartments((prevDepartments) => {
+        // If "All" is selected, clear it and add the selected department
+        if (prevDepartments.includes("All")) {
+          return [selectedDeptFullName];
+        }
+  
+        // Toggle the selected department (add/remove it)
+        return prevDepartments.includes(selectedDeptFullName)
+          ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
+          : [...prevDepartments, selectedDeptFullName];
+      });
+    }
   };
-
+  
+  
   const handleFullYearChange = () => {
     setIsFullYear(!isFullYear);
     if (!isFullYear) {
@@ -72,15 +116,29 @@ const Dashboard = () => {
       setToDate("");
     }
   };
-
   const handleGeneratePDF = async () => {
+    if (departments.length === 0 || selectedYears.length === 0) {
+      setErrorMessage("Please select at least one department and one year to generate the PDF.");
+      return; 
+    }
+  
+    if (!isFullYear && (!fromDate || !toDate)) {
+      setErrorMessage("Please select a valid date range to generate the PDF.");
+      return; 
+    }
+  
+    setErrorMessage("");
+  
+    console.log("Selected year for PDF generation:", selectedYears);
+  
     const selectedData = {
       departments: departments,
-      ...(isFullYear ? {} : { fromDate, toDate }),
+      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
+      year: selectedYears.includes("All") ? "All" : selectedYears
     };
-
-    console.log(selectedData);
-
+  
+    console.log("Selected data for PDF generation:", selectedData);
+  
     try {
       const response = await axios({
         url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
@@ -88,13 +146,15 @@ const Dashboard = () => {
         params: selectedData,
         responseType: "blob",
       });
-      console.log("response passed return to the frontend :", response);
+  
+      console.log("PDF generation response:", response);
+  
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
-
+  
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
-
+  
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -103,6 +163,7 @@ const Dashboard = () => {
       console.error("Error fetching PDF:", error);
     }
   };
+  
 
   const [data, setData] = useState([]);
   const currentEvents = data.currentEvents || [];
@@ -320,88 +381,124 @@ const Dashboard = () => {
         </div>
       )}
 
-      <div className="container absolute bottom-[3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
-        <h1 className="text-xl font-bold text-center text-black mb-4">
-          Department Report Generator
-        </h1>
+<div className="container absolute bottom-[-3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
 
-        {/* Date Range Selection and Full Year Option */}
-        <div className="flex justify-between items-center space-x-4 mb-4">
-          {/* From Date */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-              disabled={isFullYear} // Disable when Full Year is selected
-            />
-          </div>
+  <h1 className="text-xl font-bold text-center text-black mb-4">
+    Department Report Generator
+  </h1>
+  {errorMessage && (
+    <p className="text-red-600 text-center mt-2">{errorMessage}</p>
+  )}
+  {/* Date Range Selection and Full Year Option */}
+  <div className="flex justify-between items-center space-x-4 mb-4">
+    {/* From Date */}
+    <div>
+      <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
+      <input
+        type="date"
+        value={fromDate}
+        onChange={(e) => setFromDate(e.target.value)}
+        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+        disabled={isFullYear} 
+      />
+    </div>
 
-          {/* To Date */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-              disabled={isFullYear} // Disable when Full Year is selected
-            />
-          </div>
+    {/* To Date */}
+    <div>
+      <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
+      <input
+        type="date"
+        value={toDate}
+        onChange={(e) => setToDate(e.target.value)}
+        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+        disabled={isFullYear} 
+      />
+    </div>
 
-          {/* Full Year Option */}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox" // Use checkbox for toggle functionality
-              checked={isFullYear}
-              onChange={handleFullYearChange} // Toggle functionality
-              className="form-checkbox h-4 w-4 text-green-600"
-            />
-            <label className="text-gray-700 text-xl font-semibold">
-              Full Year
-            </label>
-          </div>
-        </div>
+    {/* Full Year Option */}
+    <div className="flex items-center space-x-2">
+      <input
+        type="checkbox" 
+        checked={isFullYear}
+        onChange={handleFullYearChange} 
+        className="form-checkbox h-4 w-4 text-green-600"
+      />
+      <label className="text-gray-700 text-xl font-semibold">
+        Full Year
+      </label>
+    </div>
+  </div>
 
-        {/* Department Selection */}
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Departments
-          </h2>
-          <div className="flex flex-wrap gap-4">
-            {departmentOptions.map((department) => (
-              <div
-                key={department.shortName}
-                className="flex items-center font-Afacad font-bold space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  value={department.shortName}
-                  checked={departments.includes(department.fullName)}
-                  onChange={handleDepartmentChange}
-                  className="form-checkbox font-Afacad font-bold h-4 w-4 text-green-600"
-                />
-                <span className="text-gray-700 font-Afacad font-bold text-lg">
-                  {department.shortName}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Generate PDF Button */}
-        <div className="text-center">
-          <button
-            onClick={handleGeneratePDF}
-            to="/Form"
-            className="bg-gradient-to-r ml-80  from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-          >
-            Generate PDF
-          </button>
-        </div>
+  {/* Department Selection */}
+ {/* Department Selection */}
+{/* Department Selection */}
+<div className="mb-4">
+  <h2 className="text-xl font-semibold text-gray-700 mb-2">
+    Departments
+  </h2>
+  <div className="flex flex-wrap gap-4">
+    {/* Map over departmentOptions */}
+    {departmentOptions.map((department) => (
+      <div
+        key={department.shortName}
+        className="flex items-center font-Afacad font-bold space-x-2"
+      >
+        <input
+          type="checkbox"
+          value={department.shortName}
+          checked={departments.includes(department.fullName)}
+          onChange={handleDepartmentChange}
+          className="form-checkbox font-Afacad font-bold h-4 w-4 text-green-600"
+          disabled={departments.includes("All") && department.shortName !== "All"} // Disable if "All" is selected
+        />
+        <span className="text-gray-700 font-Afacad font-bold text-lg">
+          {department.shortName}
+        </span>
       </div>
+    ))}
+  </div>
+</div>
+
+
+
+{/* Year Selection */}
+<div className="mb-4">
+  <h2 className="text-xl font-semibold text-gray-700 mb-2">Year</h2>
+  <div className="flex gap-4">
+    {[1, 2, 3, 4, "All"].map((year) => (
+      <div key={year} className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          value={year}
+          checked={year === "All" ? selectedYears.length === 4 : selectedYears.includes(year)}
+          onChange={(e) => handleYearChange(e, year)}
+          className="form-checkbox h-4 w-4 text-green-600"
+          disabled={selectedYears.includes("All") && year !== "All"} // Disable if "All" is selected
+        />
+        <label className="text-gray-700 text-lg">{year}</label>
+      </div>
+    ))}
+  </div>
+</div>
+
+
+{/* Generate PDF Button */}
+<div className="text-center">
+  <button
+    onClick={handleGeneratePDF}
+    className="relative bg-gradient-to-r ml-80 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+    style={{ top: '-20px' }} 
+  >
+    Generate PDF
+  </button>
+
+  {/* Display Error Message */}
+
+</div>
+
+
+</div>
+
     </div>
   );
 };
