@@ -116,23 +116,29 @@ const Dashboard = () => {
       setToDate("");
     }
   };
-
   const handleGeneratePDF = async () => {
     if (departments.length === 0 || selectedYears.length === 0) {
       setErrorMessage("Please select at least one department and one year to generate the PDF.");
-      return; // Stop the function if nothing is selected
+      return; 
     }
+  
+    if (!isFullYear && (!fromDate || !toDate)) {
+      setErrorMessage("Please select a valid date range to generate the PDF.");
+      return; 
+    }
+  
     setErrorMessage("");
-console.log("😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️selected year for pdf generator",selectedYears)
-const selectedData = {
-  departments: departments,
-  ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-  year: selectedYears.includes("All") ? "All" : selectedYears
-};
-
-    console.log("😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️selected year for pdf generator",selectedYears)
-    console.log("selectedData",selectedData);
-
+  
+    console.log("Selected year for PDF generation:", selectedYears);
+  
+    const selectedData = {
+      departments: departments,
+      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
+      year: selectedYears.includes("All") ? "All" : selectedYears
+    };
+  
+    console.log("Selected data for PDF generation:", selectedData);
+  
     try {
       const response = await axios({
         url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
@@ -140,13 +146,15 @@ const selectedData = {
         params: selectedData,
         responseType: "blob",
       });
-      console.log("response passed return to the frontend :", response);
+  
+      console.log("PDF generation response:", response);
+  
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
-
+  
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
-
+  
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -155,6 +163,7 @@ const selectedData = {
       console.error("Error fetching PDF:", error);
     }
   };
+  
 
   const [data, setData] = useState([]);
   const currentEvents = data.currentEvents || [];
@@ -372,11 +381,14 @@ const selectedData = {
         </div>
       )}
 
-<div className="container absolute bottom-[-2%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
+<div className="container absolute bottom-[-3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
+
   <h1 className="text-xl font-bold text-center text-black mb-4">
     Department Report Generator
   </h1>
-
+  {errorMessage && (
+    <p className="text-red-600 text-center mt-2">{errorMessage}</p>
+  )}
   {/* Date Range Selection and Full Year Option */}
   <div className="flex justify-between items-center space-x-4 mb-4">
     {/* From Date */}
@@ -481,9 +493,7 @@ const selectedData = {
   </button>
 
   {/* Display Error Message */}
-  {errorMessage && (
-    <p className="text-red-600 text-center mt-2">{errorMessage}</p>
-  )}
+
 </div>
 
 
