@@ -66,7 +66,7 @@ const sendTodaysEvents = async () => {
     });
 
     await client.messages.create({
-      body: responseMessage,
+      body: noEventsMessage,
       from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
       to: `whatsapp:${num}`,
     });
@@ -77,7 +77,7 @@ const sendTodaysEvents = async () => {
   }
 };
 
-cron.schedule("50 23 * * *", () => {
+cron.schedule("40 21 * * *", () => {
   console.log("Scheduled job running at 11:35 PM...");
   sendTodaysEvents();
 });
