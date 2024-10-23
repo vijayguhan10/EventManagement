@@ -83,10 +83,9 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   );
   res.send(buffer);
 };
-
 exports.generatePdf = async (req, res) => {
   try {
-    const { fromDate, toDate, departments,year,fullYear} = req.query;
+    const { fromDate, toDate, departments, year, fullYear } = req.query;
     console.log("Required data for the pdf:", req.query);
 
     const events = await Event.find({});
@@ -96,6 +95,7 @@ exports.generatePdf = async (req, res) => {
       const eventStartDate = moment(event.eventstartdate, "DD/MM/YYYY").format(
         "YYYY-MM-DD"
       );
+      const eventYear = moment(event.eventstartdate, "DD/MM/YYYY").year();
 
       if (isNaN(new Date(eventStartDate).getTime())) {
         console.error(
@@ -105,6 +105,14 @@ exports.generatePdf = async (req, res) => {
         return false;
       }
 
+      // If "fullYear" is selected, filter events by year
+      if (fullYear && year && !year.includes("All")) {
+        if (!year.includes(eventYear.toString())) {
+          return false;
+        }
+      }
+
+      // If date range is provided, filter events between the given dates
       if (fromDate && toDate) {
         const from = moment(fromDate).format("YYYY-MM-DD");
         const to = moment(toDate).format("YYYY-MM-DD");
@@ -113,6 +121,7 @@ exports.generatePdf = async (req, res) => {
         }
       }
 
+      // If "All" is not selected for departments, filter by department
       if (departments && !departments.includes("All")) {
         if (!departments.includes(event.departments)) {
           return false;
@@ -122,6 +131,7 @@ exports.generatePdf = async (req, res) => {
       return true;
     });
 
+    // Pass the filtered events to PDF generation function
     PdfConversion(filteredEvents, fromDate, toDate, res);
   } catch (error) {
     console.error("Error generating PDF:", error);

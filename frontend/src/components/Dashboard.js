@@ -127,7 +127,7 @@ console.log("😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️selected ye
 const selectedData = {
   departments: departments,
   ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-  year: selectedYears
+  year: selectedYears.includes("All") ? "All" : selectedYears
 };
 
     console.log("😶‍🌫️😶‍🌫️😶‍🌫️😶‍🌫️selected year for pdf generator",selectedYears)
