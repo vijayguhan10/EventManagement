@@ -86,7 +86,7 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
 
 exports.generatePdf = async (req, res) => {
   try {
-    const { fromDate, toDate, departments } = req.query;
+    const { fromDate, toDate, departments,year,fullYear} = req.query;
     console.log("Required data for the pdf:", req.query);
 
     const events = await Event.find({});
