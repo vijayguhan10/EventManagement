@@ -7,12 +7,13 @@ import CalendarComponent from "./CalenderComponent";
 import { toast } from "react-toastify";
 import cup from "../assets/cup.png";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const AdminDashBoard = () => {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -71,11 +72,23 @@ const AdminDashBoard = () => {
     return event.eventstartdate === formattedToday;
   });
 
+  const filteredSearchData = filteredData.filter((event) => {
+    const department = Array.isArray(event.departments)
+      ? event.departments.join(", ")
+      : event.departments || ""; // Handle cases where departments might be null or undefined
+
+    return (
+      (event.eventname &&
+        event.eventname.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (department &&
+        department.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
   const pieChartOptions = {
     exportEnabled: true,
     animationEnabled: true,
     title: {
-      text: `Department Analytics (${formattedToday})`, 
+      text: `Department Analytics (${formattedToday})`,
     },
     data: [
       {
@@ -84,7 +97,7 @@ const AdminDashBoard = () => {
         toolTipContent: "<b>{label}</b>: {y}%",
         showInLegend: "true",
         legendText: "{label}",
-        indexLabelFontSize: 14, 
+        indexLabelFontSize: 14,
         indexLabel: "{label} - {y}%",
         dataPoints: [
           { y: 10, label: "CSE" },
@@ -100,8 +113,12 @@ const AdminDashBoard = () => {
         ],
       },
     ],
-    height: 300, 
-    width: 550, 
+    height: 360,
+    width: 600,
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
   };
 
   if (Loading) {
@@ -129,6 +146,8 @@ const AdminDashBoard = () => {
               type="text"
               placeholder="Search events..."
               className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
+              value={searchQuery} 
+              onChange={handleSearchChange} 
             />
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
               <FaSearch size={20} />
@@ -139,11 +158,14 @@ const AdminDashBoard = () => {
           </div>
         </div>
 
-        <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
-          <div className="mx-auto p-0">
-            <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
-              {filteredData.length > 0 ? (
-                filteredData.map((event, index) => (
+        <div className="xl:ml-72 h-full mt-5 relative xl:w-[80%] w-full bg-white">
+          <div className="mx-auto p-0 h-full">
+            <div
+              className="h-full border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth"
+              style={{ height: "100vh" }} 
+            >
+              {filteredSearchData.length > 0 ? (
+                filteredSearchData.map((event, index) => (
                   <div
                     key={index}
                     className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
@@ -157,7 +179,7 @@ const AdminDashBoard = () => {
                   </div>
                 ))
               ) : (
-                <p>No events for today.</p>
+                <p>No events found for today.</p>
               )}
             </div>
           </div>
@@ -167,10 +189,8 @@ const AdminDashBoard = () => {
           <CalendarComponent />
         </div>
       </div>
-      <div className="flex justify-center items-center mt-36 relative left-[26.5%] bottom-32">
-        <div className="w-full xl:w-[30%] h-auto bg-transparent">
-          {" "}
-          {/* Reduced width */}
+      <div className="w-64 ml-[55%]">
+        <div className="h-auto ml-28 absolute -bottom-8 bg-transparent">
           <CanvasJSChart options={pieChartOptions} />
         </div>
       </div>

@@ -140,9 +140,7 @@ function History() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button className="mb-2  bg-[#2cef5d] font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ">
-              {event.status}
-            </button>
+           
             <img
               className="w-96 h-40 rounded-lg"
               src={event.imageurl}
