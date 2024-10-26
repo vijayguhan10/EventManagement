@@ -16,7 +16,7 @@ const Dashboard = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const[select,isselect]=useState();
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search
 
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
@@ -39,7 +39,7 @@ const Dashboard = () => {
   const handleYearChange = (event, year) => {
     if (year === "All") {
       if (event.target.checked) {
-        setSelectedYears([1,2,3,4]);
+        setSelectedYears([1, 2, 3, 4]);
       } else {
         // When "All" is deselected, clear the state
         setSelectedYears([]);
@@ -56,8 +56,6 @@ const Dashboard = () => {
       });
     }
   };
-  
-  
 
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -80,7 +78,7 @@ const Dashboard = () => {
   ];
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
-  console.log(selectedDeptShortName,"bbvbvbvbvvbvbbvb")
+    console.log(selectedDeptShortName, "bbvbvbvbvvbvbbvb");
     if (selectedDeptShortName === "All") {
       if (event.target.checked) {
         setDepartments(["All"]);
@@ -93,13 +91,13 @@ const Dashboard = () => {
       const selectedDeptFullName = departmentOptions.find(
         (dept) => dept.shortName === selectedDeptShortName
       ).fullName;
-  
+
       setDepartments((prevDepartments) => {
         // If "All" is selected, clear it and add the selected department
         if (prevDepartments.includes("All")) {
           return [selectedDeptFullName];
         }
-  
+
         // Toggle the selected department (add/remove it)
         return prevDepartments.includes(selectedDeptFullName)
           ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
@@ -107,8 +105,7 @@ const Dashboard = () => {
       });
     }
   };
-  
-  
+
   const handleFullYearChange = () => {
     setIsFullYear(!isFullYear);
     if (!isFullYear) {
@@ -118,27 +115,29 @@ const Dashboard = () => {
   };
   const handleGeneratePDF = async () => {
     if (departments.length === 0 || selectedYears.length === 0) {
-      setErrorMessage("Please select at least one department and one year to generate the PDF.");
-      return; 
+      setErrorMessage(
+        "Please select at least one department and one year to generate the PDF."
+      );
+      return;
     }
-  
+
     if (!isFullYear && (!fromDate || !toDate)) {
       setErrorMessage("Please select a valid date range to generate the PDF.");
-      return; 
+      return;
     }
-  
+
     setErrorMessage("");
-  
+
     console.log("Selected year for PDF generation:", selectedYears);
-  
+
     const selectedData = {
       departments: departments,
       ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-      year: selectedYears.includes("All") ? "All" : selectedYears
+      year: selectedYears.includes("All") ? "All" : selectedYears,
     };
-  
+
     console.log("Selected data for PDF generation:", selectedData);
-  
+
     try {
       const response = await axios({
         url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
@@ -146,15 +145,15 @@ const Dashboard = () => {
         params: selectedData,
         responseType: "blob",
       });
-  
+
       console.log("PDF generation response:", response);
-  
+
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
-  
+
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
-  
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -163,14 +162,13 @@ const Dashboard = () => {
       console.error("Error fetching PDF:", error);
     }
   };
-  
 
+ 
   const [data, setData] = useState([]);
-  const currentEvents = data.currentEvents || [];
-  const futureEvents = data.futureEvents || [];
+  // const currentEvents = data.currentEvents || [];
+  // const futureEvents = data.futureEvents || [];
   const [popupPDF, SetPopupPdf] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [Loading, setLoading] = useState(true);
   const token = localStorage.getItem("authToken");
@@ -245,6 +243,21 @@ const Dashboard = () => {
   const popupopen = () => {
     SetPopupPdf(!popupPDF);
   };
+  const filteredSearchData = filteredData.filter((event) => {
+    const department = Array.isArray(event.departments)
+      ? event.departments.join(", ")
+      : event.departments || ""; // Handle cases where departments might be null or undefined
+
+    return (
+      (event.eventname &&
+        event.eventname.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (department &&
+        department.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
   if (Loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -264,11 +277,13 @@ const Dashboard = () => {
               Welcome, <span>{name}</span>
             </h1>
           </div>
-          <div className="relative ml-[90%] mb-32">
+          <div className="relative ml-[58%] mb-32">
             <input
               type="text"
               placeholder="Search events..."
               className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
               <FaSearch size={20} />
@@ -282,8 +297,8 @@ const Dashboard = () => {
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
           <div className="mx-auto p-0">
             <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
-              {filteredData.length > 0 ? (
-                filteredData.map((event, index) => (
+              {filteredSearchData.length > 0 ? (
+                filteredSearchData.map((event, index) => (
                   <div
                     key={index}
                     className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
@@ -381,124 +396,122 @@ const Dashboard = () => {
         </div>
       )}
 
-<div className="container absolute bottom-[-3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
+      <div className="container absolute bottom-[-3%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg">
+        <h1 className="text-xl font-bold text-center text-black ">
+          Department Report Generator
+        </h1>
+        {errorMessage && (
+          <p className="text-red-600 text-center mt-1">{errorMessage}</p>
+        )}
+        {/* Date Range Selection and Full Year Option */}
+        <div className="flex justify-between items-center space-x-4 mb-2">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear}
+            />
+          </div>
 
-  <h1 className="text-xl font-bold text-center text-black mb-4">
-    Department Report Generator
-  </h1>
-  {errorMessage && (
-    <p className="text-red-600 text-center mt-2">{errorMessage}</p>
-  )}
-  {/* Date Range Selection and Full Year Option */}
-  <div className="flex justify-between items-center space-x-4 mb-4">
-    {/* From Date */}
-    <div>
-      <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
-      <input
-        type="date"
-        value={fromDate}
-        onChange={(e) => setFromDate(e.target.value)}
-        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-        disabled={isFullYear} 
-      />
-    </div>
+          {/* To Date */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear}
+            />
+          </div>
 
-    {/* To Date */}
-    <div>
-      <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
-      <input
-        type="date"
-        value={toDate}
-        onChange={(e) => setToDate(e.target.value)}
-        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-        disabled={isFullYear} 
-      />
-    </div>
+          {/* Full Year Option */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={isFullYear}
+              onChange={handleFullYearChange}
+              className="form-checkbox h-4 w-4 text-green-600"
+            />
+            <label className="text-gray-700 text-xl font-semibold">
+              Full Year
+            </label>
+          </div>
+        </div>
 
-    {/* Full Year Option */}
-    <div className="flex items-center space-x-2">
-      <input
-        type="checkbox" 
-        checked={isFullYear}
-        onChange={handleFullYearChange} 
-        className="form-checkbox h-4 w-4 text-green-600"
-      />
-      <label className="text-gray-700 text-xl font-semibold">
-        Full Year
-      </label>
-    </div>
-  </div>
+        {/* Department Selection */}
+        {/* Department Selection */}
+        {/* Department Selection */}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">
+            Departments
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            {/* Map over departmentOptions */}
+            {departmentOptions.map((department) => (
+              <div
+                key={department.shortName}
+                className="flex items-center font-Afacad font-bold space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  value={department.shortName}
+                  checked={departments.includes(department.fullName)}
+                  onChange={handleDepartmentChange}
+                  className="form-checkbox font-Afacad font-bold h-4 w-4 text-green-600"
+                  disabled={
+                    departments.includes("All") &&
+                    department.shortName !== "All"
+                  } // Disable if "All" is selected
+                />
+                <span className="text-gray-700 font-Afacad font-bold text-lg">
+                  {department.shortName}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-  {/* Department Selection */}
- {/* Department Selection */}
-{/* Department Selection */}
-<div className="mb-4">
-  <h2 className="text-xl font-semibold text-gray-700 mb-2">
-    Departments
-  </h2>
-  <div className="flex flex-wrap gap-4">
-    {/* Map over departmentOptions */}
-    {departmentOptions.map((department) => (
-      <div
-        key={department.shortName}
-        className="flex items-center font-Afacad font-bold space-x-2"
-      >
-        <input
-          type="checkbox"
-          value={department.shortName}
-          checked={departments.includes(department.fullName)}
-          onChange={handleDepartmentChange}
-          className="form-checkbox font-Afacad font-bold h-4 w-4 text-green-600"
-          disabled={departments.includes("All") && department.shortName !== "All"} // Disable if "All" is selected
-        />
-        <span className="text-gray-700 font-Afacad font-bold text-lg">
-          {department.shortName}
-        </span>
+        {/* Year Selection */}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Year</h2>
+          <div className="flex gap-4">
+            {[1, 2, 3, 4, "All"].map((year) => (
+              <div key={year} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  value={year}
+                  checked={
+                    year === "All"
+                      ? selectedYears.length === 4
+                      : selectedYears.includes(year)
+                  }
+                  onChange={(e) => handleYearChange(e, year)}
+                  className="form-checkbox h-4 w-4 text-green-600"
+                  disabled={selectedYears.includes("All") && year !== "All"} // Disable if "All" is selected
+                />
+                <label className="text-gray-700 text-lg">{year}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Generate PDF Button */}
+        <div className="text-center">
+          <button
+            onClick={handleGeneratePDF}
+            className="relative bg-gradient-to-r ml-80 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+            style={{ top: "-20px" }}
+          >
+            Generate PDF
+          </button>
+
+          {/* Display Error Message */}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
-
-
-
-{/* Year Selection */}
-<div className="mb-4">
-  <h2 className="text-xl font-semibold text-gray-700 mb-2">Year</h2>
-  <div className="flex gap-4">
-    {[1, 2, 3, 4, "All"].map((year) => (
-      <div key={year} className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          value={year}
-          checked={year === "All" ? selectedYears.length === 4 : selectedYears.includes(year)}
-          onChange={(e) => handleYearChange(e, year)}
-          className="form-checkbox h-4 w-4 text-green-600"
-          disabled={selectedYears.includes("All") && year !== "All"} // Disable if "All" is selected
-        />
-        <label className="text-gray-700 text-lg">{year}</label>
-      </div>
-    ))}
-  </div>
-</div>
-
-
-{/* Generate PDF Button */}
-<div className="text-center">
-  <button
-    onClick={handleGeneratePDF}
-    className="relative bg-gradient-to-r ml-80 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-    style={{ top: '-20px' }} 
-  >
-    Generate PDF
-  </button>
-
-  {/* Display Error Message */}
-
-</div>
-
-
-</div>
-
     </div>
   );
 };

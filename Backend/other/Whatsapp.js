@@ -70,18 +70,15 @@ const sendTodaysEvents = async () => {
       from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
       to: `whatsapp:${num}`,
     });
-
     console.log("Message sent for today's events.");
   } catch (err) {
     console.error("Error:", err.message);
   }
 };
-
 cron.schedule("40 21 * * *", () => {
   console.log("Scheduled job running at 11:35 PM...");
   sendTodaysEvents();
 });
-
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
