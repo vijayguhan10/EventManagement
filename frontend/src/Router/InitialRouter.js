@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Dashboard from "../components/Dashboard";
+// import Forms from "../components/Form";
 import Forms from "../components/Form";
 import Login from "../components/Login";
 import Placement from "../components/Placements";

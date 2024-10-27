@@ -7,8 +7,7 @@ import CalendarComponent from "./CalenderComponent";
 import { toast } from "react-toastify";
 import cup from "../assets/cup.png";
 import axios from "axios";
-// import cup from "../assets/cup.png";
-// import Departments from './Departments';
+
 import { jwtDecode } from "jwt-decode";
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 

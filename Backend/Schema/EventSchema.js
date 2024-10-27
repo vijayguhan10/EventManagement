@@ -56,7 +56,6 @@ const EventDataSchema = new mongoose.Schema({
   },
   typeofevent: {
     type: String,
-    enum: ["Placement", "Technical", "Nontechnical"],
     required: true,
   },
   status: {
