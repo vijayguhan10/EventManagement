@@ -66,22 +66,19 @@ const sendTodaysEvents = async () => {
     });
 
     await client.messages.create({
-      body: responseMessage,
+      body: noEventsMessage,
       from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
       to: `whatsapp:${num}`,
     });
-
     console.log("Message sent for today's events.");
   } catch (err) {
     console.error("Error:", err.message);
   }
 };
-
-cron.schedule("50 23 * * *", () => {
+cron.schedule("40 21 * * *", () => {
   console.log("Scheduled job running at 11:35 PM...");
   sendTodaysEvents();
 });
-
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
