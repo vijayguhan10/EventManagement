@@ -201,6 +201,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
   const openEventModal = (event) => {
+    
     setSelectedEvent(event);
   };
 
