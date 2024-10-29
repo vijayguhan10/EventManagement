@@ -46,68 +46,123 @@ function Forms() {
 
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+  const [newDepartment, setNewDepartment] = useState('');
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [disableIndividual, setDisableIndividual] = useState(false);
   const [disableAll, setDisableAll] = useState(false);
+
   const [showEventTypeModal, setShowEventTypeModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [showDepartments, setShowDepartments] = useState(false);
-  const [formData, setFormData] = useState({
-    eventTitle: "",
-    eventVenue: "",
-    startDate: "",
-    endDate: "",
-    startTime: "",
-    endTime: "",
-    resourcePersons: [],
-    eventType: "",
-    eventDescription: "6",
-    departments: [],
-    year: "",
-  });
+    const [formData, setFormData] = useState({
+      eventTitle: "",
+      eventVenue: "",
+      startDate: "",
+      endDate: "",
+      startTime: "",
+      endTime: "",
+      resourcePersons: [],
+      eventType: "",
+      eventDescription: "6",
+      departments: [],
+      year: "",
+      departmentspecification:[]
+    });
+  const handleRefreshResourcePersons = () => {
+  setResourcePersonDetails([]);
+};
+
   const [numResourcePersons, setNumResourcePersons] = useState(0);
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
   const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
   const handleNumResourcePersonsChange = (e) => {
     setNumResourcePersons(e.target.value);
   };
-
-  const handleAddResourcePersons = () => {
-    const newResourcePersons = Array.from(
-      { length: numResourcePersons },
-      () => ({
-        name: "",
-        specialization: "",
-      })
+  const handleDeleteResourcePerson = (index) => {
+    setResourcePersonDetails((prevDetails) =>
+      prevDetails.filter((_, i) => i !== index)
     );
-    setResourcePersonDetails(newResourcePersons);
+  };
+  
+  const handleAddResourcePersons = () => {
+    const additionalPersonsCount = numResourcePersons - resourcePersonDetails.length;
+  
+    if (additionalPersonsCount > 0) {
+      const newResourcePersons = Array.from(
+        { length: additionalPersonsCount },
+        () => ({
+          name: "",
+          specialization: "",
+        })
+      );
+      setResourcePersonDetails((prevDetails) => [...prevDetails, ...newResourcePersons]);
+    }
+    
     setResourcePersonModalOpen(true);
   };
-
+  
   const handleResourcePersonDetailChange = (index, field, value) => {
     const updatedDetails = [...resourcePersonDetails];
     updatedDetails[index][field] = value;
     setResourcePersonDetails(updatedDetails);
   };
 
+  const [validationErrors, setValidationErrors] = useState([]);
+  const handleShowDepartments = () => {
+       setErrors({});
+    setShowDepartments(true);
+ 
+  };
+  
+  const handleAddDepartment = () => {
+    if (newDepartment) {
+      setFormData((prev) => ({
+        ...prev,
+        departments: [...prev.departments, newDepartment],
+      }));
+      setNewDepartment('');
+      setIsOtherSelected(false); // Reset after adding
+    } else {
+      setErrors({ ...errors, departments: 'Please enter a department name.' });
+    }
+  };
+  const closeModal = () => {
+    setShowDepartments(false);
+    setErrors({});
+    setNewDepartment('');
+    setIsOtherSelected(false);
+  };
+
   const handleSaveResourcePersons = () => {
-    const formattedResourcePersons = resourcePersonDetails.reduce(
-      (acc, person) => {
-        if (person.name && person.specialization) {
-          acc[person.name] = person.specialization;
-        }
-        return acc;
-      },
-      {}
-    );
+    const errors = resourcePersonDetails.reduce((acc, person, index) => {
+      if (!person.name || !person.specialization) {
+        acc.push(index);
+      }
+      return acc;
+    }, []);
+  
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+  
+    setValidationErrors([]);
+  
+    const formattedResourcePersons = resourcePersonDetails.reduce((acc, person) => {
+      acc[person.name] = person.specialization;
+      return acc;
+    }, {});
+  
     setFormData((prev) => ({
       ...prev,
       resourcePersons: formattedResourcePersons,
     }));
     setResourcePersonModalOpen(false);
   };
+  
+  
   const handleRemovePerson = (index) => {
     const updatedPersons = formData.resourcePersons.filter(
       (_, i) => i !== index
@@ -162,37 +217,62 @@ function Forms() {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
+// Handle checkbox changes
+const handleChange = (e) => {
+  const { name, value, type } = e.target;
 
-  const handleChange = (e) => {
-    const { name, value, type } = e.target;
+  if (type === "radio") {
+    setFormData((prev) => ({ ...prev, eventType: value }));
+  } else if (type === "checkbox" && name === "departments") {
+    const selectedDepartments = [...formData.departments];
 
-    if (type === "radio") {
-      setFormData((prev) => ({ ...prev, eventType: value }));
-    } else if (type === "checkbox" && name === "departments") {
-      const selectedDepartments = [...formData.departments];
-      if (value === "All") {
-        if (e.target.checked) {
-          setFormData((prev) => ({ ...prev, departments: ["All"] }));
-          setDisableIndividual(true);
-        } else {
-          setFormData((prev) => ({ ...prev, departments: [] }));
-          setDisableIndividual(false);
-        }
+    if (value === "All") {
+      if (e.target.checked) {
+        setFormData((prev) => ({ ...prev, departments: ["All"] }));
+        setDisableIndividual(true);
       } else {
-        if (e.target.checked) {
-          selectedDepartments.push(value);
-        } else {
-          const index = selectedDepartments.indexOf(value);
-          if (index !== -1) selectedDepartments.splice(index, 1);
-        }
-        setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
-        setDisableAll(selectedDepartments.length > 0);
+        setFormData((prev) => ({ ...prev, departments: [] }));
+        setDisableIndividual(false);
+      }
+    } else if (value === "Others") {
+      setIsOtherSelected(e.target.checked);
+      // If "Others" is checked, disable other checkboxes
+      setDisableIndividual(e.target.checked);
+      if (!e.target.checked) {
+        // Enable other checkboxes if "Others" is unchecked
+        setDisableIndividual(false);
       }
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      if (e.target.checked) {
+        selectedDepartments.push(value);
+      } else {
+        const index = selectedDepartments.indexOf(value);
+        if (index !== -1) selectedDepartments.splice(index, 1);
+      }
+      setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
+      setDisableAll(selectedDepartments.length > 0);
     }
+  } else {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+};
+  const handleDepartmentsChange = (event) => {
+    const { value, checked } = event.target;
+  
+    setFormData((prevFormData) => {
+      if (checked) {
+        return {
+          ...prevFormData,
+          departmentspecification: [...prevFormData.departmentspecification, value],
+        };
+      } else {
+        return {
+          ...prevFormData,
+          departmentspecification: prevFormData.departmentspecification.filter((dept) => dept !== value),
+        };
+      }
+    });
   };
-
   const handleSubmit = async (e) => {
     console.log("form data ", formData);
     e.preventDefault();
@@ -280,68 +360,111 @@ function Forms() {
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-              Select the Department Specification
+   <div className="mb-4">
+  <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+    Select the Department Specification
+  </label>
+  <div className="flex flex-wrap mb-4">
+    {individualDepartments.map((department) => (      
+      <div key={department} className="mr-4 mb-2">
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            name="departmentspecification"
+            value={department}
+            checked={formData.departmentspecification.includes(department)}
+            onChange={handleDepartmentsChange}
+            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+          />
+          <span className="ml-2 text-gray-700">{department}</span>
+        </label>
+      </div>
+    ))}
+    
+  </div>
+  {errors.departments && (
+    <span className="text-red-500 text-sm">{errors.departments}</span>
+  )}
+  <button
+    onClick={handleShowDepartments}
+    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+  >
+    Show Departments
+  </button>
+
+  {/* Modal for Selecting Departments */}
+  {showDepartments && (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-lg font-bold mb-4 text-gray-800">Select Departments</h2>
+        <div className="flex flex-wrap mb-4">
+        {departmentOptions.map((department) => (
+  <div key={department.shortName} className="mr-4 mb-2">
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="departments"
+        value={department.fullName}
+        checked={formData.departments.includes(department.fullName)}
+        onChange={handleChange}
+        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+        disabled={department.fullName === "All" ? disableAll : disableIndividual}
+      />
+      <span className="ml-2 text-gray-700">{department.shortName}</span>
+    </label>
+  </div>
+))}
+
+        </div>
+        <label className="inline-flex items-center mb-4">
+          <input
+            type="checkbox"
+            name="departments"
+            value="Others"
+            checked={isOtherSelected}
+            onChange={(e) => {
+              setIsOtherSelected(e.target.checked);
+              handleChange(e);
+            }}
+            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+          />
+          <span className="ml-2 text-gray-700">Others</span>
+        </label>
+        {isOtherSelected && (
+          <div className="mt-4">
+            <label className="block text-gray-700 font-semibold mb-1">
+              Specify Other Department
             </label>
-            <div className="flex flex-wrap">
-              {individualDepartments.map((department) => (
-                <div key={department} className="mr-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      name="departments"
-                      value={department}
-                      checked={formData.departments.includes(department)}
-                      onChange={handleChange}
-                      className="form-checkbox"
-                    />
-                    <span className="ml-2">{department}</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-            {errors.departments && (
-              <span className="text-red-500">{errors.departments}</span>
-            )}
-            <button onClick={() => setShowDepartments(!showDepartments)}>
-              Show Departments
+            <input
+              type="text"
+              placeholder="Enter Other Department"
+              value={newDepartment}
+              onChange={(e) => setNewDepartment(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleAddDepartment}
+              className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+            >
+              Add Department
             </button>
-            {showDepartments && (
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-                  Departments
-                </label>
-                <div className="flex flex-wrap">
-                  {departmentOptions.map((department) => (
-                    <div key={department.shortName} className="mr-4">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          name="departments"
-                          value={department.fullName}
-                          checked={formData.departments.includes(
-                            department.fullName
-                          )}
-                          onChange={handleChange}
-                          className="form-checkbox"
-                          disabled={
-                            department.fullName === "All"
-                              ? disableAll
-                              : disableIndividual
-                          }
-                        />
-                        <span className="ml-2">{department.shortName}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                {errors.departments && (
-                  <span className="text-red-500">{errors.departments}</span>
-                )}
-              </div>
+            {errors.departments && (
+              <span className="text-red-500 text-sm">{errors.departments}</span>
             )}
           </div>
+        )}
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={closeModal}
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
@@ -485,56 +608,93 @@ function Forms() {
               Add Resource Persons
             </button>
           </div>
+{/* Modal for Resource Persons */}
+{resourcePersonModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+      {/* Close and Refresh Buttons */}
+      <button
+        type="button"
+        onClick={() => setResourcePersonModalOpen(false)}
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
+      >
+        &times;
+      </button>
 
-          {/* Modal for Resource Persons */}
-          {resourcePersonModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                <h2 className="text-2xl font-bold mb-4">
-                  Enter Resource Persons
-                </h2>
-                {resourcePersonDetails.map((person, index) => (
-                  <div key={index} className="mb-4">
-                    <input
-                      type="text"
-                      placeholder="Resource Person Name"
-                      value={person.name}
-                      onChange={(e) =>
-                        handleResourcePersonDetailChange(
-                          index,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Specialization"
-                      value={person.specialization}
-                      onChange={(e) =>
-                        handleResourcePersonDetailChange(
-                          index,
-                          "specialization",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-                ))}
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handleSaveResourcePersons}
-                    className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
+      <h2 className="text-2xl font-bold mb-4 flex items-center">
+        Enter Resource Persons
+        <button
+          type="button"
+          onClick={handleRefreshResourcePersons}
+          className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+          title="Refresh"
+        >
+          &#8635;
+        </button>
+      </h2>
+
+      {resourcePersonDetails.map((person, index) => (
+        <div key={index} className="mb-4 relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-lg font-semibold">{index + 1}.</span>
+            <button
+              type="button"
+              onClick={() => handleDeleteResourcePerson(index)}
+              className="text-red-500 hover:text-red-700 text-xl font-bold"
+            >
+              &times;
+            </button>
+          </div>
+
+          <input
+            type="text"
+            placeholder="Resource Person Name"
+            value={person.name}
+            onChange={(e) =>
+              handleResourcePersonDetailChange(
+                index,
+                "name",
+                e.target.value
+              )
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+          />
+          {validationErrors.includes(index) && !person.name && (
+            <p className="text-red-500 text-sm mt-1">Please enter a name.</p>
           )}
+          
+          <input
+            type="text"
+            placeholder="Specialization"
+            value={person.specialization}
+            onChange={(e) =>
+              handleResourcePersonDetailChange(
+                index,
+                "specialization",
+                e.target.value
+              )
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+          {validationErrors.includes(index) && !person.specialization && (
+            <p className="text-red-500 text-sm mt-1">Please enter a specialization.</p>
+          )}
+        </div>
+      ))}
+      
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={handleSaveResourcePersons}
+          className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
           {/* Specialization */}
           <div className="mb-4">
