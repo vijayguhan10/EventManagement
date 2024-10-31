@@ -11,18 +11,18 @@ const EventDataSchema = new mongoose.Schema({
   },
   resourceperson: {
     required: true,
-    type: String,
+    type: [{ type: mongoose.Schema.Types.Mixed }],
   },
-  organizer: {
-    required: true,
-    type: String,
-  },
+
+  // organizer: {
+  //   required: true,
+  //   type: String,
+  // },
   venue: {
     required: true,
     type: String,
   },
   departments: {
-    required: true,
     type: [String],
     enum: [
       "Computer and Communication Engineering",
@@ -37,6 +37,9 @@ const EventDataSchema = new mongoose.Schema({
       "Cybersecurity",
       "All",
     ],
+  },
+  departmentspecification: {
+    type: [String],
   },
   eventstarttime: {
     required: true,
@@ -66,10 +69,14 @@ const EventDataSchema = new mongoose.Schema({
   imageurl: {
     type: String,
   },
-  year:{
-    type:String,
-    required:true
-  }
+  eventDescription: {
+    type: String,
+    required: true,
+  },
+  year: {
+    required: true,
+    type: String,
+  },
 });
 
 const EventData = mongoose.model("EventData", EventDataSchema);

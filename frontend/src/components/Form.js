@@ -46,7 +46,7 @@ function Forms() {
 
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const [newDepartment, setNewDepartment] = useState('');
+  const [newDepartment, setNewDepartment] = useState("");
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [disableIndividual, setDisableIndividual] = useState(false);
   const [disableAll, setDisableAll] = useState(false);
@@ -56,23 +56,22 @@ function Forms() {
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [showDepartments, setShowDepartments] = useState(false);
-    const [formData, setFormData] = useState({
-      eventTitle: "",
-      eventVenue: "",
-      startDate: "",
-      endDate: "",
-      startTime: "",
-      endTime: "",
-      resourcePersons: [],
-      eventType: "",
-      eventDescription: "6",
-      departments: [],
-      year: "",
-      departmentspecification:[]
-    });
+  const [formData, setFormData] = useState({
+    eventTitle: "",
+    eventVenue: "",
+    startDate: "",
+    endDate: "",
+    startTime: "",
+    endTime: "",
+    resourcePersons: [],
+    eventType: "",
+    eventDescription: "",
+    departments: [],
+    departmentspecification: [],
+  });
   const handleRefreshResourcePersons = () => {
-  setResourcePersonDetails([]);
-};
+    setResourcePersonDetails([]);
+  };
 
   const [numResourcePersons, setNumResourcePersons] = useState(0);
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
@@ -85,10 +84,10 @@ function Forms() {
       prevDetails.filter((_, i) => i !== index)
     );
   };
-  
   const handleAddResourcePersons = () => {
-    const additionalPersonsCount = numResourcePersons - resourcePersonDetails.length;
-  
+    const additionalPersonsCount =
+      numResourcePersons - resourcePersonDetails.length;
+
     if (additionalPersonsCount > 0) {
       const newResourcePersons = Array.from(
         { length: additionalPersonsCount },
@@ -97,12 +96,15 @@ function Forms() {
           specialization: "",
         })
       );
-      setResourcePersonDetails((prevDetails) => [...prevDetails, ...newResourcePersons]);
+      setResourcePersonDetails((prevDetails) => [
+        ...prevDetails,
+        ...newResourcePersons,
+      ]);
     }
-    
+
     setResourcePersonModalOpen(true);
   };
-  
+
   const handleResourcePersonDetailChange = (index, field, value) => {
     const updatedDetails = [...resourcePersonDetails];
     updatedDetails[index][field] = value;
@@ -111,27 +113,26 @@ function Forms() {
 
   const [validationErrors, setValidationErrors] = useState([]);
   const handleShowDepartments = () => {
-       setErrors({});
+    setErrors({});
     setShowDepartments(true);
- 
   };
-  
+
   const handleAddDepartment = () => {
     if (newDepartment) {
       setFormData((prev) => ({
         ...prev,
         departments: [...prev.departments, newDepartment],
       }));
-      setNewDepartment('');
+      setNewDepartment("");
       setIsOtherSelected(false); // Reset after adding
     } else {
-      setErrors({ ...errors, departments: 'Please enter a department name.' });
+      setErrors({ ...errors, departments: "Please enter a department name." });
     }
   };
   const closeModal = () => {
     setShowDepartments(false);
     setErrors({});
-    setNewDepartment('');
+    setNewDepartment("");
     setIsOtherSelected(false);
   };
 
@@ -142,38 +143,40 @@ function Forms() {
       }
       return acc;
     }, []);
-  
+
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
     }
-  
+
     setValidationErrors([]);
-  
-    const formattedResourcePersons = resourcePersonDetails.reduce((acc, person) => {
-      acc[person.name] = person.specialization;
-      return acc;
-    }, {});
-  
+
+    const formattedResourcePersons = resourcePersonDetails.reduce(
+      (acc, person) => {
+        acc[person.name] = person.specialization;
+        return acc;
+      },
+      {}
+    );
+
     setFormData((prev) => ({
       ...prev,
       resourcePersons: formattedResourcePersons,
     }));
     setResourcePersonModalOpen(false);
   };
-  
-  
-  const handleRemovePerson = (index) => {
-    const updatedPersons = formData.resourcePersons.filter(
-      (_, i) => i !== index
-    );
-    setFormData.resourcePersons(updatedPersons);
-  };
-  const handleEditPerson = (index, field, value) => {
-    const updatedPersons = [...formData.resourcePersons];
-    updatedPersons[index][field] = value;
-    setFormData.resourcePersons(updatedPersons);
-  };
+
+  // const handleRemovePerson = (index) => {
+  //   const updatedPersons = formData.resourcePersons.filter(
+  //     (_, i) => i !== index
+  //   );
+  //   setFormData.resourcePersons(updatedPersons);
+  // };
+  // const handleEditPerson = (index, field, value) => {
+  //   const updatedPersons = [...formData.resourcePersons];
+  //   updatedPersons[index][field] = value;
+  //   setFormData.resourcePersons(updatedPersons);
+  // };
   const individualDepartments = [
     "CFI",
     "CFRD",
@@ -217,64 +220,69 @@ function Forms() {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
-// Handle checkbox changes
-const handleChange = (e) => {
-  const { name, value, type } = e.target;
+  // Handle checkbox changes
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
 
-  if (type === "radio") {
-    setFormData((prev) => ({ ...prev, eventType: value }));
-  } else if (type === "checkbox" && name === "departments") {
-    const selectedDepartments = [...formData.departments];
+    if (type === "radio") {
+      setFormData((prev) => ({ ...prev, eventType: value }));
+    } else if (type === "checkbox" && name === "departments") {
+      const selectedDepartments = [...formData.departments];
 
-    if (value === "All") {
-      if (e.target.checked) {
-        setFormData((prev) => ({ ...prev, departments: ["All"] }));
-        setDisableIndividual(true);
+      if (value === "All") {
+        if (e.target.checked) {
+          setFormData((prev) => ({ ...prev, departments: ["All"] }));
+          setDisableIndividual(true);
+        } else {
+          setFormData((prev) => ({ ...prev, departments: [] }));
+          setDisableIndividual(false);
+        }
+      } else if (value === "Others") {
+        setIsOtherSelected(e.target.checked);
+        // If "Others" is checked, disable other checkboxes
+        setDisableIndividual(e.target.checked);
+        if (!e.target.checked) {
+          // Enable other checkboxes if "Others" is unchecked
+          setDisableIndividual(false);
+        }
       } else {
-        setFormData((prev) => ({ ...prev, departments: [] }));
-        setDisableIndividual(false);
-      }
-    } else if (value === "Others") {
-      setIsOtherSelected(e.target.checked);
-      // If "Others" is checked, disable other checkboxes
-      setDisableIndividual(e.target.checked);
-      if (!e.target.checked) {
-        // Enable other checkboxes if "Others" is unchecked
-        setDisableIndividual(false);
+        if (e.target.checked) {
+          selectedDepartments.push(value);
+        } else {
+          const index = selectedDepartments.indexOf(value);
+          if (index !== -1) selectedDepartments.splice(index, 1);
+        }
+        setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
+        setDisableAll(selectedDepartments.length > 0);
       }
     } else {
-      if (e.target.checked) {
-        selectedDepartments.push(value);
-      } else {
-        const index = selectedDepartments.indexOf(value);
-        if (index !== -1) selectedDepartments.splice(index, 1);
-      }
-      setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
-      setDisableAll(selectedDepartments.length > 0);
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-};
+  };
   const handleDepartmentsChange = (event) => {
     const { value, checked } = event.target;
-  
+
     setFormData((prevFormData) => {
       if (checked) {
         return {
           ...prevFormData,
-          departmentspecification: [...prevFormData.departmentspecification, value],
+          departmentspecification: [
+            ...prevFormData.departmentspecification,
+            value,
+          ],
         };
       } else {
         return {
           ...prevFormData,
-          departmentspecification: prevFormData.departmentspecification.filter((dept) => dept !== value),
+          departmentspecification: prevFormData.departmentspecification.filter(
+            (dept) => dept !== value
+          ),
         };
       }
     });
   };
   const handleSubmit = async (e) => {
-    console.log("form data ", formData);
+    // console.log("form data ", formData);
     e.preventDefault();
     const newErrors = {};
     if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
@@ -286,23 +294,24 @@ const handleChange = (e) => {
     if (!formData.endTime) newErrors.endTime = "End time is required";
     if (!formData.resourcePersons)
       newErrors.resourcePerson = "Resource person is required";
-    if (!formData.specialization)
-      newErrors.specialization = "Specialization is required";
+    
     if (!formData.eventType)
       newErrors.eventType = "Please select an event type";
     if (!formData.eventDescription)
       newErrors.eventDescription = "Event description is required";
-    if (formData.departments.length === 0)
-      newErrors.departments = "Please select at least one department";
+    // if (formData.departments.length === 0)
+    //   newErrors.departments = "Please select at least one department";
 
     if (Object.keys(newErrors).length > 0) {
       console.log(Object.keys(newErrors).length);
       console.log("dfffffff");
+      // console.log("facing error : ", formData);
       setErrors(newErrors);
       return;
     }
 
     try {
+      console.log("posting the form data : ", formData);
       const response = await axios.post(
         `http://127.0.0.1:8000/api/event/create_event`,
         {
@@ -317,6 +326,7 @@ const handleChange = (e) => {
           departments: formData.departments,
           status: "pending",
           year: formData.year,
+          eventDescription: formData.eventDescription,
         }
       );
 
@@ -360,114 +370,126 @@ const handleChange = (e) => {
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
-   <div className="mb-4">
-  <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
-    Select the Department Specification
-  </label>
-  <div className="flex flex-wrap mb-4">
-    {individualDepartments.map((department) => (      
-      <div key={department} className="mr-4 mb-2">
-        <label className="inline-flex items-center">
-          <input
-            type="checkbox"
-            name="departmentspecification"
-            value={department}
-            checked={formData.departmentspecification.includes(department)}
-            onChange={handleDepartmentsChange}
-            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-          />
-          <span className="ml-2 text-gray-700">{department}</span>
-        </label>
-      </div>
-    ))}
-    
-  </div>
-  {errors.departments && (
-    <span className="text-red-500 text-sm">{errors.departments}</span>
-  )}
-  <button
-    onClick={handleShowDepartments}
-    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-  >
-    Show Departments
-  </button>
-
-  {/* Modal for Selecting Departments */}
-  {showDepartments && (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-lg font-bold mb-4 text-gray-800">Select Departments</h2>
-        <div className="flex flex-wrap mb-4">
-        {departmentOptions.map((department) => (
-  <div key={department.shortName} className="mr-4 mb-2">
-    <label className="inline-flex items-center">
-      <input
-        type="checkbox"
-        name="departments"
-        value={department.fullName}
-        checked={formData.departments.includes(department.fullName)}
-        onChange={handleChange}
-        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-        disabled={department.fullName === "All" ? disableAll : disableIndividual}
-      />
-      <span className="ml-2 text-gray-700">{department.shortName}</span>
-    </label>
-  </div>
-))}
-
-        </div>
-        <label className="inline-flex items-center mb-4">
-          <input
-            type="checkbox"
-            name="departments"
-            value="Others"
-            checked={isOtherSelected}
-            onChange={(e) => {
-              setIsOtherSelected(e.target.checked);
-              handleChange(e);
-            }}
-            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-          />
-          <span className="ml-2 text-gray-700">Others</span>
-        </label>
-        {isOtherSelected && (
-          <div className="mt-4">
-            <label className="block text-gray-700 font-semibold mb-1">
-              Specify Other Department
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+              Select the Department Specification
             </label>
-            <input
-              type="text"
-              placeholder="Enter Other Department"
-              value={newDepartment}
-              onChange={(e) => setNewDepartment(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="flex flex-wrap mb-4">
+              {individualDepartments.map((department) => (
+                <div key={department} className="mr-4 mb-2">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="departmentspecification"
+                      value={department}
+                      checked={formData.departmentspecification.includes(
+                        department
+                      )}
+                      onChange={handleDepartmentsChange}
+                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                    />
+                    <span className="ml-2 text-gray-700">{department}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {/* {errors.departments && (
+              <span className="text-red-500 text-xl">{errors.departments}</span>
+            )} */}
             <button
-              onClick={handleAddDepartment}
-              className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+              onClick={handleShowDepartments}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Add Department
+              Show Departments
             </button>
-            {errors.departments && (
-              <span className="text-red-500 text-sm">{errors.departments}</span>
+
+            {/* Modal for Selecting Departments */}
+            {showDepartments && (
+              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                  <h2 className="text-lg font-bold mb-4 text-gray-800">
+                    Select Departments
+                  </h2>
+                  <div className="flex flex-wrap mb-4">
+                    {departmentOptions.map((department) => (
+                      <div key={department.shortName} className="mr-4 mb-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            name="departments"
+                            value={department.fullName}
+                            checked={formData.departments.includes(
+                              department.fullName
+                            )}
+                            onChange={handleChange}
+                            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                            disabled={
+                              department.fullName === "All"
+                                ? disableAll
+                                : disableIndividual
+                            }
+                          />
+                          <span className="ml-2 text-gray-700">
+                            {department.shortName}
+                          </span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="inline-flex items-center mb-4">
+                    <input
+                      type="checkbox"
+                      name="departments"
+                      value="Others"
+                      checked={isOtherSelected}
+                      onChange={(e) => {
+                        setIsOtherSelected(e.target.checked);
+                        handleChange(e);
+                      }}
+                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                    />
+                    <span className="ml-2 text-gray-700">Others</span>
+                  </label>
+                  {isOtherSelected && (
+                    <div className="mt-4">
+                      <label className="block text-gray-700 font-semibold mb-1">
+                        Specify Other Department
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter Other Department"
+                        value={newDepartment}
+                        onChange={(e) => setNewDepartment(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button
+                        onClick={handleAddDepartment}
+                        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+                      >
+                        Add Department
+                      </button>
+                      {/* {errors.departments && (
+                        <span className="text-red-500 text-xl">
+                          {errors.departments}
+                        </span>
+                      )} */}
+                    </div>
+                  )}
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={closeModal}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-        )}
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={closeModal}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
-</div>
 
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Year
             </label>
             <select
@@ -488,7 +510,7 @@ const handleChange = (e) => {
 
           {/* Event Title */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Event Title
             </label>
             <input
@@ -505,7 +527,7 @@ const handleChange = (e) => {
 
           {/* Event Venue */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Event Venue
             </label>
             <input
@@ -522,7 +544,7 @@ const handleChange = (e) => {
 
           {/* Date Selection */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Start Date
             </label>
             <input
@@ -538,7 +560,7 @@ const handleChange = (e) => {
             )}
           </div>
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               End Date
             </label>
             <input
@@ -557,7 +579,7 @@ const handleChange = (e) => {
           {/* Time Selection */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                 Start Time
               </label>
               <input
@@ -572,7 +594,7 @@ const handleChange = (e) => {
               )}
             </div>
             <div>
-              <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                 End Time
               </label>
               <input
@@ -590,7 +612,7 @@ const handleChange = (e) => {
 
           {/* Resource Person */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Number of Resource Persons
             </label>
             <input
@@ -608,114 +630,120 @@ const handleChange = (e) => {
               Add Resource Persons
             </button>
           </div>
-{/* Modal for Resource Persons */}
-{resourcePersonModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-      {/* Close and Refresh Buttons */}
-      <button
-        type="button"
-        onClick={() => setResourcePersonModalOpen(false)}
-        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
-      >
-        &times;
-      </button>
+          {/* Modal for Resource Persons */}
+          {resourcePersonModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+              <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                {/* Close and Refresh Buttons */}
+                <button
+                  type="button"
+                  onClick={() => setResourcePersonModalOpen(false)}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
+                >
+                  &times;
+                </button>
 
-      <h2 className="text-2xl font-bold mb-4 flex items-center">
-        Enter Resource Persons
-        <button
-          type="button"
-          onClick={handleRefreshResourcePersons}
-          className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-          title="Refresh"
-        >
-          &#8635;
-        </button>
-      </h2>
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  Enter Resource Persons
+                  <button
+                    type="button"
+                    onClick={handleRefreshResourcePersons}
+                    className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                    title="Refresh"
+                  >
+                    &#8635;
+                  </button>
+                </h2>
 
-      {resourcePersonDetails.map((person, index) => (
-        <div key={index} className="mb-4 relative">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-lg font-semibold">{index + 1}.</span>
-            <button
-              type="button"
-              onClick={() => handleDeleteResourcePerson(index)}
-              className="text-red-500 hover:text-red-700 text-xl font-bold"
-            >
-              &times;
-            </button>
-          </div>
+                {resourcePersonDetails.map((person, index) => (
+                  <div key={index} className="mb-4 relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-lg font-semibold">
+                        {index + 1}.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteResourcePerson(index)}
+                        className="text-red-500 hover:text-red-700 text-xl font-bold"
+                      >
+                        &times;
+                      </button>
+                    </div>
 
-          <input
-            type="text"
-            placeholder="Resource Person Name"
-            value={person.name}
-            onChange={(e) =>
-              handleResourcePersonDetailChange(
-                index,
-                "name",
-                e.target.value
-              )
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-          />
-          {validationErrors.includes(index) && !person.name && (
-            <p className="text-red-500 text-sm mt-1">Please enter a name.</p>
+                    <input
+                      type="text"
+                      placeholder="Resource Person Name"
+                      value={person.name}
+                      onChange={(e) =>
+                        handleResourcePersonDetailChange(
+                          index,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                    />
+                    {validationErrors.includes(index) && !person.name && (
+                      <p className="text-red-500 text-xl mt-1">
+                        Please enter a name.
+                      </p>
+                    )}
+
+                    <input
+                      type="text"
+                      placeholder="Specialization"
+                      value={person.specialization}
+                      onChange={(e) =>
+                        handleResourcePersonDetailChange(
+                          index,
+                          "specialization",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                    {validationErrors.includes(index) &&
+                      !person.specialization && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a specialization.
+                        </p>
+                      )}
+                  </div>
+                ))}
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSaveResourcePersons}
+                    className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
-          
-          <input
-            type="text"
-            placeholder="Specialization"
-            value={person.specialization}
-            onChange={(e) =>
-              handleResourcePersonDetailChange(
-                index,
-                "specialization",
-                e.target.value
-              )
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          />
-          {validationErrors.includes(index) && !person.specialization && (
-            <p className="text-red-500 text-sm mt-1">Please enter a specialization.</p>
-          )}
-        </div>
-      ))}
-      
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={handleSaveResourcePersons}
-          className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-        >
-          Save
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
 
           {/* Specialization */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
-              Specialization
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Description
             </label>
             <input
               type="text"
-              name="specialization"
-              value={formData.specialization}
+              name="eventDescription"
+              value={formData.eventDescription}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
-            {errors.specialization && (
-              <span className="text-red-500">{errors.specialization}</span>
+            {errors.eventDescription && (
+              <span className="text-red-500">{errors.eventDescription}</span>
             )}
           </div>
 
           {/* Event Type Selection */}
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-sm font-bold mb-2">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Event Type
             </label>
             <button

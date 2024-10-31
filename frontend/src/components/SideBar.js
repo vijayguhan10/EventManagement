@@ -1,27 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaAddressBook,
+  FaChartArea,
   FaDiscourse,
   FaHistory,
   FaHome,
-  FaSafari,
-  FaSmoking,
+  FaEdit,
   FaTimes,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
+
 const SideBar = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp > currentTime) {
+          setRole(decoded.role); 
+          // setRole("mediamax")
+        }
+      } catch (error) {
+        setRole(null);
+      }
+    }
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/");
     window.location.reload();
   };
+
   return (
     <div className="flex max-h-full xl:overflow-hidden">
       <button
@@ -52,7 +72,7 @@ const SideBar = () => {
         }`}
         aria-label="Sidebar"
       >
-        <div className="h-full px-3  bg-[#7848F4]">
+        <div className="h-full px-3 bg-[#7848F4]">
           <button
             onClick={toggleSidebar}
             className="text-white absolute top-4 right-4 focus:outline-none lg:hidden"
@@ -65,122 +85,121 @@ const SideBar = () => {
               <img
                 className="bg-white ring-yellow-50 rounded-lg"
                 src="https://digri.ai/wp-content/uploads/2023/12/Logo-2-768x258.png"
-                alt="newimgclg"
+                alt="logo"
               />
             </li>
-            <li>
-              <Link
-                to="/Dashboard"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaHome />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Dashboard
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/History"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaHistory />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  History
-                </span>
-              </Link>
-            </li>
-            <li>
-              {/* <Link
-                to=""
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaHotTub />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Upcoming
-                </span>
-              </Link> */}
-            </li>
-            <li>
-              {/* <Link
-                to="/Technical"
-                className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaMobile />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Technology
-                </span>
-              </Link> */}
-            </li>
-            <li>
-              <Link
-                to="/Placement"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaAddressBook />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Events
-                </span>
-              </Link>
-            </li>
-            <li>
-              {/* <Link
-                to="/NonTechnical"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaSmoking />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Non-Technical
-                </span>
-              </Link> */}
-            </li>
-            <li>
-              {/* <Link
-                to="/CanceledEvents"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaSmoking />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Canceled Events
-                </span>
-              </Link> */}
-            </li>
-            <li>
-              {/* <Link
-                to="/Editdata"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaSignOutAlt />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Edit Data
-                </span>
-              </Link> */}
-            </li>
 
-            <li>
-              <Link
-                to="/Departments"
-                className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaDiscourse />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Departments
-                </span>
-              </Link>
-              <Link
-                to="/CanceledEvents"
-                className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaHome />
-                <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
-                  Canceled Events
-                </span>
-              </Link>
-            </li>
+            {role === "mediamax" ? (
+              <>
+                <li>
+                  <Link
+                    to="/mediamax"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaEdit />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      MediaMax
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/History"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaHistory />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      History
+                    </span>
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    to="/Dashboard"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaHome />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      Dashboard
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/History"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaHistory />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      History
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/Placement"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaAddressBook />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      Events
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/Departments"
+                    className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaDiscourse />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      Departments
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/CanceledEvents"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaHome />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      Canceled Events
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/charts"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaChartArea />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      Charts
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/mediamax"
+                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  >
+                    <FaEdit />
+                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                      MediaMax
+                    </span>
+                  </Link>
+                </li>
+              </>
+            )}
+
             <Link
               to="/"
               onClick={handleLogout}
-              className="text-xl bg-white ml-80 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center  shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff] transform mb-96 -translate-x-[230%] -translate-y-[-105%]"
+              className="text-xl bg-white ml-80 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff] transform mb-96 -translate-x-[230%] -translate-y-[-105%]"
             >
               Logout
             </Link>

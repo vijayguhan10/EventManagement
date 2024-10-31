@@ -39,6 +39,10 @@ const products = [
     name: "Cybersecurity",
     EEE: "https://i.ibb.co/s3MbZv2/eee.png",
   },
+  {
+    name: "otherspecification",
+    EEE: "https://digicult.it/wp-content/uploads/2022/03/earlylife.png",
+  },
 ];
 
 module.exports = products;

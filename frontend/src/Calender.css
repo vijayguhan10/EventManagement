@@ -1,5 +1,5 @@
 .custom-calendar .react-calendar {
-  height: 200px;
+  height: 240px;
   width: 700px;
   background: transparent;
   border: none;
@@ -7,7 +7,7 @@
 
 .custom-calendar .react-calendar_month-view_weekdays {
   margin-left: 200px;
-  font-size: 20px;
+  font-size: 10px;
   font-weight: bold;
   display: flex;
   justify-content: space-between;

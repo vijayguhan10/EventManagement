@@ -128,7 +128,7 @@ const CalendarComponent = () => {
         />
       </div>
 
-      <div className="flex flex-row items-center justify-between w-[90%] xl:h-20 xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
+      <div className="flex flex-row items-center justify-between w-[90%] xl:h-16 xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
         <div className="ml-3 xl:ml-5 py-5">
           <p className="text-2xl font-bold text-gray-800 font-Afacad">
             {selectedDate.toLocaleDateString("en-GB", {
@@ -145,7 +145,7 @@ const CalendarComponent = () => {
         {isFutureOrToday(selectedDate) ? (
           <Link
             to="/Form"
-            className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+            className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
           >
             Add Event
           </Link>

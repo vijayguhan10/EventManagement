@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../Scroll.css";
-import { FaSearch } from "react-icons/fa";
+import { FaFilePdf, FaSearch, FaFileExcel } from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
@@ -77,27 +77,22 @@ const Dashboard = () => {
   ];
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
-    console.log(selectedDeptShortName, "bbvbvbvbvvbvbbvb");
     if (selectedDeptShortName === "All") {
       if (event.target.checked) {
         setDepartments(["All"]);
       } else {
-        // If "All" is unchecked, clear the departments
         setDepartments([]);
       }
     } else {
-      // For any other department
       const selectedDeptFullName = departmentOptions.find(
         (dept) => dept.shortName === selectedDeptShortName
       ).fullName;
 
       setDepartments((prevDepartments) => {
-        // If "All" is selected, clear it and add the selected department
         if (prevDepartments.includes("All")) {
           return [selectedDeptFullName];
         }
 
-        // Toggle the selected department (add/remove it)
         return prevDepartments.includes(selectedDeptFullName)
           ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
           : [...prevDepartments, selectedDeptFullName];
@@ -162,10 +157,8 @@ const Dashboard = () => {
     }
   };
 
- 
   const [data, setData] = useState([]);
-  // const currentEvents = data.currentEvents || [];
-  // const futureEvents = data.futureEvents || [];
+
   const [popupPDF, SetPopupPdf] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
@@ -198,16 +191,23 @@ const Dashboard = () => {
     fetchData();
   }, []);
   const openEventModal = (event) => {
-    
     setSelectedEvent(event);
   };
 
   const today = new Date();
-  const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(
-    today.getMonth() + 1
-  ).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
+  today.setHours(0, 0, 0, 0); 
+
   const filteredData = data.filter((event) => {
-    return event.eventstartdate === formattedToday;
+    const [dayStart, monthStart, yearStart] = event.eventstartdate.split("/");
+    const [dayEnd, monthEnd, yearEnd] = event.eventenddate.split("/");
+
+    const eventStartDate = new Date(`20${yearStart}-${monthStart}-${dayStart}`);
+    const eventEndDate = new Date(`20${yearEnd}-${monthEnd}-${dayEnd}`);
+
+    eventStartDate.setHours(0, 0, 0, 0);
+    eventEndDate.setHours(0, 0, 0, 0);
+
+    return eventStartDate <= today && eventEndDate >= today;
   });
 
   const pieChartOptions = {
@@ -272,10 +272,11 @@ const Dashboard = () => {
       <SideBar />
       <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
         <div className="absolute top-4 flex left-[18%] items-center">
-          <div className="text-nowrap flex mb-5">
-            <h1 className="text-3xl font-bold mb-28 text-white-800">
+          <div className="text-nowrap flex-col mb-28 ">
+            <h1 className="text-3xl   font-bold">
               Welcome, <span>{name}</span>
             </h1>
+            <h1 className="text-xl font-Afacad mt-3 font-bold">Todays Data</h1>
           </div>
           <div className="relative ml-[58%] mb-32">
             <input
@@ -293,7 +294,6 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
-
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
           <div className="mx-auto p-0">
             <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
@@ -445,8 +445,8 @@ const Dashboard = () => {
         {/* Department Selection */}
         {/* Department Selection */}
         {/* Department Selection */}
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
+        <div className="mb-2">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Departments
           </h2>
           <div className="flex flex-wrap gap-4">
@@ -476,9 +476,9 @@ const Dashboard = () => {
         </div>
 
         {/* Year Selection */}
-        <div className="mb-4">
+        <div className="mb-4 flex">
           <h2 className="text-xl font-semibold text-gray-700 mb-2">Year</h2>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             {[1, 2, 3, 4, "All"].map((year) => (
               <div key={year} className="flex items-center space-x-2">
                 <input
@@ -497,19 +497,28 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+          <div className="text-center ml-60 overflow-x-hidden flex items-center space-x-4">
+            <FaFilePdf
+              size={34}
+              color="#7312f1d3"
+              onClick={handleGeneratePDF}
+              className="text-white flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
+            />
 
-        {/* Generate PDF Button */}
-        <div className="text-center">
-          <button
-            onClick={handleGeneratePDF}
-            className="relative bg-gradient-to-r ml-80 from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-            style={{ top: "-20px" }}
-          >
-            Generate PDF
-          </button>
+            <FaFileExcel
+              size={34}
+              color="#7312f1d3"
+              onClick={handleGeneratePDF}
+              className="text-white flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
+            />
 
-          {/* Display Error Message */}
+            <button
+              type="button"
+              className="focus:outline-none text-white bg-[#7312f1d3]  hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
+            >
+              Show More
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,33 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaSearchLocation, FaSearch } from "react-icons/fa";
+import {
+  FaCalendar,
+  FaSearchLocation,
+  FaSearch,
+ 
+} from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
-import { ToastContainer } from "react-toastify";
-import { toast } from "react-toastify";
-function History() {
+import "../editmodal.css";
+import "../Calender.css";
+
+function Mediamax() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventType, setEventType] = useState("All");
+ 
+
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const handleDelete = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
-          { eventid: eventId }
-        );
-        toast.success("Event deleted successfully!");
-        fetchData();
-      } catch (error) {
-        toast.error("Failed to delete the event.");
-      }
-    }
-  };
   const fetchData = async () => {
     try {
       const response = await axios.post(
@@ -37,9 +31,9 @@ function History() {
         (elem) =>
           ["Placement", "Technical", "Nontechnical"].includes(
             elem.typeofevent
-          ) && elem.status === "completed"
+          ) && elem.status === "pending"
       );
-      console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
+    //   console.log("rrrrrrrrrrrrrrrrrrrrrrr : ", filteredData);
       setData(filteredData);
       setLoading(false);
     } catch (error) {
@@ -47,21 +41,24 @@ function History() {
       setLoading(false);
     }
   };
+
+
   useEffect(() => {
     fetchData();
   }, []);
+ 
+  
 
+  
   const datafetch = (event) => {
     setEventType(event);
     const newFilteredData = data.filter((event) => {
-      return eventType === "All" || event.typeofevent === event; // Update the condition as per your field
+      return eventType === "All" || event.typeofevent === event;
     });
-
-    // Check if the first event exists after filtering
     if (newFilteredData.length > 0) {
-      setSelectedEvent(newFilteredData[0]); // Set the first event as selected
+      setSelectedEvent(newFilteredData[0]); 
     } else {
-      setSelectedEvent(null);
+      setSelectedEvent(null); 
     }
   };
 
@@ -75,6 +72,7 @@ function History() {
     setSelectedEvent(null);
   };
 
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -84,7 +82,7 @@ function History() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesEventType =
-      eventType === "All" || event.typeofevent === eventType;
+      eventType === "All" || event.typeofevent === eventType; 
     return matchesSearchTerm && matchesEventType;
   });
 
@@ -95,7 +93,6 @@ function History() {
       </div>
     );
   }
-
   return (
     <div className="xl:ml-72 overflow-x-hidden">
       <SideBar />
@@ -111,7 +108,6 @@ function History() {
           Explore the {eventType} Events
         </h1>
 
-        {/* Filter UI */}
         <div className="mt-3 ml-5">
           <select
             value={eventType}
@@ -147,8 +143,16 @@ function History() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button className="mb-2  bg-[#2cef5d] font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ">
-              {event.status}
+            <button
+              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                new Date(event.eventenddate) < new Date()
+                  ? "bg-[#2cef5d]"
+                  : "bg-[#f92d2d]"
+              }`}
+            >
+              {new Date(event.eventenddate) < new Date()
+                ? "Completed"
+                : "Not Completed"}
             </button>
             <img
               className="w-96 h-40 rounded-lg"
@@ -177,25 +181,20 @@ function History() {
                   {event.venue}
                 </h1>
               </div>
-              <div className="flex justify-normal">
+              <div className="flex flex-row gap-2 mt-2">
                 <button
                   className="bg-violet-800 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
                   onClick={() => handleOpenModal(event)}
                 >
                   View More
                 </button>
-                <button
-                  className="bg-red-700 mb-2 ml-28 text-xl font-Afacad text-white font-bold rounded-md w-28"
-                  onClick={() => handleDelete(event._id)}
-                >
-                  Delete
-                </button>
+              
               </div>
             </div>
           </div>
         ))}
-      </div>{" "}
-      <ToastContainer />
+      </div>
+      
       {isOpen && selectedEvent && (
         <div className="custom-modal-overlay">
           <div className="custom-modal-content">
@@ -265,4 +264,4 @@ function History() {
   );
 }
 
-export default History;
+export default Mediamax;

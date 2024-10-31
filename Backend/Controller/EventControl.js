@@ -55,7 +55,6 @@ const incrementDepartmentCount = async (departments) => {
 };
 const updateDepartmentCount = async (oldDepartment, newDepartment) => {
   if (oldDepartment === "All") {
-    // Decrement for all departments if the old value was "All"
     await TotalCount.updateOne(
       {},
       {
@@ -113,7 +112,8 @@ exports.CreateEvent = async (req, res) => {
     const {
       eventname,
       resourceperson,
-      organizer,
+      departmentspecification,
+      eventDescription,
       venue,
       eventstarttime,
       eventendtime,
@@ -122,36 +122,53 @@ exports.CreateEvent = async (req, res) => {
       typeofevent,
       status,
       departments,
-      year
+      year,
     } = req.body;
     const userId = req.userId;
 
+    // Validate the user
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
     const createdEvents = [];
-    let departmentsToProcess = departments.includes("All")
-      ? images_dept.map((item) => item.name)
-      : departments;
+    let departmentsToProcess = [];
 
+    // Determine departments to process based on conditions
+    if (departments.includes("All")) {
+      departmentsToProcess = images_dept.map((item) => item.name);
+    } else if (!departments.length && departmentspecification) {
+      departmentsToProcess = ["otherspecification"];
+    } else {
+      departmentsToProcess = departments;
+    }
+
+    // Loop through each department and create events
     for (const department of departmentsToProcess) {
-      const departmentData = images_dept.find(
-        (item) => item.name === department
-      );
+      // Skip otherspecification if "All" is included in departments
+      if (departments.includes("All") && department === "otherspecification") {
+        continue;
+      }
 
-      const imageKey = departmentData
-        ? Object.keys(departmentData).find((key) => key !== "name")
-        : null;
+      const departmentData =
+        department !== "otherspecification"
+          ? images_dept.find((item) => item.name === department)
+          : null;
 
-      const imageUrl = imageKey ? departmentData[imageKey] : null;
+      const imageUrl =
+        department === "otherspecification"
+          ? "https://digicult.it/wp-content/uploads/2022/03/earlylife.png"
+          : departmentData
+          ? departmentData[
+              Object.keys(departmentData).find((key) => key !== "name")
+            ]
+          : null;
 
       const newEvent = new Event({
         userid: userId,
         eventname,
         resourceperson,
-        organizer,
         venue,
         eventstarttime,
         eventendtime,
@@ -159,19 +176,23 @@ exports.CreateEvent = async (req, res) => {
         eventenddate: formatDate(eventenddate),
         status,
         typeofevent,
-        departments: department,
+        departments: department !== "otherspecification" ? department : null,
         imageurl: imageUrl,
-        year
+        eventDescription: eventDescription,
+        departmentspecification: departmentspecification,
+        year,
       });
 
       const savedEvent = await newEvent.save();
       console.log("Saved event:", savedEvent);
       createdEvents.push(savedEvent);
     }
+
+    // Update the total count if departments were provided
     const count = await TotalCount.findOne({});
     if (!count) {
       await initializeTotalCount();
-    } else {
+    } else if (departments.length) {
       await incrementDepartmentCount(departments);
     }
 
@@ -181,7 +202,7 @@ exports.CreateEvent = async (req, res) => {
     return res.status(201).json({
       message: "Events created successfully",
       events: createdEvents,
-      year:year
+      year: year,
     });
   } catch (error) {
     console.error("Error in CreateEvent:", error.message);
@@ -211,7 +232,6 @@ exports.updateevent = async (req, res) => {
 
     const st_date = formatDate(eventstartdate);
     const end_date = formatDate(eventenddate);
-
     const userId = req.userId;
 
     const isValidUser = await validateUser(userId);
@@ -281,10 +301,9 @@ exports.updateevent = async (req, res) => {
 };
 exports.deleteEvent = async (req, res) => {
   try {
-    const { eventid } = req.body; 
-    const userId = req.userId; 
+    const { eventid } = req.body;
+    const userId = req.userId;
 
-  
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
@@ -292,7 +311,7 @@ exports.deleteEvent = async (req, res) => {
 
     const updatedEvent = await Event.findByIdAndUpdate(
       eventid,
-      { status: 'decline' },
+      { status: "decline" },
       { new: true }
     );
 
@@ -302,7 +321,7 @@ exports.deleteEvent = async (req, res) => {
 
     return res.status(200).json({
       message: "Event status updated to declined successfully",
-      event: updatedEvent
+      event: updatedEvent,
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -312,7 +331,6 @@ exports.deleteEvent = async (req, res) => {
     });
   }
 };
-
 
 exports.Get_Detailed_Info = async (req, res) => {
   try {
@@ -348,7 +366,7 @@ exports.getallevents = async (req, res) => {
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
-    } 
+    }
 
     const todayEvents = await Event.find({});
 
