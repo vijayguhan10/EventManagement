@@ -66,6 +66,10 @@ const products = [
     imageurl: "https://i.ibb.co/s3MbZv2/eee.png",
     date: today,
   },
+  {
+    name: "otherspecification",
+    EEE: "https://digicult.it/wp-content/uploads/2022/03/earlylife.png",
+  },
 ];
 const departmentOptions = [
   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -128,7 +132,7 @@ function Departments() {
           `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
           { eventid: selectedEvent._id }
         );
-        console.log(response.data, "after deletion 😎😎😎");
+        // console.log(response.data, "after deletion 😎😎😎");
         const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
         setEvents(updatedEvents);
         toast.success("Event deleted successfully!");
@@ -138,7 +142,7 @@ function Departments() {
       setShowDeleteModal(false);
       setDeleteEventName("");
       handleCloseModal();
-      setSelectedEventclose(null)
+      setSelectedEventclose(null);
     } else {
       alert("Event name does not match. Please try again.");
     }
@@ -176,7 +180,7 @@ function Departments() {
     } catch (error) {
       handleCloseModal();
       toast.error(error.message);
-      console.error("Error updating event:", error);
+      // console.error("Error updating event:", error);
     }
   };
 
@@ -184,14 +188,14 @@ function Departments() {
     function formatDate(date) {
       const parts = date.split("/");
       if (parts.length !== 3) {
-        console.error("Invalid date format:", date);
+        // console.error("Invalid date format:", date);
         return "";
       }
       const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
       const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
       const dateObj = new Date(formattedDate);
       if (isNaN(dateObj)) {
-        console.error("Invalid date provided:", formattedDate);
+        // console.error("Invalid date provided:", formattedDate);
         return "";
       }
       return formattedDate;
@@ -214,10 +218,10 @@ function Departments() {
     setIsOpen(true);
   };
   const convertTo12HourFormat = (time) => {
-    if (!time) return '';
-    let [hours, minutes] = time.split(':');
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
     return `${hours}:${minutes} ${ampm}`;
   };
@@ -228,7 +232,7 @@ function Departments() {
           `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
         );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
-        console.log("count of events are,🔴🔴🔴 ",totalCountsDept)
+        // console.log("count of events are,🔴🔴🔴 ", totalCountsDept);
         const updatedProducts = products.map((product) => {
           const departmentName = product.name;
           const count = totalCountsDept[departmentName] || 0;
@@ -239,7 +243,7 @@ function Departments() {
         });
         setData(updatedProducts);
       } catch (error) {
-        console.error("Error fetching department counts: ", error);
+        // console.error("Error fetching department counts: ", error);
       }
     };
     setLoading(true);
@@ -256,27 +260,34 @@ function Departments() {
   };
 
   const handleOpenModal = async (event) => {
+    console.log("consoling the fetching department: ", { department: event });
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/getdepartmentdata`,
         { department: event }
       );
-      console.log("😍😎😎😎",response.data)
+
+      console.log("response data: ", response);
       setIsEventListOpen(true);
-      if (response.data && response.data.length > 0) {
-        setEvents(response.data);
-        console.log("consoling the events after opening mdal from axios",response.data)
+
+      if (
+        response.data &&
+        response.data.events &&
+        response.data.events.length > 0
+      ) {
+        setEvents(response.data.events);
+        console.log("response data: ", response.data);
       } else {
+        console.log("No events fetched");
         setEvents([]);
       }
     } catch (error) {
-      console.error("Error fetching department events: ", error);
+      console.error("Error fetching department events:", error);
     }
   };
 
   const openEventModal = (event) => {
     setSelectedEventclose(event);
-    console.log("consoling the events after opening the popup",event)
   };
 
   const handleCloseModal = () => {
@@ -300,7 +311,7 @@ function Departments() {
     dept.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log("Filtered Products:❤️‍🔥❤️‍🔥❤️‍🔥", filteredProducts);
+  // console.log("Filtered Products:❤️‍🔥❤️‍🔥❤️‍🔥", filteredProducts);
 
   if (!loading) {
     return (
@@ -430,99 +441,134 @@ function Departments() {
       )}
       {/* Event Modal */}
       {selectedEventclose && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={closeEventModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEventclose.imageurl}
-        alt={selectedEventclose.eventname}
-        className="custom-modal-image"
-      />
- <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEventclose.eventname}</h2>
-      </div>
-      <div className="custom-modal-body">
-      {selectedEventclose.departments && selectedEventclose.departments.length > 0 && (
-  <div className="custom-modal-row">
-    <strong>Department:</strong>
-    <span className="custom-modal-value">
-      {selectedEventclose.departments}
-    </span>
-  </div>
-)}
-
-        <div className="custom-modal-row">
-          <strong>Specification:</strong>
-          <span className="custom-modal-value">
-            {selectedEventclose.departmentspecification}
-          </span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Venue:</strong>
-          <span className="custom-modal-value">{selectedEventclose.venue}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Resource Person:</strong>
-          <span className="custom-modal-value">
-          {selectedEventclose.resourceperson && selectedEventclose.resourceperson.length > 0 ? (
-  selectedEventclose.resourceperson.map((person, index) => (
-    <div key={index}>{person.name || person.title || JSON.stringify(person)}</div> // Adjust based on actual object structure
-  ))
-) : (
-  <em>No resource persons available</em>
-)}
-
-          </span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Year:</strong>
-          <span className="custom-modal-value">{selectedEventclose.year}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Start Date:</strong>
-          <span className="custom-modal-value">{selectedEventclose.eventstartdate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event End Date:</strong>
-          <span className="custom-modal-value">{selectedEventclose.eventenddate}</span>
-        </div>
-        <div className="custom-modal-row">
-  <strong>Time:</strong>
-  <span className="custom-modal-value">
-    {convertTo12HourFormat(selectedEventclose.eventstarttime)} to {convertTo12HourFormat(selectedEventclose.eventendtime)}
-  </span>
-</div>
-        <div className="custom-modal-row">
-          <strong>Event Type:</strong>
-          <span className="custom-modal-value">{selectedEventclose.typeofevent}</span>
-        </div>
-        </div>
-      {showDeleteModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-            <p>
-              Are you sure you want to delete the event{" "}
-              <strong>{selectedEventclose.eventname}</strong>? Type the event name to confirm:
-            </p>
-            <input
-              type="text"
-              value={deleteEventName}
-              onChange={(e) => setDeleteEventName(e.target.value)}
-              className="border rounded p-2 w-full mt-2"
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={closeEventModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEventclose.imageurl}
+              alt={selectedEventclose.eventname}
+              className="custom-modal-image"
             />
-            <div className="flex justify-end mt-4">
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">
+                {selectedEventclose.eventname}
+              </h2>
+            </div>
+            <div className="custom-modal-body">
+              {selectedEventclose.departments &&
+                selectedEventclose.departments.length > 0 && (
+                  <div className="custom-modal-row">
+                    <strong>Department:</strong>
+                    <span className="custom-modal-value">
+                      {selectedEventclose.departments}
+                    </span>
+                  </div>
+                )}
+
+              <div className="custom-modal-row">
+                <strong>Specification:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.departmentspecification}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.resourceperson &&
+                  selectedEventclose.resourceperson.length > 0 ? (
+                    selectedEventclose.resourceperson.map((person, index) => (
+                      <div key={index}>
+                        {person.name || person.title || JSON.stringify(person)}
+                      </div> // Adjust based on actual object structure
+                    ))
+                  ) : (
+                    <em>No resource persons available</em>
+                  )}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.year}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {convertTo12HourFormat(selectedEventclose.eventstarttime)} to{" "}
+                  {convertTo12HourFormat(selectedEventclose.eventendtime)}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEventclose.typeofevent}
+                </span>
+              </div>
+            </div>
+            {showDeleteModal && selectedEvent && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+                  <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+                  <p>
+                    Are you sure you want to delete the event{" "}
+                    <strong>{selectedEventclose.eventname}</strong>? Type the
+                    event name to confirm:
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteEventName}
+                    onChange={(e) => setDeleteEventName(e.target.value)}
+                    className="border rounded p-2 w-full mt-2"
+                  />
+                  <div className="flex justify-end mt-4">
+                    <button
+                      className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                      onClick={handleDelete}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="bg-gray-500 text-white rounded px-4 py-2"
+                      onClick={() => setShowDeleteModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Button Container */}
+            <div className="custom-modal-buttons flex justify-between mt-4">
               <button
-                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-                onClick={handleDelete}
+                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                onClick={() => handleOpeneditModal(selectedEventclose)}
               >
-                Delete
+                Edit
               </button>
               <button
-                className="bg-gray-500 text-white rounded px-4 py-2"
-                onClick={() => setShowDeleteModal(false)}
+                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                onClick={() => handleDeleteConfirmation(selectedEventclose)}
               >
                 Cancel
               </button>
@@ -530,24 +576,6 @@ function Departments() {
           </div>
         </div>
       )}
-      {/* Button Container */}
-      <div className="custom-modal-buttons flex justify-between mt-4">
-        <button
-          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-          onClick={() => handleOpeneditModal(selectedEventclose)}
-        >
-          Edit
-        </button>
-        <button
-          className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-          onClick={() => handleDeleteConfirmation(selectedEventclose)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       {isOpen && (
         <div

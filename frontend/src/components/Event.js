@@ -56,9 +56,9 @@ function Placement() {
         `${process.env.REACT_APP_BASE_URL}/event/getalldata`
       );
       const filteredData = response.data.eventdata.filter(
-        (elem) => ["Placement", "Technical", "Nontechnical"].includes(elem.typeofevent) &&(elem.status==="pending")
+        (elem) => elem.status === "pending"
       );
-      console.log("rrrrrrrrrrrrrrrrrrrrrrr : ",filteredData)
+      console.log("rrrrrrrrrrrrrrrrrrrrrrr : ", filteredData);
       setData(filteredData);
       setLoading(false);
     } catch (error) {
@@ -71,7 +71,7 @@ function Placement() {
     setSelectededitEvent(null);
   };
   const handleOpeneditModal = (event) => {
-    console.log("ccvcccccccccc😤😤😤")
+    console.log("ccvcccccccccc😤😤😤");
     function formatDate(date) {
       const parts = date.split("/");
       if (parts.length !== 3) {
@@ -110,7 +110,6 @@ function Placement() {
   };
 
   useEffect(() => {
-   
     fetchData();
   }, []);
   const handleDelete = async () => {
@@ -123,7 +122,7 @@ function Placement() {
         toast.success("Event deleted successfully!");
         setShowDeleteModal(false);
         setDeleteEventName("");
-        fetchData();  // Fetch the data again after deletion to update the list
+        fetchData(); // Fetch the data again after deletion to update the list
         handleCloseModal();
       } catch (error) {
         toast.error("Failed to delete the event.");
@@ -132,9 +131,9 @@ function Placement() {
       alert("Event name does not match. Please try again.");
     }
   };
-  
+
   const handleDeleteConfirmation = (event) => {
-    console.log("❤️‍🔥❤️‍🔥❤️‍🔥",event)
+    console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
     setShowDeleteModal(true);
     setItemToDelete(null); // Reset
@@ -147,10 +146,10 @@ function Placement() {
     }));
   };
   const convertTo12HourFormat = (time) => {
-    if (!time) return '';
-    let [hours, minutes] = time.split(':');
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
     return `${hours}:${minutes} ${ampm}`;
   };
@@ -186,7 +185,6 @@ function Placement() {
         eventenddate: formData.eventenddate,
         typeofevent: formData.typeofevent,
       };
-
 
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
@@ -236,8 +234,11 @@ function Placement() {
   };
 
   const filteredData = data.filter((event) => {
-    const matchesSearchTerm = event.eventname.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesEventType = eventType === "All" || event.typeofevent === eventType; // Assuming your event data has a 'typeofevent' field
+    const matchesSearchTerm = event.eventname
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesEventType =
+      eventType === "All" || event.typeofevent === eventType; // Assuming your event data has a 'typeofevent' field
     return matchesSearchTerm && matchesEventType;
   });
 
@@ -296,63 +297,74 @@ function Placement() {
       </div>
 
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-  {filteredData.map((event, index) => (
-    <div
-      key={index}
-      className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
-    >
-      <button
-        className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
-          new Date(event.eventenddate) < new Date()
-            ? "bg-[#2cef5d]"
-            : "bg-[#f92d2d]"
-        }`}
-      >
-        {new Date(event.eventenddate) < new Date() ? "Completed" : "Not Completed"}
-      </button>
-      <img
-        className="w-96 h-40 rounded-lg"
-        src={event.imageurl}
-        alt={event.eventname}
-      />
-      <div className="ml-5 mt-3 flex flex-row gap-1">
-        <FaCalendar size={20} className="mt-1" color="#46459d" />
-        <h1 className="text-xl text-[#8b21e8] font-Afacad">
-          {event.eventstartdate} - {event.eventenddate}
-        </h1>
+        {filteredData.map((event, index) => (
+          <div
+            key={index}
+            className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
+          >
+            <button
+              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                new Date(event.eventenddate) < new Date()
+                  ? "bg-[#2cef5d]"
+                  : "bg-[#f92d2d]"
+              }`}
+            >
+              {new Date(event.eventenddate) < new Date()
+                ? "Completed"
+                : "Not Completed"}
+            </button>
+            <img
+              className="w-96 h-40 rounded-lg"
+              src={event.imageurl}
+              alt={event.eventname}
+            />
+            <div className="ml-5 mt-3 flex flex-row gap-1">
+              <FaCalendar size={20} className="mt-1" color="#46459d" />
+              <h1 className="text-xl text-[#8b21e8] font-Afacad">
+                {event.eventstartdate} - {event.eventenddate}
+              </h1>
+            </div>
+            <div className="ml-5 flex flex-col gap-3 mt-3">
+              <h1 className="font-bold text-3xl font-Afacad">
+                {event.eventname}
+              </h1>
+              <h1 className="font-bold text-gray-500 text-xl font-Afacad">
+                {event.organizer}
+              </h1>
+              <div className="flex flex-row">
+                <FaSearchLocation
+                  className="mt-1 mr-1 font-Afacad"
+                  color="#06060b9b"
+                />
+                <h1 className="font-bold text-xl text-[#06060b9b]">
+                  {event.venue}
+                </h1>
+              </div>
+              <div className="flex flex-row gap-2 mt-2">
+                <button
+                  className="bg-violet-800 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                  onClick={() => handleOpenModal(event)}
+                >
+                  View More
+                </button>
+                <button
+                  className="bg-blue-600 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                  onClick={() => handleOpeneditModal(event)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="bg-red-600 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
+                  onClick={() => handleDeleteConfirmation(event)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="ml-5 flex flex-col gap-3 mt-3">
-        <h1 className="font-bold text-3xl font-Afacad">{event.eventname}</h1>
-        <h1 className="font-bold text-gray-500 text-xl font-Afacad">{event.organizer}</h1>
-        <div className="flex flex-row">
-          <FaSearchLocation className="mt-1 mr-1 font-Afacad" color="#06060b9b" />
-          <h1 className="font-bold text-xl text-[#06060b9b]">{event.venue}</h1>
-        </div>
-        <div className="flex flex-row gap-2 mt-2">
-          <button
-            className="bg-violet-800 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
-            onClick={() => handleOpenModal(event)}
-          >
-            View More
-          </button>
-          <button
-            className="bg-blue-600 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
-            onClick={() => handleOpeneditModal(event)}
-          >
-            Edit
-          </button>
-          <button
-            className="bg-red-600 mb-2 text-xl font-Afacad text-white font-bold rounded-md w-28"
-            onClick={() => handleDeleteConfirmation(event)}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-{showDeleteModal && selectedEvent && (
+      {showDeleteModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
             <h2 className="text-xl font-bold mb-4">Delete Event</h2>
@@ -383,75 +395,89 @@ function Placement() {
             </div>
           </div>
         </div>
-      )}  
+      )}
 
-    
-{isOpen && selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={handleCloseModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEvent.imageurl}
-        alt="Event"
-        className="custom-modal-image"
-      />
-      <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-      </div>
-      <div className="custom-modal-body">
-      {selectedEvent.departments && selectedEvent.departments.length > 0 && (
-  <div className="custom-modal-row">
-    <strong>Department:</strong>
-    <span className="custom-modal-value">
-      {selectedEvent.departments}
-    </span>
-  </div>
-)}
+      {isOpen && selectedEvent && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={handleCloseModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEvent.imageurl}
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            </div>
+            <div className="custom-modal-body">
+              {selectedEvent.departments &&
+                selectedEvent.departments.length > 0 && (
+                  <div className="custom-modal-row">
+                    <strong>Department:</strong>
+                    <span className="custom-modal-value">
+                      {selectedEvent.departments}
+                    </span>
+                  </div>
+                )}
 
-        <div className="custom-modal-row">
-          <strong>Specification:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.departmentspecification}
-          </span>
+              <div className="custom-modal-row">
+                <strong>Specification:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.departmentspecification}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.resourceperson}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">{selectedEvent.year}</span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
+                  {convertTo12HourFormat(selectedEvent.eventendtime)}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.typeofevent}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="custom-modal-row">
-          <strong>Venue:</strong>
-          <span className="custom-modal-value">{selectedEvent.venue}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Resource Person:</strong>
-          <span className="custom-modal-value">{selectedEvent.resourceperson}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Year:</strong>
-          <span className="custom-modal-value">{selectedEvent.year}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Start Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event End Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
-        </div>
-        <div className="custom-modal-row">
-  <strong>Time:</strong>
-  <span className="custom-modal-value">
-    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
-  </span>
-</div>
-        <div className="custom-modal-row">
-          <strong>Event Type:</strong>
-          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)} 
-             {iseditOpen && (
-        <div style={{zIndex:1000}} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+      )}
+      {iseditOpen && (
+        <div
+          style={{ zIndex: 1000 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+        >
           <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
             <span
               className="absolute top-4 right-4 cursor-pointer"
@@ -556,10 +582,8 @@ function Placement() {
             </form>
           </div>
         </div>
-        
       )}
-            <ToastContainer />
-
+      <ToastContainer />
     </div>
   );
 }

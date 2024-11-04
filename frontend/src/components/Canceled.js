@@ -23,7 +23,7 @@ function History() {
     let [hours, minutes] = time.split(':');
     hours = parseInt(hours, 10);
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    hours = hours % 12 || 12; 
     return `${hours}:${minutes} ${ampm}`;
   };
   useEffect(() => {
@@ -34,9 +34,7 @@ function History() {
         );
         const filteredData = response.data.eventdata.filter(
           (elem) =>
-            ["Placement", "Technical", "Nontechnical"].includes(
-              elem.typeofevent
-            ) && elem.status === "decline"
+          elem.status === "decline"
         );
         console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
         setData(filteredData);

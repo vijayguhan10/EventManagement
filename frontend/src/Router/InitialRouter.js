@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import Forms from "../components/Form";
 import Login from "../components/Login";
-import Placement from "../components/Placements";
+import Placement from "../components/Event";
 import History from "../components/History";
 import Departments from "../components/Departments";
 import Canceled from "../components/Canceled";
