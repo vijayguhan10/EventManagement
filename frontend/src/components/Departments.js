@@ -68,7 +68,8 @@ const products = [
   },
   {
     name: "otherspecification",
-    EEE: "https://digicult.it/wp-content/uploads/2022/03/earlylife.png",
+    imageurl: "https://digicult.it/wp-content/uploads/2022/03/earlylife.png",
+    date: today,
   },
 ];
 const departmentOptions = [
@@ -103,6 +104,7 @@ function Departments() {
   const [isEventListOpen, setIsEventListOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEventName, setDeleteEventName] = useState("");
+  const[selecteddepartment,setdepartment]=useState("");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -147,6 +149,14 @@ function Departments() {
       alert("Event name does not match. Please try again.");
     }
   };
+  const handleViewResourcePersons = () => {
+    setIsResourcePopupOpen(true);
+  };
+  const closeResourcePopup = () => {
+    setIsResourcePopupOpen(false);
+  }
+  
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -260,6 +270,7 @@ function Departments() {
   };
 
   const handleOpenModal = async (event) => {
+    setdepartment(event);
     console.log("consoling the fetching department: ", { department: event });
     try {
       const response = await axios.post(
@@ -392,13 +403,16 @@ function Departments() {
             <button className="close-modal" onClick={closeEventList}>
               &times;
             </button>
-            <h2 className="modal-date-title">
+            {/* <h2 className="modal-date-title">
               Events for{" "}
               {selectedDate.toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
               })}
+            </h2> */}
+            <h2 className="modal-date-title">
+              Events pending for {selecteddepartment}
             </h2>
             <ul className="event-list">
               {events.length > 0 ? (
@@ -482,16 +496,7 @@ function Departments() {
               <div className="custom-modal-row">
                 <strong>Resource Person:</strong>
                 <span className="custom-modal-value">
-                  {selectedEventclose.resourceperson &&
-                  selectedEventclose.resourceperson.length > 0 ? (
-                    selectedEventclose.resourceperson.map((person, index) => (
-                      <div key={index}>
-                        {person.name || person.title || JSON.stringify(person)}
-                      </div> // Adjust based on actual object structure
-                    ))
-                  ) : (
-                    <em>No resource persons available</em>
-                  )}
+                  <button onClick={handleViewResourcePersons}>View</button>
                 </span>
               </div>
               <div className="custom-modal-row">
@@ -687,6 +692,30 @@ function Departments() {
           </div>
         </div>
       )}
+      {isResourcePopupOpen && (
+  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
+      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
+      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
+        &times;
+      </button>
+      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {selectedEventclose.resourceperson.length > 0 ? (
+          selectedEventclose.resourceperson.map((person, index) => {
+            const [key, value] = Object.entries(person)[0];
+            return (
+              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
+              </div>
+            );
+          })
+        ) : (
+          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
       <ToastContainer />
     </div>
   );

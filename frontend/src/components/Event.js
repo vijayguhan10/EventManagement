@@ -69,46 +69,64 @@ function Placement() {
   const handleeditCloseModal = () => {
     setIseditOpen(false);
     setSelectededitEvent(null);
-  };
-  const handleOpeneditModal = (event) => {
+  };const handleOpeneditModal = (event) => {
     console.log("ccvcccccccccc😤😤😤");
-    function formatDate(date) {
-      const parts = date.split("/");
-      if (parts.length !== 3) {
-        console.error("Invalid date format:", date);
-        return "";
-      }
 
-      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
-      const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
-
-      const dateObj = new Date(formattedDate);
-      if (isNaN(dateObj)) {
-        console.error("Invalid date provided:", formattedDate);
-        return "";
-      }
-
-      return formattedDate;
+    // Check if event is defined
+    if (!event) {
+        console.error("Event is null or undefined");
+        return;
     }
+
+    function formatDate(date) {
+        const parts = date.split("/");
+        if (parts.length !== 3) {
+            console.error("Invalid date format:", date);
+            return "";
+        }
+
+        const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+        const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
+
+        const dateObj = new Date(formattedDate);
+        if (isNaN(dateObj)) {
+            console.error("Invalid date provided:", formattedDate);
+            return "";
+        }
+
+        return formattedDate;
+    }
+
+    // Check departments array
+    const departmentName = Array.isArray(event.departments) && event.departments.length > 0
+        ? event.departments[0]
+        : null;
+
     setSelectedEvent(event);
     setFormData({
-      eventname: event.eventname,
-      resourceperson: event.resourceperson,
-      organizer: event.organizer,
-      venue: event.venue,
-      department:
-        departmentOptions.find((dept) => dept.fullName === event.departments[0])
-          ?.shortName || "",
-      eventstarttime: event.eventstarttime,
-      eventendtime: event.eventendtime,
-      eventstartdate: formatDate(event.eventstartdate),
-      eventenddate: formatDate(event.eventenddate),
-      typeofevent: event.typeofevent,
+        eventname: event.eventname,
+        resourceperson: event.resourceperson || [], // Default to empty array if undefined
+        organizer: event.organizer,
+        venue: event.venue,
+        department: 
+            Array.isArray(departmentOptions) 
+                ? departmentOptions.find((dept) => dept.fullName === departmentName)?.shortName || "" 
+                : "",
+        eventstarttime: event.eventstarttime,
+        eventendtime: event.eventendtime,
+        eventstartdate: formatDate(event.eventstartdate),
+        eventenddate: formatDate(event.eventenddate),
+        typeofevent: event.typeofevent,
     });
     setIseditOpen(true);
     console.log("edit button is clicked");
-  };
+};
 
+
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+  const closeResourcePopup = () => {
+    setIsResourcePopupOpen(false);
+  }
   useEffect(() => {
     fetchData();
   }, []);
@@ -131,7 +149,9 @@ function Placement() {
       alert("Event name does not match. Please try again.");
     }
   };
-
+  const handleViewResourcePersons = () => {
+    setIsResourcePopupOpen(true);
+  };
   const handleDeleteConfirmation = (event) => {
     console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
@@ -437,7 +457,7 @@ function Placement() {
               <div className="custom-modal-row">
                 <strong>Resource Person:</strong>
                 <span className="custom-modal-value">
-                  {selectedEvent.resourceperson}
+                  <button onClick={handleViewResourcePersons}>View</button>
                 </span>
               </div>
               <div className="custom-modal-row">
@@ -583,6 +603,30 @@ function Placement() {
           </div>
         </div>
       )}
+      {isResourcePopupOpen && (
+  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
+      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
+      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
+        &times;
+      </button>
+      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {selectedEvent.resourceperson.length > 0 ? (
+          selectedEvent.resourceperson.map((person, index) => {
+            const [key, value] = Object.entries(person)[0];
+            return (
+              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
+              </div>
+            );
+          })
+        ) : (
+          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
       <ToastContainer />
     </div>
   );
