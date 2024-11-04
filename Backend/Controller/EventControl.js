@@ -110,7 +110,7 @@ exports.CreateEvent = async (req, res) => {
   try {
     const {
       eventname,
-      resourceperson,
+      resourcePersons,
       departmentspecification,
       eventDescription,
       venue,
@@ -124,13 +124,13 @@ exports.CreateEvent = async (req, res) => {
       year,
     } = req.body;
     const userId = req.userId;
-
+console.log("consoling the form data",req.body)
     // Validate the user
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
-
+    const resourceperson = Object.entries(resourcePersons || {}).map(([key, value]) => ({ [key]: value }));
     // Parse departmentspecification if it's a string
     let formattedDepartmentspecification;
     if (typeof departmentspecification === 'string') {
