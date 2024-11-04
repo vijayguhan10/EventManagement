@@ -327,6 +327,7 @@ function Forms() {
           status: "pending",
           year: formData.year,
           eventDescription: formData.eventDescription,
+          departmentspecification:formData.departmentspecification
         }
       );
 
@@ -334,6 +335,7 @@ function Forms() {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         toast.success("Event added successfully!");
+        
       }
     } catch (error) {
       console.error("Error:", error);

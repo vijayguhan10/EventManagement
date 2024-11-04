@@ -105,7 +105,6 @@ const updateDepartmentCount = async (oldDepartment, newDepartment) => {
     );
   }
 };
-
 exports.CreateEvent = async (req, res) => {
   console.log("Request body:", req.body);
   try {
@@ -132,13 +131,31 @@ exports.CreateEvent = async (req, res) => {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
+    // Parse departmentspecification if it's a string
+    let formattedDepartmentspecification;
+    if (typeof departmentspecification === 'string') {
+      try {
+        formattedDepartmentspecification = JSON.parse(departmentspecification);
+      } catch (error) {
+        console.error("Failed to parse departmentspecification as JSON:", error);
+        return res.status(400).json({ message: "Invalid departmentspecification format." });
+      }
+    } else {
+      formattedDepartmentspecification = departmentspecification;
+    }
+
+    // Ensure departmentspecification is an array
+    if (!Array.isArray(formattedDepartmentspecification)) {
+      return res.status(400).json({ message: "departmentspecification must be an array." });
+    }
+
     const createdEvents = [];
     let departmentsToProcess = [];
 
     // Determine departments to process based on conditions
     if (departments.includes("All")) {
       departmentsToProcess = images_dept.map((item) => item.name);
-    } else if (!departments.length && departmentspecification) {
+    } else if (!departments.length && formattedDepartmentspecification.length) {
       departmentsToProcess = ["otherspecification"];
     } else {
       departmentsToProcess = departments;
@@ -179,7 +196,7 @@ exports.CreateEvent = async (req, res) => {
         departments: department !== "otherspecification" ? department : null,
         imageurl: imageUrl,
         eventDescription: eventDescription,
-        departmentspecification: departmentspecification,
+        departmentspecification: formattedDepartmentspecification,
         year,
       });
 

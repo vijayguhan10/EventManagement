@@ -213,7 +213,14 @@ function Departments() {
     });
     setIsOpen(true);
   };
-
+  const convertTo12HourFormat = (time) => {
+    if (!time) return '';
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
+  };
   useEffect(() => {
     const getCount = async () => {
       try {
@@ -258,6 +265,7 @@ function Departments() {
       setIsEventListOpen(true);
       if (response.data && response.data.length > 0) {
         setEvents(response.data);
+        console.log("consoling the events after opening mdal from axios",response.data)
       } else {
         setEvents([]);
       }
@@ -268,6 +276,7 @@ function Departments() {
 
   const openEventModal = (event) => {
     setSelectedEventclose(event);
+    console.log("consoling the events after opening the popup",event)
   };
 
   const handleCloseModal = () => {
@@ -435,9 +444,20 @@ function Departments() {
         <h2 className="custom-modal-title">{selectedEventclose.eventname}</h2>
       </div>
       <div className="custom-modal-body">
+      {selectedEventclose.departments && selectedEventclose.departments.length > 0 && (
+  <div className="custom-modal-row">
+    <strong>Department:</strong>
+    <span className="custom-modal-value">
+      {selectedEventclose.departments}
+    </span>
+  </div>
+)}
+
         <div className="custom-modal-row">
-          <strong>Department:</strong>
-          <span className="custom-modal-value">{selectedEventclose.departments}</span>
+          <strong>Specification:</strong>
+          <span className="custom-modal-value">
+            {selectedEventclose.departmentspecification}
+          </span>
         </div>
         <div className="custom-modal-row">
           <strong>Venue:</strong>
@@ -445,7 +465,16 @@ function Departments() {
         </div>
         <div className="custom-modal-row">
           <strong>Resource Person:</strong>
-          <span className="custom-modal-value">{selectedEventclose.resourceperson}</span>
+          <span className="custom-modal-value">
+          {selectedEventclose.resourceperson && selectedEventclose.resourceperson.length > 0 ? (
+  selectedEventclose.resourceperson.map((person, index) => (
+    <div key={index}>{person.name || person.title || JSON.stringify(person)}</div> // Adjust based on actual object structure
+  ))
+) : (
+  <em>No resource persons available</em>
+)}
+
+          </span>
         </div>
         <div className="custom-modal-row">
           <strong>Year:</strong>
@@ -460,11 +489,11 @@ function Departments() {
           <span className="custom-modal-value">{selectedEventclose.eventenddate}</span>
         </div>
         <div className="custom-modal-row">
-          <strong>Time:</strong>
-          <span className="custom-modal-value">
-            {selectedEventclose.eventstarttime} to {selectedEventclose.eventendtime}
-          </span>
-        </div>
+  <strong>Time:</strong>
+  <span className="custom-modal-value">
+    {convertTo12HourFormat(selectedEventclose.eventstarttime)} to {convertTo12HourFormat(selectedEventclose.eventendtime)}
+  </span>
+</div>
         <div className="custom-modal-row">
           <strong>Event Type:</strong>
           <span className="custom-modal-value">{selectedEventclose.typeofevent}</span>

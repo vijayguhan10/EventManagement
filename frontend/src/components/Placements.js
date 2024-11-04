@@ -146,7 +146,14 @@ function Placement() {
       [name]: value,
     }));
   };
-  
+  const convertTo12HourFormat = (time) => {
+    if (!time) return '';
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
+  };
   const [formData, setFormData] = useState({
     eventname: "",
     resourceperson: "",
@@ -188,7 +195,7 @@ function Placement() {
       handleCloseeditModal();
       if (response.status === 201 || response.status === 200) {
         console.log("sucessfull response : ", response);
-        toast.success("Event added successfully!");
+        toast.success("Event edited successfully!");
       }
       // setLoading(true);
     } catch (error) {
@@ -394,9 +401,20 @@ function Placement() {
         <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
       </div>
       <div className="custom-modal-body">
+      {selectedEvent.departments && selectedEvent.departments.length > 0 && (
+  <div className="custom-modal-row">
+    <strong>Department:</strong>
+    <span className="custom-modal-value">
+      {selectedEvent.departments}
+    </span>
+  </div>
+)}
+
         <div className="custom-modal-row">
-          <strong>Department:</strong>
-          <span className="custom-modal-value">{selectedEvent.departments}</span>
+          <strong>Specification:</strong>
+          <span className="custom-modal-value">
+            {selectedEvent.departmentspecification}
+          </span>
         </div>
         <div className="custom-modal-row">
           <strong>Venue:</strong>
@@ -419,11 +437,11 @@ function Placement() {
           <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
         </div>
         <div className="custom-modal-row">
-          <strong>Time:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-          </span>
-        </div>
+  <strong>Time:</strong>
+  <span className="custom-modal-value">
+    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
+  </span>
+</div>
         <div className="custom-modal-row">
           <strong>Event Type:</strong>
           <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
@@ -431,7 +449,7 @@ function Placement() {
       </div>
     </div>
   </div>
-)} && <ToastContainer />
+)} 
              {iseditOpen && (
         <div style={{zIndex:1000}} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
@@ -538,7 +556,10 @@ function Placement() {
             </form>
           </div>
         </div>
+        
       )}
+            <ToastContainer />
+
     </div>
   );
 }

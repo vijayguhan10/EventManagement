@@ -47,6 +47,14 @@ function History() {
       setLoading(false);
     }
   };
+  const convertTo12HourFormat = (time) => {
+    if (!time) return '';
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
+  };
   useEffect(() => {
     fetchData();
   }, []);
@@ -246,11 +254,11 @@ function History() {
                 </span>
               </div>
               <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-                </span>
-              </div>
+  <strong>Time:</strong>
+  <span className="custom-modal-value">
+    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
+  </span>
+</div>
               <div className="custom-modal-row">
                 <strong>Event Type:</strong>
                 <span className="custom-modal-value">

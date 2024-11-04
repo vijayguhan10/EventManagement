@@ -78,7 +78,14 @@ const CalendarComponent = () => {
     month: "long",
     year: "numeric",
   });
-
+  const convertTo12HourFormat = (time) => {
+    if (!time) return '';
+    let [hours, minutes] = time.split(':');
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -239,12 +246,21 @@ const CalendarComponent = () => {
               <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
             </div>
             <div className="custom-modal-body">
-              <div className="custom-modal-row">
-                <strong>Department:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departments}
-                </span>
-              </div>
+            {selectedEvent.departments && selectedEvent.departments.length > 0 && (
+  <div className="custom-modal-row">
+    <strong>Department:</strong>
+    <span className="custom-modal-value">
+      {selectedEvent.departments}
+    </span>
+  </div>
+)}
+
+        <div className="custom-modal-row">
+          <strong>Specification:</strong>
+          <span className="custom-modal-value">
+            {selectedEvent.departmentspecification}
+          </span>
+        </div>
               <div className="custom-modal-row">
                 <strong>Venue:</strong>
                 <span className="custom-modal-value">
@@ -274,11 +290,11 @@ const CalendarComponent = () => {
                 </span>
               </div>
               <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-                </span>
-              </div>
+  <strong>Time:</strong>
+  <span className="custom-modal-value">
+    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
+  </span>
+</div>
               <div className="custom-modal-row">
                 <strong>Event Type:</strong>
                 <span className="custom-modal-value">
