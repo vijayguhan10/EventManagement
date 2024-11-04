@@ -34,9 +34,7 @@ function History() {
         );
         const filteredData = response.data.eventdata.filter(
           (elem) =>
-            ["Placement", "Technical", "Nontechnical"].includes(
-              elem.typeofevent
-            ) && elem.status === "decline"
+          elem.status === "decline"
         );
         console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
         setData(filteredData);

@@ -133,12 +133,17 @@ exports.CreateEvent = async (req, res) => {
 
     // Parse departmentspecification if it's a string
     let formattedDepartmentspecification;
-    if (typeof departmentspecification === 'string') {
+    if (typeof departmentspecification === "string") {
       try {
         formattedDepartmentspecification = JSON.parse(departmentspecification);
       } catch (error) {
-        console.error("Failed to parse departmentspecification as JSON:", error);
-        return res.status(400).json({ message: "Invalid departmentspecification format." });
+        console.error(
+          "Failed to parse departmentspecification as JSON:",
+          error
+        );
+        return res
+          .status(400)
+          .json({ message: "Invalid departmentspecification format." });
       }
     } else {
       formattedDepartmentspecification = departmentspecification;
@@ -146,7 +151,9 @@ exports.CreateEvent = async (req, res) => {
 
     // Ensure departmentspecification is an array
     if (!Array.isArray(formattedDepartmentspecification)) {
-      return res.status(400).json({ message: "departmentspecification must be an array." });
+      return res
+        .status(400)
+        .json({ message: "departmentspecification must be an array." });
     }
 
     const createdEvents = [];
@@ -409,18 +416,30 @@ exports.departmentevent = async (req, res) => {
   try {
     const { department } = req.body;
     const userId = req.userId;
-    const isValidUser = await validateUser(userId);
 
+    const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
 
-    console.log(department, "😎 Department received");
-    const events = await Event.find({ departments: { $in: department } });
+    let events;
+    if (!department || department.length === 0) {
+      events = await Event.find({});
+    } else if (department === "otherspecification") {
+      console.log(department, "😎 Department received");
 
-    // Instead of returning 404, return an empty array
-    if (!events) {
-      return res.status(200).json([]); // Return an empty array
+      events = await Event.find({ departments:null});
+      console.log("consoling the passing events : ", events);
+      return res.status(200).json({
+        message: "otherspecification data passed successfully",
+        events,
+      });
+    } else {
+      events = await Event.find({ departments: { $in: department } });
+    }
+
+    if (!events || events.length === 0) {
+      return res.status(200).json([]);
     }
 
     console.log(events, "Retrieved events");
@@ -430,6 +449,7 @@ exports.departmentevent = async (req, res) => {
     return res.status(500).json({ message: "Server Error" });
   }
 };
+
 exports.getTotalCount = async (req, res) => {
   const userid = req.userId;
   const isValidUser = await validateUser(userid);

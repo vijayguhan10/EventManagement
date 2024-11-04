@@ -293,7 +293,7 @@ const Dashboard = () => {
             </h1>
             <h1 className="text-xl font-Afacad mt-3 font-bold">Todays Data</h1>
           </div>
-          <div className="relative ml-[78%] mb-32 pl-">
+          <div className="relative ml-[62%] mb-32 pl-">
             <input
               type="text"
               placeholder="Search events..."
