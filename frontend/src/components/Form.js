@@ -43,6 +43,7 @@ function Forms() {
     setFormData((prev) => ({ ...prev, eventType: type }));
     setShowEventTypeModal(false);
   };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -294,18 +295,15 @@ function Forms() {
     if (!formData.endTime) newErrors.endTime = "End time is required";
     if (!formData.resourcePersons)
       newErrors.resourcePerson = "Resource person is required";
-    
+
     if (!formData.eventType)
       newErrors.eventType = "Please select an event type";
     if (!formData.eventDescription)
       newErrors.eventDescription = "Event description is required";
-    // if (formData.departments.length === 0)
-    //   newErrors.departments = "Please select at least one department";
 
     if (Object.keys(newErrors).length > 0) {
       console.log(Object.keys(newErrors).length);
       console.log("dfffffff");
-      // console.log("facing error : ", formData);
       setErrors(newErrors);
       return;
     }
@@ -327,7 +325,7 @@ function Forms() {
           status: "pending",
           year: formData.year,
           eventDescription: formData.eventDescription,
-          departmentspecification:formData.departmentspecification
+          departmentspecification: formData.departmentspecification,
         }
       );
 
@@ -335,11 +333,12 @@ function Forms() {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         toast.success("Event added successfully!");
-        
       }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
+    } finally {
+      setIsSubmitting(false); 
     }
     setErrors({});
   };
@@ -363,7 +362,6 @@ function Forms() {
 
   return (
     <div className="p-10">
-      <ToastContainer />
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
           Create Event
@@ -395,9 +393,7 @@ function Forms() {
                 </div>
               ))}
             </div>
-            {/* {errors.departments && (
-              <span className="text-red-500 text-xl">{errors.departments}</span>
-            )} */}
+
             <button
               onClick={handleShowDepartments}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
@@ -405,7 +401,6 @@ function Forms() {
               Show Departments
             </button>
 
-            {/* Modal for Selecting Departments */}
             {showDepartments && (
               <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -470,11 +465,6 @@ function Forms() {
                       >
                         Add Department
                       </button>
-                      {/* {errors.departments && (
-                        <span className="text-red-500 text-xl">
-                          {errors.departments}
-                        </span>
-                      )} */}
                     </div>
                   )}
                   <div className="mt-4 flex justify-end">
@@ -510,7 +500,6 @@ function Forms() {
             {errors.year && <span className="text-red-500">{errors.year}</span>}
           </div>
 
-          {/* Event Title */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Event Title
@@ -527,7 +516,6 @@ function Forms() {
             )}
           </div>
 
-          {/* Event Venue */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Event Venue
@@ -544,7 +532,6 @@ function Forms() {
             )}
           </div>
 
-          {/* Date Selection */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
               Start Date

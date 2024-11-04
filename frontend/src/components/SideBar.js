@@ -8,11 +8,12 @@ import {
   FaEdit,
   FaTimes,
 } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const SideBar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Use useLocation to get the current path
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [role, setRole] = useState(null);
 
@@ -24,7 +25,6 @@ const SideBar = () => {
         const currentTime = Date.now() / 1000;
         if (decoded.exp > currentTime) {
           setRole(decoded.role); 
-          // setRole("mediamax")
         }
       } catch (error) {
         setRole(null);
@@ -94,7 +94,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/mediamax"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/mediamax" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaEdit />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -105,7 +107,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/History"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/History" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaHistory />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -119,7 +123,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/Dashboard"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaHome />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -130,7 +136,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/History"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/History" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaHistory />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -141,7 +149,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/Placement"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/Placement" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaAddressBook />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -152,7 +162,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/Departments"
-                    className="flex items-center p-2 gap-7 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center p-2 gap-7 text-white rounded-lg ${
+                      location.pathname === "/Departments" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaDiscourse />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -163,7 +175,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/CanceledEvents"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/CanceledEvents" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaHome />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -174,7 +188,9 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/charts"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/charts" ? "bg-gray-300" : ""
+                    }`}
                   >
                     <FaChartArea />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
@@ -185,12 +201,14 @@ const SideBar = () => {
                 <li>
                   <Link
                     to="/mediamax"
-                    className="flex items-center gap-7 p-2 text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/mediamax" ? "bg-gray-300" : ""
+                    }`}
                   >
-                    <FaEdit />
+                    {/* <FaEdit />
                     <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
                       MediaMax
-                    </span>
+                    </span> */}
                   </Link>
                 </li>
               </>

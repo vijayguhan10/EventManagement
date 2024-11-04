@@ -1,0 +1,84 @@
+.resource-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Ensure it is above other content */
+  }
+  
+  .resource-popup-content {
+    background: white; /* Background color for the popup */
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px; /* Adjust width as needed */
+    max-height: 80vh; /* Prevent the popup from exceeding viewport height */
+    overflow-y: auto; /* Allow scrolling if content exceeds max height */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Shadow for effect */
+    position: relative; /* For positioning the close button */
+  }
+  
+  .resource-popup-title {
+    margin: 0;
+    font-size: 1.5rem; /* Title size */
+    text-align: center; /* Center the title */
+    margin-bottom: 15px; /* Space below the title */
+  }
+  
+  .custom-close-modal {
+    position: absolute; /* Position relative to the popup */
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    background: none; /* No background */
+    border: none; /* No border */
+    font-size: 1.25rem; /* Close button size */
+    cursor: pointer; /* Pointer cursor for button */
+  }
+  
+  .resource-person-row {
+    display: flex; /* Use flex for alignment */
+    justify-content: space-between; /* Space between name and specification */
+    padding: 5px 0; /* Padding for rows */
+    border-bottom: 1px solid #eee; /* Light separator between rows */
+  }
+  
+  .resource-person-row:last-child {
+    border-bottom: none; /* Remove border from last row */
+  }
+  
+  .resource-person-row strong {
+    color: #333; /* Dark color for names */
+  }
+  
+  .resource-person-row span {
+    color: #666; /* Lighter color for specifications */
+  }
+  .resource-person-list {
+    max-height: 400px;
+    overflow-y: scroll; /* Allow scrolling */
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  }
+  
+  .resource-person-list::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
+  
+  
+  .resource-person-list::-webkit-scrollbar-track {
+    background: transparent; /* Optional: Transparent track */
+  }
+  
+  .resource-person-list::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Scrollbar color */
+    border-radius: 10px; /* Rounded corners */
+  }
+  
+  .resource-person-list::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa; /* Darker color on hover */
+  }
+  
