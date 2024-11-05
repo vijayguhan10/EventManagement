@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
-import "../resourceperson.css"
+import "../resourceperson.css";
 
 import { FaFilePdf, FaSearch, FaFileExcel } from "react-icons/fa";
 import prevarrow from "../assets/Forward Arrow (1).png";
@@ -11,6 +11,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "../Scroll.css";
 const CalendarComponent = () => {
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -25,7 +26,7 @@ const CalendarComponent = () => {
   const [selectedYears, setSelectedYears] = useState([]);
   const [showIcons, setShowIcons] = useState(false);
   const [departments, setDepartments] = useState([]);
-  
+
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
@@ -53,8 +54,9 @@ const CalendarComponent = () => {
   };
 
   const closeResourcePopup = () => {
+    SetDepartmentPopup(false);
     setIsResourcePopupOpen(false);
-  }
+  };
   const handleViewResourcePersons = () => {
     setIsResourcePopupOpen(true);
   };
@@ -193,7 +195,7 @@ const CalendarComponent = () => {
   });
   const handleDownloadClick = () => {
     setShowIcons(!showIcons);
-  }
+  };
   const handleYearChange = (event, year) => {
     if (year === "All") {
       if (event.target.checked) {
@@ -219,10 +221,10 @@ const CalendarComponent = () => {
     year: "numeric",
   });
   const convertTo12HourFormat = (time) => {
-    if (!time) return '';
-    let [hours, minutes] = time.split(':');
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
     return `${hours}:${minutes} ${ampm}`;
   };
@@ -262,7 +264,7 @@ const CalendarComponent = () => {
             <img src={forwardarrow} alt="next month" />
           </button>
         </div>
-        
+
         <Calendar
           onChange={onChange}
           value={selectedDate}
@@ -275,7 +277,7 @@ const CalendarComponent = () => {
           activeStartDate={currentDate}
         />
       </div>
-   
+
       <div className="flex flex-row items-center justify-between w-[90%] xl:h-16 xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
         <div className="ml-3 xl:ml-5 py-5">
           <p className="text-2xl font-bold text-gray-800 font-Afacad">
@@ -309,8 +311,8 @@ const CalendarComponent = () => {
 
       {/* Event List Modal */}
       {isEventListOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay ">
+          <div className="modal-content font-Afacad font-semibold">
             <button className="close-modal" onClick={closeEventList}>
               &times;
             </button>
@@ -322,7 +324,7 @@ const CalendarComponent = () => {
                 year: "numeric",
               })}
             </h2>
-            <ul className="event-list">
+            <ul className="event-list text-lg font-Afacad font-semibold">
               {eventsForSelectedDate.length > 0 ? (
                 eventsForSelectedDate.map((event, index) => (
                   <li
@@ -339,7 +341,7 @@ const CalendarComponent = () => {
                             : "default-category"
                         }`}
                       >
-                        {event.typeofevent || "Unknown Category"}
+                        {event.typeofevent}
                       </span>
                       <span
                         className={`event-category ${
@@ -348,7 +350,7 @@ const CalendarComponent = () => {
                             : "default-category"
                         }`}
                       >
-                        {event.departments || "Unknown Category"}
+                        {event.status}
                       </span>
                       <span
                         className={`event-icon ${
@@ -387,21 +389,116 @@ const CalendarComponent = () => {
               <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
             </div>
             <div className="custom-modal-body">
-            {selectedEvent.departments && selectedEvent.departments.length > 0 && (
-  <div className="custom-modal-row">
-    <strong>Department:</strong>
-    <span className="custom-modal-value">
-      {selectedEvent.departments}
-    </span>
-  </div>
-)}
+              {selectedEvent.departments &&
+                selectedEvent.departments.length > 0 && (
+                  <div className="custom-modal-row">
+                    <strong>Department:</strong>
+                    <span className="custom-modal-value">
+                      {selectedEvent.departments}
+                    </span>
+                  </div>
+                )}
 
-        <div className="custom-modal-row">
-          <strong>Specification:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.departmentspecification}
-          </span>
-        </div>
+              <div className="custom-modal-row">
+                <strong>Specification:</strong>
+                <span
+                  onClick={() => {
+                    SetDepartmentPopup(!DepartmentPopup);
+                  }}
+                  className="custom-modal-value"
+                >
+                  view
+                </span>
+                {DepartmentPopup && (
+                  <div
+                    className="resource-popup-overlay"
+                    style={{
+                      zIndex: 9999,
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="resource-popup-content"
+                      style={{
+                        backgroundColor: "#fff",
+                        borderRadius: "10px",
+                        padding: "20px",
+                        width: "420px",
+                        height: "500px",
+                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+                        position: "relative",
+                      }}
+                    >
+                      <h2
+                        className="resource-popup-title"
+                        style={{
+                          marginBottom: "15px",
+                          color: "#333",
+                          fontSize: "1.5rem",
+                        }}
+                      >
+                        Departments In Detail
+                      </h2>
+                      <button
+                        className="custom-close-modal"
+                        onClick={closeResourcePopup}
+                        style={{
+                          position: "absolute",
+                          top: "10px",
+                          right: "15px",
+                          background: "none",
+                          border: "none",
+                          fontSize: "1.5rem",
+                          cursor: "pointer",
+                          color: "#999",
+                        }}
+                      >
+                        &times;
+                      </button>
+                      <div
+                        className="resource-person-list"
+                        style={{
+                          maxHeight: "400px",
+                          overflowY: "scroll",
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                        }}
+                      >
+                        {selectedEvent.departmentspecification.length > 0 ? (
+                          selectedEvent.departmentspecification.map(
+                            (dept, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="resource-person-row"
+                                  style={{
+                                    padding: "10px 0",
+                                    borderBottom: "1px solid #eee",
+                                  }}
+                                >
+                                  <h1>{dept}</h1>
+                                </div>
+                              );
+                            }
+                          )
+                        ) : (
+                          <p style={{ color: "#999", textAlign: "center" }}>
+                            No Specified Department available.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="custom-modal-row">
                 <strong>Venue:</strong>
                 <span className="custom-modal-value">
@@ -431,11 +528,12 @@ const CalendarComponent = () => {
                 </span>
               </div>
               <div className="custom-modal-row">
-  <strong>Time:</strong>
-  <span className="custom-modal-value">
-    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
-  </span>
-</div>
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
+                  {convertTo12HourFormat(selectedEvent.eventendtime)}
+                </span>
+              </div>
               <div className="custom-modal-row">
                 <strong>Event Type:</strong>
                 <span className="custom-modal-value">
@@ -446,149 +544,223 @@ const CalendarComponent = () => {
           </div>
         </div>
       )}
-      
+
       <div className="container absolute bottom-[-80%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
-      <h1 className="text-xl font-bold text-center text-black ">
-    Department Report Generator
-  </h1>
-  {errorMessage && (
-    <p className="text-red-600 text-center mt-1">{errorMessage}</p>
-  )}
-  
-  {/* Date Range Selection and Full Year Option */}
-  <div className="flex justify-between items-center space-x-4 mb-2">
-    {/* From Date */}
-    <div>
-      <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
-      <input
-        type="date"
-        value={fromDate}
-        onChange={(e) => setFromDate(e.target.value)}
-        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-        disabled={isFullYear}
-      />
-    </div>
-
-    {/* To Date */}
-    <div>
-      <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
-      <input
-        type="date"
-        value={toDate}
-        onChange={(e) => setToDate(e.target.value)}
-        className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-        disabled={isFullYear}
-      />
-    </div>
-
-    {/* Full Year Option */}
-    <div className="flex items-center space-x-2">
-      <input
-        type="checkbox"
-        checked={isFullYear}
-        onChange={handleFullYearChange}
-        className="form-checkbox h-4 w-4 text-green-600"
-      />
-      <label className="text-gray-700 text-xl font-semibold">Full Year</label>
-    </div>
-  </div>
-
-  {/* Department Selection */}
-  <div className="mb-2">
-    <h2 className="text-lg font-semibold text-gray-700 mb-2">Departments</h2>
-    <div className="flex flex-wrap gap-4">
-      {departmentOptions.map((department) => (
-        <div key={department.shortName} className="flex items-center font-bold space-x-2">
-          <input
-            type="checkbox"
-            value={department.shortName}
-            checked={departments.includes(department.fullName)}
-            onChange={handleDepartmentChange}
-            className="form-checkbox font-bold h-4 w-4 text-green-600"
-            disabled={departments.includes("All") && department.shortName !== "All"}
-          />
-          <span className="text-gray-700 font-bold text-lg">
-            {department.shortName}
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  {/* Year Selection */}
- {/* Year Selection */}
-<div className="mb-4 flex">
-  <h2 className="text-xl font-semibold text-gray-700 mb-2 pr-4">Year</h2>
-  <div className="flex gap-2">
-    {[1, 2, 3, 4, "All"].map((year) => (
-      <div key={year} className="flex items-center space-x-3"> {/* Adjusted space-x */}
-        <input
-          type="checkbox"
-          value={year}
-          checked={year === "All" ? selectedYears.length === 4 : selectedYears.includes(year)}
-          onChange={(e) => handleYearChange(e, year)}
-          className="form-checkbox h-4 w-4 text-green-600"
-          disabled={selectedYears.includes("All") && year !== "All"}
-        />
-        <label className="text-gray-700 text-lg">{year}</label>
-      </div>
-    ))}
-  </div>
-</div>
-
-
-  {/* Download Section */}
-  <div className="text-center mb-4 flex items-center space-x-4">
-    {showIcons && (
-      <>
-        <FaFilePdf
-          size={34}
-          color="#7312f1d3"
-          onClick={handleGeneratePDF}
-          className="cursor-pointer hover:scale-105 transition-transform duration-300"
-        />
-        <FaFileExcel
-          size={34}
-          color="#7312f1d3"
-          onClick={handleGeneratePDF}
-          className="cursor-pointer hover:scale-105 transition-transform duration-300"
-        />
-      </>
-    )}
-    <button
-      type="button"
-      onClick={handleDownloadClick}
-      className="focus:outline-none text-white bg-[#7312f1d3] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
-    >
-      {showIcons ? 'Hide' : 'Download'}
-    </button>
-  </div>
-</div>
-{isResourcePopupOpen && (
-  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
-      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
-      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
-        &times;
-      </button>
-      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {selectedEvent.resourceperson.length > 0 ? (
-          selectedEvent.resourceperson.map((person, index) => {
-            const [key, value] = Object.entries(person)[0];
-            return (
-              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
+        <h1 className="text-xl font-bold text-center text-black ">
+          Department Report Generator
+        </h1>
+        {errorMessage && (
+          <p className="text-red-600 text-center mt-1">{errorMessage}</p>
         )}
-      </div>
-    </div>
-  </div>
-)}
 
+        <div className="flex justify-between items-center space-x-4 mb-2">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear}
+            />
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
+              disabled={isFullYear}
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={isFullYear}
+              onChange={handleFullYearChange}
+              className="form-checkbox h-4 w-4 text-green-600"
+            />
+            <label className="text-gray-700 text-xl font-semibold">
+              Full Year
+            </label>
+          </div>
+        </div>
+
+        <div className="mb-2">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">
+            Departments
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            {departmentOptions.map((department) => (
+              <div
+                key={department.shortName}
+                className="flex items-center font-bold space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  value={department.shortName}
+                  checked={departments.includes(department.fullName)}
+                  onChange={handleDepartmentChange}
+                  className="form-checkbox font-bold h-4 w-4 text-green-600"
+                  disabled={
+                    departments.includes("All") &&
+                    department.shortName !== "All"
+                  }
+                />
+                <span className="text-gray-700 font-bold text-lg">
+                  {department.shortName}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-4 flex">
+          <h2 className="text-xl font-semibold text-gray-700 mb-2 pr-4">
+            Year
+          </h2>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, "All"].map((year) => (
+              <div key={year} className="flex items-center space-x-3">
+                {" "}
+                {/* Adjusted space-x */}
+                <input
+                  type="checkbox"
+                  value={year}
+                  checked={
+                    year === "All"
+                      ? selectedYears.length === 4
+                      : selectedYears.includes(year)
+                  }
+                  onChange={(e) => handleYearChange(e, year)}
+                  className="form-checkbox h-4 w-4 text-green-600"
+                  disabled={selectedYears.includes("All") && year !== "All"}
+                />
+                <label className="text-gray-700 text-lg">{year}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-center mb-4 flex items-center space-x-4">
+          {showIcons && (
+            <>
+              <FaFilePdf
+                size={34}
+                color="#7312f1d3"
+                onClick={handleGeneratePDF}
+                className="cursor-pointer hover:scale-105 transition-transform duration-300"
+              />
+              <FaFileExcel
+                size={34}
+                color="#7312f1d3"
+                onClick={handleGeneratePDF}
+                className="cursor-pointer hover:scale-105 transition-transform duration-300"
+              />
+            </>
+          )}
+          <button
+            type="button"
+            onClick={handleDownloadClick}
+            className="focus:outline-none text-white bg-[#7312f1d3] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
+          >
+            {showIcons ? "Hide" : "Download"}
+          </button>
+        </div>
+      </div>
+
+      {isResourcePopupOpen && (
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
+              &times;
+            </button>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

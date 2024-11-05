@@ -9,6 +9,9 @@
 .animated-scrollbar::-webkit-scrollbar {
   width: 8px; /* Increased the width slightly */
 }
+.text-left {
+  text-align: left;
+}
 
 .animated-scrollbar::-webkit-scrollbar-track {
   background: #f1f1f1;
@@ -44,12 +47,11 @@
   color: #555; /* Optional: changes the text color for better readability */
 }
 .custom-modal-title {
-  font-family: 'Bodoni Moda', serif; /* Use 'Stylish' if you prefer that font */
+  font-family: "Bodoni Moda", serif; /* Use 'Stylish' if you prefer that font */
   font-weight: 400; /* Adjust weight as needed */
   font-size: 24px; /* Adjust the size as needed */
   /* You can add other styles like color, margin, etc. */
 }
-
 
 .custom-modal-header {
   margin-bottom: 1rem; /* Adds space between the header and body */

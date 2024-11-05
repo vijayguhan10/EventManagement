@@ -3,9 +3,7 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
-  FaEdit,
-  FaTrashAlt,
-  FaTimes,
+ 
   FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
@@ -45,7 +43,6 @@ function Placement() {
   const [eventType, setEventType] = useState("All");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEventName, setDeleteEventName] = useState("");
-  const [events, setEvents] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
 
   const token = localStorage.getItem("authToken");
@@ -69,64 +66,64 @@ function Placement() {
   const handleeditCloseModal = () => {
     setIseditOpen(false);
     setSelectededitEvent(null);
-  };const handleOpeneditModal = (event) => {
+  };
+  const handleOpeneditModal = (event) => {
     console.log("ccvcccccccccc😤😤😤");
 
-    // Check if event is defined
     if (!event) {
-        console.error("Event is null or undefined");
-        return;
+      console.error("Event is null or undefined");
+      return;
     }
 
     function formatDate(date) {
-        const parts = date.split("/");
-        if (parts.length !== 3) {
-            console.error("Invalid date format:", date);
-            return "";
-        }
+      const parts = date.split("/");
+      if (parts.length !== 3) {
+        console.error("Invalid date format:", date);
+        return "";
+      }
 
-        const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
-        const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
+      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+      const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
 
-        const dateObj = new Date(formattedDate);
-        if (isNaN(dateObj)) {
-            console.error("Invalid date provided:", formattedDate);
-            return "";
-        }
+      const dateObj = new Date(formattedDate);
+      if (isNaN(dateObj)) {
+        console.error("Invalid date provided:", formattedDate);
+        return "";
+      }
 
-        return formattedDate;
+      return formattedDate;
     }
 
     // Check departments array
-    const departmentName = Array.isArray(event.departments) && event.departments.length > 0
+    const departmentName =
+      Array.isArray(event.departments) && event.departments.length > 0
         ? event.departments[0]
         : null;
 
     setSelectedEvent(event);
     setFormData({
-        eventname: event.eventname,
-        resourceperson: event.resourceperson || [], // Default to empty array if undefined
-        organizer: event.organizer,
-        venue: event.venue,
-        department: 
-            Array.isArray(departmentOptions) 
-                ? departmentOptions.find((dept) => dept.fullName === departmentName)?.shortName || "" 
-                : "",
-        eventstarttime: event.eventstarttime,
-        eventendtime: event.eventendtime,
-        eventstartdate: formatDate(event.eventstartdate),
-        eventenddate: formatDate(event.eventenddate),
-        typeofevent: event.typeofevent,
+      eventname: event.eventname,
+      resourceperson: event.resourceperson || [], // Default to empty array if undefined
+      organizer: event.organizer,
+      venue: event.venue,
+      department: Array.isArray(departmentOptions)
+        ? departmentOptions.find((dept) => dept.fullName === departmentName)
+            ?.shortName || ""
+        : "",
+      eventstarttime: event.eventstarttime,
+      eventendtime: event.eventendtime,
+      eventstartdate: formatDate(event.eventstartdate),
+      eventenddate: formatDate(event.eventenddate),
+      typeofevent: event.typeofevent,
     });
     setIseditOpen(true);
     console.log("edit button is clicked");
-};
-
+  };
 
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const closeResourcePopup = () => {
     setIsResourcePopupOpen(false);
-  }
+  };
   useEffect(() => {
     fetchData();
   }, []);
@@ -322,17 +319,12 @@ function Placement() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <button
-              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
-                new Date(event.eventenddate) < new Date()
-                  ? "bg-[#2cef5d]"
-                  : "bg-[#f92d2d]"
-              }`}
+            <h1
+              className="mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                   bg-[#f92d2d]"
             >
-              {new Date(event.eventenddate) < new Date()
-                ? "Completed"
-                : "Not Completed"}
-            </button>
+              Not Completed
+            </h1>
             <img
               className="w-96 h-40 rounded-lg"
               src={event.imageurl}
@@ -604,29 +596,94 @@ function Placement() {
         </div>
       )}
       {isResourcePopupOpen && (
-  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
-      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
-      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
-        &times;
-      </button>
-      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {selectedEvent.resourceperson.length > 0 ? (
-          selectedEvent.resourceperson.map((person, index) => {
-            const [key, value] = Object.entries(person)[0];
-            return (
-              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
+              &times;
+            </button>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer />
     </div>
   );
