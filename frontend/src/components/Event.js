@@ -3,9 +3,7 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
-  FaEdit,
-  FaTrashAlt,
-  FaTimes,
+
   FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
@@ -14,6 +12,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
+import Popup2 from "../PopupModels/Popup2";
 
 const departmentOptions = [
   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -36,6 +35,7 @@ const departmentOptions = [
 ];
 function Placement() {
   const [numResourcePersons, setNumResourcePersons] = useState(0);
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [iseditOpen, setIseditOpen] = useState(false);
@@ -49,7 +49,9 @@ function Placement() {
   const [deleteEventName, setDeleteEventName] = useState("");
   const [events, setEvents] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
-
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const handleshow = () => {
@@ -102,12 +104,6 @@ function Placement() {
 
       return formattedDate;
     }
-
-    // Check departments array
-    const departmentName =
-      Array.isArray(event.departments) && event.departments.length > 0
-        ? event.departments[0]
-        : null;
 
     setSelectedEvent(event);
     console.log("event.resourceperson", event.resourceperson);
@@ -554,80 +550,15 @@ function Placement() {
       )}
 
       {isOpen && selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={handleCloseModal}>
-              &times;
-            </button>
-            <img
-              src={selectedEvent.imageurl}
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <div className="custom-modal-header">
-              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            </div>
-            <div className="custom-modal-body">
-              {selectedEvent.departments &&
-                selectedEvent.departments.length > 0 && (
-                  <div className="custom-modal-row">
-                    <strong>Department:</strong>
-                    <span className="custom-modal-value">
-                      {selectedEvent.departments}
-                    </span>
-                  </div>
-                )}
-
-              <div className="custom-modal-row">
-                <strong>Specification:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departmentspecification}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Venue:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.venue}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  <button onClick={handleViewResourcePersons}>View</button>
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Year:</strong>
-                <span className="custom-modal-value">{selectedEvent.year}</span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Start Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstartdate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event End Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventenddate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
-                  {convertTo12HourFormat(selectedEvent.eventendtime)}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Type:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.typeofevent}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
       )}
       {iseditOpen && (
         <div

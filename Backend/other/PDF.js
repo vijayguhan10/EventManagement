@@ -1,6 +1,8 @@
 const { jsPDF } = require("jspdf");
 const Event = require("../Schema/EventSchema");
 const moment = require("moment");
+const axios = require("axios");
+
 const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   const doc = new jsPDF();
 
@@ -10,15 +12,18 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   doc.text("Coimbatore", 10, 18);
 
   const imageUrl =
-    "https://jgkfab.p3cdn1.secureserver.net/wp-content/uploads/2024/05/Sri-Eshwar-College-Of-Engineering-Coimbatore.png";
-  const image = await fetch(imageUrl)
-    .then((res) => res.arrayBuffer())
-    .then((buffer) => Buffer.from(buffer));
-
-  doc.addImage(image, "PNG", 160, 5, 40, 20); 
+    "https://digri.ai/wp-content/uploads/2023/12/Logo-2-768x258.png";
+  try {
+    const image = await axios
+      .get(imageUrl, { responseType: "arraybuffer" })
+      .then((response) => Buffer.from(response.data, "binary"));
+    doc.addImage(image, "PNG", 160, 5, 40, 20);
+  } catch (error) {
+    console.error("Error fetching the image:", error);
+  }
 
   doc.setFontSize(18);
-  doc.setTextColor(0, 102, 204); 
+  doc.setTextColor(0, 102, 204);
   doc.text(
     `Events Report for ${
       fromDate && toDate ? `${fromDate} to ${toDate}` : "All Events"
@@ -26,31 +31,25 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
     10,
     40
   );
-  doc.setFontSize(12);
 
   let y = 50;
   const pageHeight = doc.internal.pageSize.height;
-
-  filteredEvents.sort((a, b) => {
-    const deptA = Array.isArray(a.departments) ? a.departments[0] : a.departments;
-    const deptB = Array.isArray(b.departments) ? b.departments[0] : b.departments;
-    return deptA.localeCompare(deptB);
-  });
+  filteredEvents.sort((a, b) =>
+    a.departments[0].localeCompare(b.departments[0])
+  );
 
   let currentDepartment = "";
 
   filteredEvents.forEach((event, index) => {
-    const eventDepartment = Array.isArray(event.departments) ? event.departments[0] : event.departments;
+    const eventDepartment = event.departments[0];
 
     if (eventDepartment !== currentDepartment) {
       currentDepartment = eventDepartment;
-
       doc.setFontSize(16);
       doc.setFont("Helvetica", "bold");
       doc.setTextColor(0, 0, 0);
       doc.text(`${currentDepartment} Department`, 105, y, { align: "center" });
       y += 10;
-
       if (y + 110 > pageHeight) {
         doc.addPage();
         y = 10;
@@ -70,13 +69,13 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
     doc.setFontSize(12);
     doc.setFont("Helvetica", "normal");
 
-    doc.setDrawColor(0, 102, 204); 
+    doc.setDrawColor(0, 102, 204);
     doc.rect(10, y + 2, 190, 110);
 
     doc.text(`Department: ${event.departments.join(", ")}`, 20, y + 10);
     doc.text(`Title: ${event.eventname}`, 20, y + 20);
     doc.text(`Organizer: ${event.organizer}`, 20, y + 30);
-    doc.text(`Resource Person: ${event.resourceperson}`, 20, y + 40);
+    doc.text(`Resource Person: ${event.resourceperson.join(", ")}`, 20, y + 40);
     doc.text(`Start Date: ${event.eventstartdate}`, 20, y + 50);
     doc.text(`End Date: ${event.eventenddate}`, 20, y + 60);
     doc.text(`Start Time: ${event.eventstarttime}`, 20, y + 70);
@@ -88,7 +87,6 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
     y += 120;
   });
 
-  
   const pdfOutput = doc.output("arraybuffer");
   const buffer = Buffer.from(pdfOutput);
 
@@ -99,6 +97,7 @@ const PdfConversion = async (filteredEvents, fromDate, toDate, res) => {
   );
   res.send(buffer);
 };
+
 exports.generatePdf = async (req, res) => {
   try {
     const { fromDate, toDate, departments, year, fullYear } = req.query;
@@ -106,15 +105,23 @@ exports.generatePdf = async (req, res) => {
 
     const events = await Event.find({});
     const currentDate = moment();
-    const oneYearAgo = currentDate.clone().subtract(1, "year").format("YYYY-MM-DD");
+    const oneYearAgo = currentDate
+      .clone()
+      .subtract(1, "year")
+      .format("YYYY-MM-DD");
 
     const filteredEvents = events.filter((event) => {
-      const eventStartDate = moment(event.eventstartdate, "DD/MM/YYYY").format("YYYY-MM-DD");
-      const eventYear = event.year.toString(); 
+      const eventStartDate = moment(event.eventstartdate, "DD/MM/YY").format(
+        "YYYY-MM-DD"
+      );
+      const eventYear = event.year; // Using event's "year" field as per provided structure
       const eventDepartment = event.departments;
 
       if (isNaN(new Date(eventStartDate).getTime())) {
-        console.error("Invalid date format in the database for event:", event.eventstartdate);
+        console.error(
+          "Invalid date format in the database for event:",
+          event.eventstartdate
+        );
         return false;
       }
 
@@ -136,16 +143,14 @@ exports.generatePdf = async (req, res) => {
 
       // Year filtering logic: Handle "All" case and specific years
       if (year !== "All") {
-        if (!(year.includes('1') && year.includes('2') && year.includes('3') && year.includes('4'))) {
-          if (!year.includes(eventYear)) {
-            return false;
-          }
+        if (!year.includes(eventYear)) {
+          return false;
         }
       }
 
       // Department filtering
       if (departments && !departments.includes("All")) {
-        if (!eventDepartment.some(dep => departments.includes(dep))) {
+        if (!eventDepartment.some((dep) => departments.includes(dep))) {
           return false;
         }
       }
