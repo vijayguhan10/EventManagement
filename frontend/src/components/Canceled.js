@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaCalendar,
-  FaSearchLocation,
-  FaSearch,
-  FaTimes,
-} from "react-icons/fa";
+import { FaCalendar, FaSearchLocation, FaSearch } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
-
+import Popup2 from "../PopupModels/Popup2";
 function History() {
   const [isOpen, setIsOpen] = useState(false);
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
+
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,12 +15,15 @@ function History() {
   const [eventType, setEventType] = useState("All");
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
   const convertTo12HourFormat = (time) => {
-    if (!time) return '';
-    let [hours, minutes] = time.split(':');
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; 
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
     return `${hours}:${minutes} ${ampm}`;
   };
   useEffect(() => {
@@ -33,8 +33,7 @@ function History() {
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
         const filteredData = response.data.eventdata.filter(
-          (elem) =>
-          elem.status === "decline"
+          (elem) => elem.status === "decline"
         );
         console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
         setData(filteredData);
@@ -51,7 +50,7 @@ function History() {
   };
   const closeResourcePopup = () => {
     setIsResourcePopupOpen(false);
-  }
+  };
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
 
   const datafetch = (event) => {
@@ -152,7 +151,6 @@ function History() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-           
             <img
               className="w-96 h-40 rounded-lg"
               src={event.imageurl}
@@ -192,95 +190,105 @@ function History() {
       </div>
 
       {isOpen && selectedEvent && (
-  <div className="custom-modal-overlay">
-    <div className="custom-modal-content">
-      <button className="custom-close-modal" onClick={handleCloseModal}>
-        &times;
-      </button>
-      <img
-        src={selectedEvent.imageurl}
-        alt="Event"
-        className="custom-modal-image"
-      />
-      <div className="custom-modal-header">
-        <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-      </div>
-      <div className="custom-modal-body">
-      {selectedEvent.departments && selectedEvent.departments.length > 0 && (
-  <div className="custom-modal-row">
-    <strong>Department:</strong>
-    <span className="custom-modal-value">
-      {selectedEvent.departments}
-    </span>
-  </div>
-)}
-
-        <div className="custom-modal-row">
-          <strong>Specification:</strong>
-          <span className="custom-modal-value">
-            {selectedEvent.departmentspecification}
-          </span>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
+      )}
+      {isResourcePopupOpen && (
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
+              &times;
+            </button>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="custom-modal-row">
-          <strong>Venue:</strong>
-          <span className="custom-modal-value">{selectedEvent.venue}</span>
-        </div>
-        <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  <button onClick={handleViewResourcePersons}>View</button>
-                </span>
-              </div>
-        <div className="custom-modal-row">
-          <strong>Year:</strong>
-          <span className="custom-modal-value">{selectedEvent.year}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event Start Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventstartdate}</span>
-        </div>
-        <div className="custom-modal-row">
-          <strong>Event End Date:</strong>
-          <span className="custom-modal-value">{selectedEvent.eventenddate}</span>
-        </div>
-        <div className="custom-modal-row">
-  <strong>Time:</strong>
-  <span className="custom-modal-value">
-    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
-  </span>
-</div>
-        <div className="custom-modal-row">
-          <strong>Event Type:</strong>
-          <span className="custom-modal-value">{selectedEvent.typeofevent}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-{isResourcePopupOpen && (
-  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
-      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
-      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
-        &times;
-      </button>
-      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {selectedEvent.resourceperson.length > 0 ? (
-          selectedEvent.resourceperson.map((person, index) => {
-            const [key, value] = Object.entries(person)[0];
-            return (
-              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }

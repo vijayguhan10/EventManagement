@@ -3,9 +3,7 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
-  FaEdit,
-  FaTrashAlt,
-  FaTimes,
+
   FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
@@ -14,6 +12,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
+import Popup2 from "../PopupModels/Popup2";
 
 const departmentOptions = [
   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -36,6 +35,7 @@ const departmentOptions = [
 ];
 function Placement() {
   const [numResourcePersons, setNumResourcePersons] = useState(0);
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [iseditOpen, setIseditOpen] = useState(false);
@@ -49,7 +49,9 @@ function Placement() {
   const [deleteEventName, setDeleteEventName] = useState("");
   const [events, setEvents] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
-
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const handleshow = () => {
@@ -102,12 +104,6 @@ function Placement() {
 
       return formattedDate;
     }
-
-    // Check departments array
-    const departmentName =
-      Array.isArray(event.departments) && event.departments.length > 0
-        ? event.departments[0]
-        : null;
 
     setSelectedEvent(event);
     console.log("event.resourceperson", event.resourceperson.length);
@@ -559,80 +555,15 @@ function Placement() {
       )}
 
       {isOpen && selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={handleCloseModal}>
-              &times;
-            </button>
-            <img
-              src={selectedEvent.imageurl}
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <div className="custom-modal-header">
-              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            </div>
-            <div className="custom-modal-body">
-              {selectedEvent.departments &&
-                selectedEvent.departments.length > 0 && (
-                  <div className="custom-modal-row">
-                    <strong>Department:</strong>
-                    <span className="custom-modal-value">
-                      {selectedEvent.departments}
-                    </span>
-                  </div>
-                )}
-
-              <div className="custom-modal-row">
-                <strong>Specification:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departmentspecification}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Venue:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.venue}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  <button onClick={handleViewResourcePersons}>View</button>
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Year:</strong>
-                <span className="custom-modal-value">{selectedEvent.year}</span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Start Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstartdate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event End Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventenddate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
-                  {convertTo12HourFormat(selectedEvent.eventendtime)}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Type:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.typeofevent}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
       )}
       {iseditOpen && (
         <div
@@ -890,96 +821,7 @@ function Placement() {
           </div>
         </div>
       )}
-      {resourcePersonModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-[1000] bg-black bg-opacity-50">
-          <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-            {/* Close and Refresh Buttons */}
-            <button
-              type="button"
-              onClick={() => setResourcePersonModalOpen(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
-            >
-              &times;
-            </button>
-
-            <h2 className="text-2xl font-bold mb-4 flex items-center">
-              Enter Resource Persons
-              <button
-                type="button"
-                onClick={handleRefreshResourcePersons}
-                className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                title="Refresh"
-              >
-                &#8635;
-              </button>
-            </h2>
-
-            {formData.resourceperson.map((person, index) => (
-              <div key={index} className="mb-4 relative">
-                {console.log("😎😎😎😎😎😪😪", person)}
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-semibold">{index + 1}.</span>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteResourcePerson(index)}
-                    className="text-red-500 hover:text-red-700 text-xl font-bold"
-                  >
-                    &times;
-                  </button>
-                </div>
-
-                <input
-                  type="text"
-                  placeholder="Resource Person Name"
-                  value={person.name}
-                  onChange={(e) =>
-                    handleResourcePersonDetailChange(
-                      index,
-                      "name",
-                      e.target.value
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                />
-                {validationErrors.includes(index) && !person.name && (
-                  <p className="text-red-500 text-xl mt-1">
-                    Please enter a name.
-                  </p>
-                )}
-
-                <input
-                  type="text"
-                  placeholder="Specialization"
-                  value={person.specialization}
-                  onChange={(e) =>
-                    handleResourcePersonDetailChange(
-                      index,
-                      "specialization",
-                      e.target.value
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-                {validationErrors.includes(index) && !person.specialization && (
-                  <p className="text-red-500 text-xl mt-1">
-                    Please enter a specialization.
-                  </p>
-                )}
-              </div>
-            ))}
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleSaveResourcePersons}
-                className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+     
       <ToastContainer />
     </div>
   );

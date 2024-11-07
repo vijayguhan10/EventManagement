@@ -107,12 +107,14 @@ const ExcelConversion = async (req, res) => {
 
     // Sort and add data rows
     filteredEvents.sort((a, b) => {
-      const deptA = Array.isArray(a.departments)
-        ? a.departments[0]
-        : a.departments;
-      const deptB = Array.isArray(b.departments)
-        ? b.departments[0]
-        : b.departments;
+      const deptA =
+        Array.isArray(a.departments) && a.departments[0]
+          ? a.departments[0]
+          : "";
+      const deptB =
+        Array.isArray(b.departments) && b.departments[0]
+          ? b.departments[0]
+          : "";
       return deptA.localeCompare(deptB);
     });
 

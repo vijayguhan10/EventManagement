@@ -136,6 +136,32 @@ const CalendarComponent = () => {
       console.error("Error fetching PDF:", error);
     }
   };
+  const downloadExcelReport = async () => {
+    const selectedData = {
+      departments: departments,
+      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
+      year: selectedYears.includes("All") ? "All" : selectedYears,
+    };
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/event/generateExcel-sheet`,
+        {
+          params: selectedData,
+          responseType: "blob",
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "events-report.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading Excel report:", error);
+    }
+  };
 
   const onClickDay = (value) => {
     setSelectedDate(value);
@@ -449,7 +475,7 @@ const CalendarComponent = () => {
               <FaFileExcel
                 size={34}
                 color="#7312f1d3"
-                onClick={handleGeneratePDF}
+                onClick={downloadExcelReport}
                 className="cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </>
