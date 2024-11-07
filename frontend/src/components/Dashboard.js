@@ -52,16 +52,15 @@ const Dashboard = () => {
       if (event.target.checked) {
         setSelectedYears([1, 2, 3, 4]);
       } else {
-        // When "All" is deselected, clear the state
+       
         setSelectedYears([]);
       }
     } else {
       setSelectedYears((prevSelected) => {
         if (prevSelected.includes(year)) {
-          // If a specific year is deselected
+
           return prevSelected.filter((y) => y !== year);
         } else {
-          // If a specific year is selected
           return [...prevSelected, year].filter((y) => y !== "All"); // Remove "All" if selecting individual years
         }
       });
@@ -236,7 +235,61 @@ const Dashboard = () => {
 
     return eventStartDate <= today && eventEndDate >= today;
   });
-
+  const [products, setProducts] = useState([
+    { name: "Artificial Intelligence and Data Science" },
+    { name: "Artificial Intelligence and Machine Learning" },
+    { name: "Computer Science Engineering" },
+    { name: "Computer Science and Business Systems" },
+    { name: "Computer and Communication Engineering" },
+    { name: "Cybersecurity" },
+    { name: "Electrical and Electronics Engineering" },
+    { name: "Electronics and Communication Engineering" },
+    { name: "Information Technology" },
+    { name: "Mechanical Engineering" }
+  ]);
+  const departmentNameMapping = {
+    "Artificial Intelligence and Data Science": "AI & DS",
+    "Artificial Intelligence and Machine Learning": "AI & ML",
+    "Computer Science Engineering": "CSE",
+    "Computer Science and Business Systems": "CSBS",
+    "Computer and Communication Engineering": "CCE",
+    "Cybersecurity": "Cyber",
+    "Electrical and Electronics Engineering": "EEE",
+    "Electronics and Communication Engineering": "ECE",
+    "Information Technology": "IT",
+    "Mechanical Engineering": "MECH",
+  };
+  const [dataPoints, setDataPoints] = useState([]);
+  useEffect(() => {
+    const getCount = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
+        );
+        const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
+  
+        const updatedDataPoints = products.map((product) => {
+          const departmentName = product.name;
+          const shortName = departmentNameMapping[departmentName] || departmentName;
+          const count = totalCountsDept[departmentName] || 0;
+  
+          return {
+            label: shortName,
+            y: count
+          };
+        });
+  
+        setDataPoints(updatedDataPoints);
+      } catch (error) {
+        console.error("Error fetching department counts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    setLoading(true);
+    getCount();
+  }, [products]);
   const pieChartOptions = {
     exportEnabled: true,
     animationEnabled: true,
@@ -247,23 +300,12 @@ const Dashboard = () => {
       {
         type: "pie",
         startAngle: 75,
-        toolTipContent: "<b>{label}</b>: {y}%",
-        showInLegend: "true",
+        toolTipContent: "<b>{label}</b>: {y} events",
+        showInLegend: true,
         legendText: "{label}",
         indexLabelFontSize: 16,
-        indexLabel: "{label} - {y}%",
-        dataPoints: [
-          { y: 10, label: "CSE" },
-          { y: 3, label: "IT" },
-          { y: 6, label: "AIDS" },
-          { y: 5.9, label: "CCE" },
-          { y: 4, label: "CSBS" },
-          { y: 6, label: "CYBER" },
-          { y: 7, label: "ECE" },
-          { y: 2, label: "EEE" },
-          { y: 8, label: "MECH" },
-          { y: 7.09, label: "AIML" },
-        ],
+        indexLabel: "{label} - {y} events",
+        dataPoints: dataPoints
       },
     ],
   };

@@ -187,19 +187,17 @@ function Placement() {
     );
   };
 
-  const handleResourcePersonDetailChange = (index, key, value) => {
-    setFormData((prevData) => {
-      const updatedResourcePersons = [...prevData.resourceperson];
-      updatedResourcePersons[index] = {
-        ...updatedResourcePersons[index],
-        [key]: value,
+  const handleResourcePersonDetailChange = (index, field, value) => {
+    setFormData((prevFormData) => {
+      const updatedResourcePerson = [...prevFormData.resourceperson];
+      updatedResourcePerson[index] = {
+        ...updatedResourcePerson[index],
+        [field]: value,
       };
-      return {
-        ...prevData,
-        resourceperson: updatedResourcePersons,
-      };
+      return { ...prevFormData, resourceperson: updatedResourcePerson };
     });
   };
+  
 
   const [validationErrors, setValidationErrors] = useState([]);
   const handleSaveResourcePersons = () => {
@@ -842,7 +840,8 @@ function Placement() {
 
             {formData.resourceperson.map((person, index) => (
               <div key={index} className="mb-4 relative">
-                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}
+                {console.log("form data hwile opening",formData)}
+                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}  
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-lg font-semibold">{index + 1}.</span>
                   <button
@@ -854,14 +853,14 @@ function Placement() {
                   </button>
                 </div>
 
-                <input
+                  <input
                   type="text"
                   placeholder="Resource Person Name"
                   value={person.name}
                   onChange={(e) =>
                     handleResourcePersonDetailChange(
                       index,
-                      "name", 
+                      "name",
                       e.target.value
                     )
                   }
