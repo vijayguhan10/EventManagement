@@ -110,20 +110,21 @@ function Placement() {
         : null;
 
     setSelectedEvent(event);
-    console.log("event.resourceperson", event.resourceperson.length);
+    console.log("event.resourceperson", event.resourceperson);
     setresoucep(event.resourceperson.length);
     setrealresourceperson(event.resourceperson.length);
     setFormData({
       eventname: event.eventname,
       resourceperson: Array.isArray(event.resourceperson)
-        ? event.resourceperson.map((person) => ({
-            name: person.name,
-            specialization: person.specialization,
-          }))
+        ? event.resourceperson.map((person) => {
+            const name = Object.keys(person)[0];
+            const specialization = person[name];
+            return { name, specialization };
+          })
         : [],
       organizer: event.organizer,
       venue: event.venue,
-      departments: event.departments || [], // Assuming departments need to be passed too
+      departments: event.departments || [],
       departmentspecification: event.departmentspecification || [],
       eventstarttime: event.eventstarttime,
       eventendtime: event.eventendtime,
@@ -190,22 +191,16 @@ function Placement() {
     );
   };
 
-  const handleResourcePersonDetailChange = (index, field, value) => {
-    setFormData((prevFormData) => {
-      // Ensure the `resourceperson` array exists and has the correct length
-      const updatedResourcePerson = [...prevFormData.resourceperson];
-
-      // Check if the index exists, if not, create a new entry
-      if (!updatedResourcePerson[index]) {
-        updatedResourcePerson[index] = { name: "", specialization: "" };
-      }
-
-      // Update the specific field
-      updatedResourcePerson[index][field] = value;
-
+  const handleResourcePersonDetailChange = (index, key, value) => {
+    setFormData((prevData) => {
+      const updatedResourcePersons = [...prevData.resourceperson];
+      updatedResourcePersons[index] = {
+        ...updatedResourcePersons[index],
+        [key]: value,
+      };
       return {
-        ...prevFormData,
-        resourceperson: updatedResourcePerson,
+        ...prevData,
+        resourceperson: updatedResourcePersons,
       };
     });
   };
@@ -916,7 +911,7 @@ function Placement() {
 
             {formData.resourceperson.map((person, index) => (
               <div key={index} className="mb-4 relative">
-                {console.log("😎😎😎😎😎😪😪", person)}
+                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-lg font-semibold">{index + 1}.</span>
                   <button
@@ -935,7 +930,7 @@ function Placement() {
                   onChange={(e) =>
                     handleResourcePersonDetailChange(
                       index,
-                      "name",
+                      "name", 
                       e.target.value
                     )
                   }

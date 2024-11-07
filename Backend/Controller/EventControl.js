@@ -255,7 +255,7 @@ exports.updateevent = async (req, res) => {
       departments,
       typeofevent,
     } = req.body;
-
+console.log("consoling the updaegt",req.body);
     const st_date = formatDate(eventstartdate);
     const end_date = formatDate(eventenddate);
     const userId = req.userId;
