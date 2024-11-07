@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaCalendar,
-  FaSearchLocation,
-  FaSearch,
-  FaEdit,
-  FaTrashAlt,
-  FaTimesCircle,
-} from "react-icons/fa";
+import { FaCalendar, FaSearch, FaTimesCircle } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../editmodal.css";
 import axios from "axios";
 import "../Calender.css";
 import { toast, ToastContainer } from "react-toastify";
+import Popup1 from "../PopupModels/Popup1";
+import Popup2 from "../PopupModels/Popup2";
 const today = new Date();
 
 const products = [
@@ -102,9 +97,10 @@ function Departments() {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date("2024-10-14"));
   const [isEventListOpen, setIsEventListOpen] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteEventName, setDeleteEventName] = useState("");
-  const[selecteddepartment,setdepartment]=useState("");
+  
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
+
+  const [selecteddepartment, setdepartment] = useState("");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -127,37 +123,15 @@ function Departments() {
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-  const handleDelete = async () => {
-    if (deleteEventName === selectedEvent.eventname) {
-      try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
-          { eventid: selectedEvent._id }
-        );
-        // console.log(response.data, "after deletion 😎😎😎");
-        const updatedEvents = events.filter((e) => e._id !== selectedEvent._id);
-        setEvents(updatedEvents);
-        toast.success("Event deleted successfully!");
-      } catch (error) {
-        toast.error("Failed to delete the event.");
-      }
-      setShowDeleteModal(false);
-      setDeleteEventName("");
-      handleCloseModal();
-      setSelectedEventclose(null);
-    } else {
-      alert("Event name does not match. Please try again.");
-    }
-  };
   const handleViewResourcePersons = () => {
     setIsResourcePopupOpen(true);
   };
   const closeResourcePopup = () => {
+    SetDepartmentPopup(false);
     setIsResourcePopupOpen(false);
-  }
-  
-  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+  };
 
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -190,49 +164,16 @@ function Departments() {
     } catch (error) {
       handleCloseModal();
       toast.error(error.message);
-      // console.error("Error updating event:", error);
     }
   };
 
-  const handleOpeneditModal = (event) => {
-    function formatDate(date) {
-      const parts = date.split("/");
-      if (parts.length !== 3) {
-        // console.error("Invalid date format:", date);
-        return "";
-      }
-      const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
-      const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
-      const dateObj = new Date(formattedDate);
-      if (isNaN(dateObj)) {
-        // console.error("Invalid date provided:", formattedDate);
-        return "";
-      }
-      return formattedDate;
-    }
-    setSelectedEvent(event);
-    setFormData({
-      eventname: event.eventname,
-      resourceperson: event.resourceperson,
-      organizer: event.organizer,
-      venue: event.venue,
-      department:
-        departmentOptions.find((dept) => dept.fullName === event.departments[0])
-          ?.shortName || "",
-      eventstarttime: event.eventstarttime,
-      eventendtime: event.eventendtime,
-      eventstartdate: formatDate(event.eventstartdate),
-      eventenddate: formatDate(event.eventenddate),
-      typeofevent: event.typeofevent,
-    });
-    setIsOpen(true);
-  };
+
   const convertTo12HourFormat = (time) => {
     if (!time) return "";
     let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
     const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    hours = hours % 12 || 12; 
     return `${hours}:${minutes} ${ampm}`;
   };
   useEffect(() => {
@@ -242,7 +183,6 @@ function Departments() {
           `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
         );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
-        // console.log("count of events are,🔴🔴🔴 ", totalCountsDept);
         const updatedProducts = products.map((product) => {
           const departmentName = product.name;
           const count = totalCountsDept[departmentName] || 0;
@@ -253,18 +193,13 @@ function Departments() {
         });
         setData(updatedProducts);
       } catch (error) {
-        // console.error("Error fetching department counts: ", error);
       }
     };
     setLoading(true);
     getCount();
-  }, []); // Merged useEffect for fetching department counts
+  }, []); 
 
-  const handleDeleteConfirmation = (event) => {
-    setSelectedEvent(event);
-    // setSelectedEventclose(null)
-    setShowDeleteModal(true);
-  };
+  
   const closeEventModal = () => {
     setSelectedEventclose(null);
   };
@@ -312,17 +247,7 @@ function Departments() {
     setSearchTerm(e.target.value);
   };
 
-  const eventsForSelectedDate = events.filter(
-    (event) =>
-      new Date(event.date).toLocaleDateString() ===
-      selectedDate.toLocaleDateString()
-  );
 
-  const filteredProducts = products.filter((dept) =>
-    dept.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // console.log("Filtered Products:❤️‍🔥❤️‍🔥❤️‍🔥", filteredProducts);
 
   if (!loading) {
     return (
@@ -396,190 +321,26 @@ function Departments() {
           </div>
         ))}
       </div>
-      {/* Event List Modal */}
       {isEventListOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-modal" onClick={closeEventList}>
-              &times;
-            </button>
-            {/* <h2 className="modal-date-title">
-              Events for{" "}
-              {selectedDate.toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </h2> */}
-            <h2 className="modal-date-title">
-              Events pending for {selecteddepartment}
-            </h2>
-            <ul className="event-list">
-              {events.length > 0 ? (
-                events.filter((event) => event.status === "pending").length >
-                0 ? (
-                  events
-                    .filter((event) => event.status === "pending") // Filter for pending events
-                    .map((event, index) => (
-                      <li
-                        key={index}
-                        className="event-item"
-                        onClick={() => openEventModal(event)}
-                      >
-                        <div className="event-row">
-                          <span className="event-name">{event.eventname}</span>
-                          <span
-                            className={`event-category ${event.typeofevent.toLowerCase()}`}
-                          >
-                            {event.typeofevent}{" "}
-                            {/* Use typeofevent instead of type */}
-                          </span>
-                          <span
-                            className={`event-icon ${event.typeofevent.toLowerCase()}`}
-                          >
-                            {event.typeofevent === "Technical" ? "📘" : "📕"}
-                          </span>
-                        </div>
-                        <hr className="event-divider" />
-                      </li>
-                    ))
-                ) : (
-                  <p>No pending events available.</p>
-                )
-              ) : (
-                <p>No events available.</p> // Message when no events at all
-              )}
-            </ul>
-          </div>
-        </div>
+        <Popup1
+          eventsForSelectedDate={events.filter(
+            (event) => event.status === "pending"
+          )}
+          selectedDate={selectedDate}
+          closeEventList={closeEventList}
+          openEventModal={openEventModal}
+        />
       )}
-      {/* Event Modal */}
       {selectedEventclose && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={closeEventModal}>
-              &times;
-            </button>
-            <img
-              src={selectedEventclose.imageurl}
-              alt={selectedEventclose.eventname}
-              className="custom-modal-image"
-            />
-            <div className="custom-modal-header">
-              <h2 className="custom-modal-title">
-                {selectedEventclose.eventname}
-              </h2>
-            </div>
-            <div className="custom-modal-body">
-              {selectedEventclose.departments &&
-                selectedEventclose.departments.length > 0 && (
-                  <div className="custom-modal-row">
-                    <strong>Department:</strong>
-                    <span className="custom-modal-value">
-                      {selectedEventclose.departments}
-                    </span>
-                  </div>
-                )}
-
-              <div className="custom-modal-row">
-                <strong>Specification:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.departmentspecification}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Venue:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.venue}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  <button onClick={handleViewResourcePersons}>View</button>
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Year:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.year}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Start Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.eventstartdate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event End Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.eventenddate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {convertTo12HourFormat(selectedEventclose.eventstarttime)} to{" "}
-                  {convertTo12HourFormat(selectedEventclose.eventendtime)}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Type:</strong>
-                <span className="custom-modal-value">
-                  {selectedEventclose.typeofevent}
-                </span>
-              </div>
-            </div>
-            {showDeleteModal && selectedEvent && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-                  <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-                  <p>
-                    Are you sure you want to delete the event{" "}
-                    <strong>{selectedEventclose.eventname}</strong>? Type the
-                    event name to confirm:
-                  </p>
-                  <input
-                    type="text"
-                    value={deleteEventName}
-                    onChange={(e) => setDeleteEventName(e.target.value)}
-                    className="border rounded p-2 w-full mt-2"
-                  />
-                  <div className="flex justify-end mt-4">
-                    <button
-                      className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      className="bg-gray-500 text-white rounded px-4 py-2"
-                      onClick={() => setShowDeleteModal(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            {/* Button Container */}
-            <div className="custom-modal-buttons flex justify-between mt-4">
-              <button
-                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-                onClick={() => handleOpeneditModal(selectedEventclose)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-violet-800 text-xl font-Afacad text-white font-bold rounded-md w-28"
-                onClick={() => handleDeleteConfirmation(selectedEventclose)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
       )}
 
       {isOpen && (
@@ -638,7 +399,6 @@ function Departments() {
                 </select>
               </label>
 
-              {/* Radio Buttons for Type of Event */}
               <fieldset className="mb-4">
                 <legend className="text-gray-700">Type of Event:</legend>
                 {["Technical", "Nontechnical", "Placement"].map((type) => (
@@ -692,30 +452,7 @@ function Departments() {
           </div>
         </div>
       )}
-      {isResourcePopupOpen && (
-  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
-      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
-      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
-        &times;
-      </button>
-      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {selectedEventclose.resourceperson.length > 0 ? (
-          selectedEventclose.resourceperson.map((person, index) => {
-            const [key, value] = Object.entries(person)[0];
-            return (
-              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+     
       <ToastContainer />
     </div>
   );

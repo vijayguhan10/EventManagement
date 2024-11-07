@@ -34,10 +34,7 @@ function History() {
         `${process.env.REACT_APP_BASE_URL}/event/getalldata`
       );
       const filteredData = response.data.eventdata.filter(
-        (elem) =>
-          ["Placement", "Technical", "Nontechnical"].includes(
-            elem.typeofevent
-          ) && elem.status === "completed"
+        (elem) => elem.status === "completed"
       );
       console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvv : ", filteredData);
       setData(filteredData);
@@ -48,10 +45,10 @@ function History() {
     }
   };
   const convertTo12HourFormat = (time) => {
-    if (!time) return '';
-    let [hours, minutes] = time.split(':');
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
     return `${hours}:${minutes} ${ampm}`;
   };
@@ -77,8 +74,8 @@ function History() {
   };
   const closeResourcePopup = () => {
     setIsResourcePopupOpen(false);
-  }
-  
+  };
+
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
 
   const handleOpenModal = (event) => {
@@ -262,11 +259,12 @@ function History() {
                 </span>
               </div>
               <div className="custom-modal-row">
-  <strong>Time:</strong>
-  <span className="custom-modal-value">
-    {convertTo12HourFormat(selectedEvent.eventstarttime)} to {convertTo12HourFormat(selectedEvent.eventendtime)}
-  </span>
-</div>
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
+                  {convertTo12HourFormat(selectedEvent.eventendtime)}
+                </span>
+              </div>
               <div className="custom-modal-row">
                 <strong>Event Type:</strong>
                 <span className="custom-modal-value">
@@ -278,29 +276,94 @@ function History() {
         </div>
       )}
       {isResourcePopupOpen && (
-  <div className="resource-popup-overlay" style={{ zIndex: 9999, backgroundColor: 'rgba(0, 0, 0, 0.6)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div className="resource-popup-content" style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '20px', width: '420px', height: '500px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)', position: 'relative' }}>
-      <h2 className="resource-popup-title" style={{ marginBottom: '15px', color: '#333', fontSize: '1.5rem' }}>Resource Persons</h2>
-      <button className="custom-close-modal" onClick={closeResourcePopup} style={{ position: 'absolute', top: '10px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#999' }}>
-        &times;
-      </button>
-      <div className="resource-person-list" style={{ maxHeight: '400px', overflowY: 'scroll', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {selectedEvent.resourceperson.length > 0 ? (
-          selectedEvent.resourceperson.map((person, index) => {
-            const [key, value] = Object.entries(person)[0];
-            return (
-              <div key={index} className="resource-person-row" style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                <strong style={{ color: '#555' }}>{key}</strong>: <span style={{ color: '#777' }}>{value}</span>
-              </div>
-            );
-          })
-        ) : (
-          <p style={{ color: '#999', textAlign: 'center' }}>No resource persons available.</p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
+              &times;
+            </button>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

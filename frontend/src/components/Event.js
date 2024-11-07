@@ -3,7 +3,6 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
- 
   FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
@@ -12,7 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
-
+import Popup2 from "../PopupModels/Popup2";
 const departmentOptions = [
   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
   { fullName: "Computer Science Engineering", shortName: "CSE" },
@@ -33,19 +32,21 @@ const departmentOptions = [
   { fullName: "All", shortName: "All" },
 ];
 function Placement() {
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [iseditOpen, setIseditOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectededitEvent, setSelectededitEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventType, setEventType] = useState("All");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEventName, setDeleteEventName] = useState("");
-  const [itemToDelete, setItemToDelete] = useState(null);
-
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
   const token = localStorage.getItem("authToken");
+
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const fetchData = async () => {
     try {
@@ -65,7 +66,6 @@ function Placement() {
   };
   const handleeditCloseModal = () => {
     setIseditOpen(false);
-    setSelectededitEvent(null);
   };
   const handleOpeneditModal = (event) => {
     console.log("ccvcccccccccc😤😤😤");
@@ -150,10 +150,8 @@ function Placement() {
     setIsResourcePopupOpen(true);
   };
   const handleDeleteConfirmation = (event) => {
-    console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
     setShowDeleteModal(true);
-    setItemToDelete(null); // Reset
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -226,9 +224,9 @@ function Placement() {
       return eventType === "All" || event.typeofevent === event; // Update the condition as per your field
     });
     if (newFilteredData.length > 0) {
-      setSelectedEvent(newFilteredData[0]); // Set the first event as selected
+      setSelectedEvent(newFilteredData[0]);
     } else {
-      setSelectedEvent(null); // Reset if no events match
+      setSelectedEvent(null);
     }
   };
 
@@ -243,7 +241,6 @@ function Placement() {
   };
   const handleCloseeditModal = () => {
     setIseditOpen(false);
-    setSelectededitEvent(null);
   };
 
   const handleSearch = (e) => {
@@ -410,80 +407,15 @@ function Placement() {
       )}
 
       {isOpen && selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={handleCloseModal}>
-              &times;
-            </button>
-            <img
-              src={selectedEvent.imageurl}
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <div className="custom-modal-header">
-              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            </div>
-            <div className="custom-modal-body">
-              {selectedEvent.departments &&
-                selectedEvent.departments.length > 0 && (
-                  <div className="custom-modal-row">
-                    <strong>Department:</strong>
-                    <span className="custom-modal-value">
-                      {selectedEvent.departments}
-                    </span>
-                  </div>
-                )}
-
-              <div className="custom-modal-row">
-                <strong>Specification:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departmentspecification}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Venue:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.venue}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  <button onClick={handleViewResourcePersons}>View</button>
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Year:</strong>
-                <span className="custom-modal-value">{selectedEvent.year}</span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Start Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstartdate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event End Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventenddate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
-                  {convertTo12HourFormat(selectedEvent.eventendtime)}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Type:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.typeofevent}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
       )}
       {iseditOpen && (
         <div
