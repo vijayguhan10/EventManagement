@@ -3,6 +3,9 @@ import {
   FaCalendar,
   FaSearchLocation,
   FaSearch,
+  FaEdit,
+  FaTrashAlt,
+  FaTimes,
   FaTimesCircle,
 } from "react-icons/fa";
 import SideBar from "./SideBar";
@@ -11,7 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
-import Popup2 from "../PopupModels/Popup2";
+
 const departmentOptions = [
   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
   { fullName: "Computer Science Engineering", shortName: "CSE" },
@@ -32,22 +35,26 @@ const departmentOptions = [
   { fullName: "All", shortName: "All" },
 ];
 function Placement() {
-  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
+  const [numResourcePersons, setNumResourcePersons] = useState(0);
+
   const [isOpen, setIsOpen] = useState(false);
   const [iseditOpen, setIseditOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectededitEvent, setSelectededitEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventType, setEventType] = useState("All");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEventName, setDeleteEventName] = useState("");
-  const closeEventModal = () => {
-    setSelectedEvent(null);
-  };
-  const token = localStorage.getItem("authToken");
+  const [events, setEvents] = useState([]);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
+  const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const handleshow = () => {
+    setResourcePersonModalOpen(true);
+  };
   const fetchData = async () => {
     try {
       const response = await axios.post(
@@ -66,10 +73,12 @@ function Placement() {
   };
   const handleeditCloseModal = () => {
     setIseditOpen(false);
+    setSelectededitEvent(null);
   };
   const handleOpeneditModal = (event) => {
-    console.log("ccvcccccccccc😤😤😤");
+    console.log("ccvcccccccccc😤😤😤", event);
 
+    // Check if event is defined
     if (!event) {
       console.error("Event is null or undefined");
       return;
@@ -101,23 +110,33 @@ function Placement() {
         : null;
 
     setSelectedEvent(event);
+    console.log("event.resourceperson", event.resourceperson.length);
+    setresoucep(event.resourceperson.length);
+    setrealresourceperson(event.resourceperson.length);
     setFormData({
       eventname: event.eventname,
-      resourceperson: event.resourceperson || [], // Default to empty array if undefined
+      resourceperson: Array.isArray(event.resourceperson)
+        ? event.resourceperson.map((person) => ({
+            name: person.name,
+            specialization: person.specialization,
+          }))
+        : [],
       organizer: event.organizer,
       venue: event.venue,
-      department: Array.isArray(departmentOptions)
-        ? departmentOptions.find((dept) => dept.fullName === departmentName)
-            ?.shortName || ""
-        : "",
+      departments: event.departments || [], // Assuming departments need to be passed too
+      departmentspecification: event.departmentspecification || [],
       eventstarttime: event.eventstarttime,
       eventendtime: event.eventendtime,
       eventstartdate: formatDate(event.eventstartdate),
       eventenddate: formatDate(event.eventenddate),
       typeofevent: event.typeofevent,
+      imageurl: event.imageurl,
+      status: event.status,
+      year: event.year,
     });
+
     setIseditOpen(true);
-    console.log("edit button is clicked");
+    console.log("resource person detail;s", formData);
   };
 
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
@@ -150,8 +169,10 @@ function Placement() {
     setIsResourcePopupOpen(true);
   };
   const handleDeleteConfirmation = (event) => {
+    console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
     setShowDeleteModal(true);
+    setItemToDelete(null); // Reset
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -159,6 +180,66 @@ function Placement() {
       ...prevState,
       [name]: value,
     }));
+  };
+  const handleRefreshResourcePersons = () => {
+    setResourcePersonDetails([]);
+  };
+  const handleDeleteResourcePerson = (index) => {
+    setResourcePersonDetails((prevDetails) =>
+      prevDetails.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleResourcePersonDetailChange = (index, field, value) => {
+    setFormData((prevFormData) => {
+      // Ensure the `resourceperson` array exists and has the correct length
+      const updatedResourcePerson = [...prevFormData.resourceperson];
+
+      // Check if the index exists, if not, create a new entry
+      if (!updatedResourcePerson[index]) {
+        updatedResourcePerson[index] = { name: "", specialization: "" };
+      }
+
+      // Update the specific field
+      updatedResourcePerson[index][field] = value;
+
+      return {
+        ...prevFormData,
+        resourceperson: updatedResourcePerson,
+      };
+    });
+  };
+
+  const [validationErrors, setValidationErrors] = useState([]);
+  const handleSaveResourcePersons = () => {
+    const errors = resourcePersonDetails.reduce((acc, person, index) => {
+      if (!person.name || !person.specialization) {
+        acc.push(index);
+      }
+      return acc;
+    }, []);
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+
+    const formattedResourcePersons = resourcePersonDetails.reduce(
+      (acc, person) => {
+        acc[person.name] = person.specialization;
+        return acc;
+      },
+      {}
+    );
+    console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    setFormData((prev) => ({
+      ...prev,
+      resourcePersons: formattedResourcePersons,
+    }));
+    console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    setResourcePersonModalOpen(false);
   };
   const convertTo12HourFormat = (time) => {
     if (!time) return "";
@@ -168,9 +249,11 @@ function Placement() {
     hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
     return `${hours}:${minutes} ${ampm}`;
   };
+  const [resourcep, setresoucep] = useState(0);
+  const [realresourceperson, setrealresourceperson] = useState(0);
   const [formData, setFormData] = useState({
     eventname: "",
-    resourceperson: "",
+    resourceperson: [],
     organizer: "",
     venue: "",
     department: "",
@@ -179,10 +262,73 @@ function Placement() {
     eventstartdate: "",
     eventenddate: "",
     typeofevent: "",
+    departmentspecification: [],
   });
+  const handleNumResourcePersonsChange = (e) => {
+    const newCount = parseInt(e.target.value, 10); // Ensure a valid number is used
+
+    if (newCount > realresourceperson) {
+      setresoucep(newCount);
+    } else if (newCount < realresourceperson) {
+      setresoucep(realresourceperson);
+    }
+
+    const currentCount = formData.resourceperson.length;
+
+    if (newCount > currentCount) {
+      // Add the necessary number of empty entries
+      const additionalPersons = Array(newCount - currentCount).fill({
+        name: "",
+        specialization: "",
+      });
+      const updatedResourcePersons = [
+        ...formData.resourceperson,
+        ...additionalPersons,
+      ];
+
+      setFormData({
+        ...formData,
+        resourceperson: updatedResourcePersons,
+      });
+      console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    } else if (newCount < currentCount) {
+      const trimmedResourcePersons = formData.resourceperson.slice(0, newCount);
+
+      setFormData({
+        ...formData,
+        resourceperson: trimmedResourcePersons,
+      });
+      console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    }
+  };
+
+  const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
+  const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
+  const handleAddResourcePersons = () => {
+    const additionalPersonsCount =
+      numResourcePersons - resourcePersonDetails.length;
+
+    if (additionalPersonsCount > 0) {
+      const newResourcePersons = Array.from(
+        { length: additionalPersonsCount },
+        () => ({
+          name: "",
+          specialization: "",
+        })
+      );
+      setResourcePersonDetails((prevDetails) => [
+        ...prevDetails,
+        ...newResourcePersons,
+      ]);
+    }
+
+    setResourcePersonModalOpen(true);
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("before submitting", formData);
       const updatedEvent = {
         eventId: selectedEvent._id,
         eventname: formData.eventname,
@@ -200,7 +346,7 @@ function Placement() {
         eventenddate: formData.eventenddate,
         typeofevent: formData.typeofevent,
       };
-
+      console.log("consoleing the updated events", updatedEvent);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
         updatedEvent
@@ -224,9 +370,9 @@ function Placement() {
       return eventType === "All" || event.typeofevent === event; // Update the condition as per your field
     });
     if (newFilteredData.length > 0) {
-      setSelectedEvent(newFilteredData[0]);
+      setSelectedEvent(newFilteredData[0]); // Set the first event as selected
     } else {
-      setSelectedEvent(null);
+      setSelectedEvent(null); // Reset if no events match
     }
   };
 
@@ -241,6 +387,7 @@ function Placement() {
   };
   const handleCloseeditModal = () => {
     setIseditOpen(false);
+    setSelectededitEvent(null);
   };
 
   const handleSearch = (e) => {
@@ -316,12 +463,17 @@ function Placement() {
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
           >
-            <h1
-              className="mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
-                   bg-[#f92d2d]"
+            <button
+              className={`mb-2 font-Afacad absolute ml-64 mt-1 text-white font-bold rounded-md w-28 ${
+                new Date(event.eventenddate) < new Date()
+                  ? "bg-[#2cef5d]"
+                  : "bg-[#f92d2d]"
+              }`}
             >
-              Not Completed
-            </h1>
+              {new Date(event.eventenddate) < new Date()
+                ? "Completed"
+                : "Not Completed"}
+            </button>
             <img
               className="w-96 h-40 rounded-lg"
               src={event.imageurl}
@@ -407,15 +559,80 @@ function Placement() {
       )}
 
       {isOpen && selectedEvent && (
-        <Popup2
-          selectedEvent={selectedEvent}
-          closeEventModal={closeEventModal}
-          convertTo12HourFormat={convertTo12HourFormat}
-          handleViewResourcePersons={handleViewResourcePersons}
-          DepartmentPopup={DepartmentPopup}
-          SetDepartmentPopup={SetDepartmentPopup}
-          closeResourcePopup={closeResourcePopup}
-        />
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-content">
+            <button className="custom-close-modal" onClick={handleCloseModal}>
+              &times;
+            </button>
+            <img
+              src={selectedEvent.imageurl}
+              alt="Event"
+              className="custom-modal-image"
+            />
+            <div className="custom-modal-header">
+              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
+            </div>
+            <div className="custom-modal-body">
+              {selectedEvent.departments &&
+                selectedEvent.departments.length > 0 && (
+                  <div className="custom-modal-row">
+                    <strong>Department:</strong>
+                    <span className="custom-modal-value">
+                      {selectedEvent.departments}
+                    </span>
+                  </div>
+                )}
+
+              <div className="custom-modal-row">
+                <strong>Specification:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.departmentspecification}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Venue:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.venue}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Resource Person:</strong>
+                <span className="custom-modal-value">
+                  <button onClick={handleViewResourcePersons}>View</button>
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Year:</strong>
+                <span className="custom-modal-value">{selectedEvent.year}</span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Start Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventstartdate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event End Date:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.eventenddate}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Time:</strong>
+                <span className="custom-modal-value">
+                  {convertTo12HourFormat(selectedEvent.eventstarttime)} to{" "}
+                  {convertTo12HourFormat(selectedEvent.eventendtime)}
+                </span>
+              </div>
+              <div className="custom-modal-row">
+                <strong>Event Type:</strong>
+                <span className="custom-modal-value">
+                  {selectedEvent.typeofevent}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
       {iseditOpen && (
         <div
@@ -436,12 +653,6 @@ function Placement() {
             <form onSubmit={handleFormSubmit}>
               {[
                 { label: "Event Name", name: "eventname", type: "text" },
-                {
-                  label: "Resource Person",
-                  name: "resourceperson",
-                  type: "text",
-                },
-                { label: "Organizer", name: "organizer", type: "text" },
                 { label: "Venue", name: "venue", type: "text" },
               ].map(({ label, name, type }) => (
                 <label className="block mb-4" key={name}>
@@ -456,6 +667,34 @@ function Placement() {
                   />
                 </label>
               ))}
+
+              {/* New "Number of Resource Persons" input field for editing */}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Number of Resource Persons
+                </label>
+                <input
+                  type="number"
+                  value={resourcep}
+                  onChange={handleNumResourcePersonsChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  min="0"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddResourcePersons}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Add Resource Persons
+                </button>
+                <button
+                  type="button"
+                  onClick={handleshow}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Show
+                </button>
+              </div>
 
               <label className="block mb-4">
                 <span className="text-gray-700">Department:</span>
@@ -476,7 +715,41 @@ function Placement() {
               {/* Radio Buttons for Type of Event */}
               <fieldset className="mb-4">
                 <legend className="text-gray-700">Type of Event:</legend>
-                {["Technical", "Nontechnical", "Placement"].map((type) => (
+                {[
+                  "Workshop",
+                  "Seminar",
+                  "Guest Lecture",
+                  "Webinar",
+                  "Conference",
+                  "Project Contest",
+                  "Hackathon",
+                  "Symposium",
+                  "Competition",
+                  "Leadership Talk",
+                  "Placement Drive",
+                  "Celebration",
+                  "Prize Distribution",
+                  "Student Training",
+                  "Project Expo",
+                  "Outreach",
+                  "Extension Activity",
+                  "Value Added Course",
+                  "Orientation Faculty",
+                  "Orientation Student",
+                  "Faculty Development Program",
+                  "Sports Event",
+                  "Lab/Center of Excellence Inauguration",
+                  "MoU Signing",
+                  "Annual Day",
+                  "Graduation Day",
+                  "Sports Day",
+                  "Alumni Event",
+                  "Culturals",
+                  "Tech Fest",
+                  "NSS",
+                  "NCC Event",
+                  "Interaction with Outside Experts",
+                ].map((type) => (
                   <label key={type} className="block mb-2">
                     <input
                       type="radio"
@@ -527,6 +800,7 @@ function Placement() {
           </div>
         </div>
       )}
+
       {isResourcePopupOpen && (
         <div
           className="resource-popup-overlay"
@@ -612,6 +886,96 @@ function Placement() {
                   No resource persons available.
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {resourcePersonModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-[1000] bg-black bg-opacity-50">
+          <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+            {/* Close and Refresh Buttons */}
+            <button
+              type="button"
+              onClick={() => setResourcePersonModalOpen(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
+            >
+              &times;
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4 flex items-center">
+              Enter Resource Persons
+              <button
+                type="button"
+                onClick={handleRefreshResourcePersons}
+                className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                title="Refresh"
+              >
+                &#8635;
+              </button>
+            </h2>
+
+            {formData.resourceperson.map((person, index) => (
+              <div key={index} className="mb-4 relative">
+                {console.log("😎😎😎😎😎😪😪", person)}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg font-semibold">{index + 1}.</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteResourcePerson(index)}
+                    className="text-red-500 hover:text-red-700 text-xl font-bold"
+                  >
+                    &times;
+                  </button>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Resource Person Name"
+                  value={person.name}
+                  onChange={(e) =>
+                    handleResourcePersonDetailChange(
+                      index,
+                      "name",
+                      e.target.value
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                />
+                {validationErrors.includes(index) && !person.name && (
+                  <p className="text-red-500 text-xl mt-1">
+                    Please enter a name.
+                  </p>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Specialization"
+                  value={person.specialization}
+                  onChange={(e) =>
+                    handleResourcePersonDetailChange(
+                      index,
+                      "specialization",
+                      e.target.value
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {validationErrors.includes(index) && !person.specialization && (
+                  <p className="text-red-500 text-xl mt-1">
+                    Please enter a specialization.
+                  </p>
+                )}
+              </div>
+            ))}
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleSaveResourcePersons}
+                className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
