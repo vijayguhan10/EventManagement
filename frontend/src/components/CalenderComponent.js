@@ -127,7 +127,7 @@ const CalendarComponent = () => {
 
       link.href = window.URL.createObjectURL(blob);
       link.download = "events-report.pdf";
-
+      console.log("PDF Downloading : ", blob);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -335,7 +335,6 @@ const CalendarComponent = () => {
           SetDepartmentPopup={SetDepartmentPopup}
           closeResourcePopup={closeResourcePopup}
         />
-        
       )}
 
       <div className="container absolute bottom-[-80%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
