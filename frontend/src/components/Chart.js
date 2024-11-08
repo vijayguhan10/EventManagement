@@ -51,28 +51,31 @@ const Chart = () => {
           `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
         );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
-
+  
         const updatedDataPoints = Object.keys(totalCountsDept).map((deptName) => {
           const shortName = departmentNameMapping[deptName] || deptName;
           const count = totalCountsDept[deptName] || 0;
-
+  
           return {
             label: shortName,
             y: count,
           };
         });
-
-        setDepartmentCounts(updatedDataPoints);
+  
+        const filteredDataPoints = updatedDataPoints.slice(0, -1);
+  
+        setDepartmentCounts(filteredDataPoints);
       } catch (error) {
         console.error("Error fetching department counts:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     setLoading(true);
     getDepartmentCounts();
   }, []);
+  
 
   const labels = departmentCounts.map((dept) => dept.label); 
   const data = departmentCounts.map((dept) => dept.y); 
