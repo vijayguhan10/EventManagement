@@ -4,51 +4,43 @@ const moment = require("moment");
 
 const ExcelConversion = async (req, res) => {
   try {
-    const { fromDate, toDate, departments, year, fullYear } = req.query;
+    const { fromDate, toDate, departments, year, fullYear, selectedeventtype } = req.query;
+    console.log("Required data for the PDF:", req.query);
+
     const events = await Event.find({});
+    console.log("events are", events);
+
     const currentDate = moment();
-    const oneYearAgo = currentDate
-      .clone()
-      .subtract(1, "year")
-      .format("YYYY-MM-DD");
+    const oneYearAgo = currentDate.clone().subtract(1, "year").format("YYYY-MM-DD");
 
     const filteredEvents = events.filter((event) => {
-      const eventStartDate = moment(event.eventstartdate, "DD/MM/YYYY").format(
-        "YYYY-MM-DD"
-      );
-      const eventYear = event.year.toString();
-      const eventDepartment = event.departments;
+      const eventStartDate = moment(event.eventstartdate, "DD/MM/YY").format("YYYY-MM-DD");
+      const eventEndDate = moment(event.eventenddate, "DD/MM/YY").format("YYYY-MM-DD");
 
-      if (isNaN(new Date(eventStartDate).getTime())) {
-        console.error(
-          "Invalid date format in the database for event:",
-          event.eventstartdate
-        );
+      const from = moment(fromDate).format("YYYY-MM-DD");
+      const to = moment(toDate).format("YYYY-MM-DD");
+      if (!(eventStartDate >= from && eventEndDate <= to)) {
         return false;
       }
 
-      if (fullYear === "true") {
-        if (eventStartDate < oneYearAgo) return false;
-      } else if (fromDate && toDate) {
-        const from = moment(fromDate).format("YYYY-MM-DD");
-        const to = moment(toDate).format("YYYY-MM-DD");
-        if (!(eventStartDate >= from && eventStartDate <= to)) return false;
+      if (year && !year.includes(event.year)) {
+        return false;
       }
 
-      if (year !== "All" && !year.includes(eventYear)) return false;
+      const departmentMatch = departments && event.departments && departments.some(dept => event.departments.includes(dept));
 
-      if (departments && !departments.includes("All")) {
-        if (!eventDepartment.some((dep) => departments.includes(dep)))
-          return false;
+      const specificationMatch = selectedeventtype && event.departmentspecification && selectedeventtype.some(spec => event.departmentspecification.includes(spec));
+
+      if (departmentMatch || (selectedeventtype && specificationMatch)) {
+        return true;
       }
 
-      return true;
+      return false;
     });
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Events Report");
 
-    // Header section
     worksheet.mergeCells("A1", "K1");
     worksheet.getCell("A1").value = "Sri Eshwar College of Engineering";
     worksheet.getCell("A1").font = { size: 18, bold: true };
@@ -63,7 +55,6 @@ const ExcelConversion = async (req, res) => {
     }`;
     worksheet.getCell("A4").font = { size: 16, color: { argb: "0066CC" } };
 
-    // Manually adding header row
     const headerRow = worksheet.addRow([
       "Department",
       "Title",
@@ -78,7 +69,6 @@ const ExcelConversion = async (req, res) => {
       "Status",
     ]);
 
-    // Set style for each cell in the header row
     headerRow.eachCell((cell) => {
       cell.font = { bold: true };
       cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -89,7 +79,6 @@ const ExcelConversion = async (req, res) => {
       };
     });
 
-    // Remove this part to not define worksheet.columns
     worksheet.columns = [
       { key: "departments", width: 50 },
       { key: "eventname", width: 30 },
@@ -104,7 +93,7 @@ const ExcelConversion = async (req, res) => {
       { key: "status", width: 15 },
     ];
 
-    // Sort and add data rows
+    
     filteredEvents.sort((a, b) => {
       const deptA =
         Array.isArray(a.departments) && a.departments[0]
@@ -116,13 +105,21 @@ const ExcelConversion = async (req, res) => {
           : "";
       return deptA.localeCompare(deptB);
     });
-
     filteredEvents.forEach((event) => {
+      const formattedResourcePersons = event.resourceperson && Array.isArray(event.resourceperson)
+        ? event.resourceperson
+            .map(rp => {
+              const [name, specialization] = Object.entries(rp)[0];
+              return `${name || 'Unknown'} (${specialization || 'Unknown'})`;
+            })
+            .join(", ")
+        : "Not Available";
+    
       worksheet.addRow({
         departments: event.departments ? event.departments.join(", ") : "Not Available",
         eventname: event.eventname || "Not Available",
         organizer: event.organizer || "Not Available",
-        resourceperson: event.resourceperson ? event.resourceperson.join(", ") : "Not Available",
+        resourceperson: formattedResourcePersons,
         eventstartdate: event.eventstartdate || "Not Available",
         eventenddate: event.eventenddate || "Not Available",
         eventstarttime: event.eventstarttime || "Not Available",
@@ -132,7 +129,7 @@ const ExcelConversion = async (req, res) => {
         status: event.status || "Not Available",
       });
     });
-
+    
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
