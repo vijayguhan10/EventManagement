@@ -1,5 +1,5 @@
-import React from "react";
-
+import React,{useState} from "react";
+import { jwtDecode } from "jwt-decode";
 const Popup2 = ({
   selectedEvent,
   closeEventModal,
@@ -8,8 +8,29 @@ const Popup2 = ({
   DepartmentPopup,
   SetDepartmentPopup,
   closeResourcePopup,
-}) => {
+}) => { 
+  
+  const [token, setToken] = useState(localStorage.getItem("authToken"));
+
+  const isTokenValid = (token) => {
+    if (!token) return { isValid: false, role: null };
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      const isValid = decoded.exp > currentTime;
+      var role = decoded.role;
+     
+      return { isValid, role };
+    } catch (error) {
+      return { isValid: false, role: null };
+    }
+  };
   if (!selectedEvent) return null; 
+
+
+
+  const { isValid: isAuthenticated, role } = isTokenValid(token);
+
 
   return (
     <div className="custom-modal-overlay">
@@ -17,11 +38,13 @@ const Popup2 = ({
         <button className="custom-close-modal" onClick={closeEventModal}>
           &times;
         </button>
-        <img
-          src={selectedEvent.imageurl}
-          alt="Event"
-          className="custom-modal-image"
-        />
+        {isAuthenticated && role !== 'mediamax'  && (
+    <img
+      src={selectedEvent.imageurl}
+      alt="Event"
+      className="custom-modal-image"
+    />
+  ) }
         <div className="custom-modal-header">
           <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
         </div>
@@ -172,6 +195,14 @@ const Popup2 = ({
               {selectedEvent.typeofevent}
             </span>
           </div>
+          {isAuthenticated&&role==='mediamax'&&(
+             <div className="custom-modal-row">
+             <strong>Event Description:</strong>
+             <span className="custom-modal-value">
+               {selectedEvent.eventDescription}
+             </span>
+           </div>
+          )}
         </div>
       </div>
     </div>
