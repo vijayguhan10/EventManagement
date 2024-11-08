@@ -1,6 +1,6 @@
-// Chart.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +11,8 @@ import {
   Legend,
 } from "chart.js";
 import CanvasJSReact from "@canvasjs/react-charts";
+import '../Chart.css';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,29 +22,67 @@ ChartJS.register(
   Legend
 );
 
-// CanvasJS setup
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const Chart = () => {
-  // Data for the Bar Chart
-  const data = {
-    labels: [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-    ],
+  const [loading, setLoading] = useState(true);
+  const [departmentCounts, setDepartmentCounts] = useState([]);
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+  const departmentNameMapping = {
+    "Artificial Intelligence and Data Science": "AI & DS",
+    "Artificial Intelligence and Machine Learning": "AI & ML",
+    "Computer Science Engineering": "CSE",
+    "Computer Science and Business Systems": "CSBS",
+    "Computer and Communication Engineering": "CCE",
+    "Cybersecurity": "Cyber",
+    "Electrical and Electronics Engineering": "EEE",
+    "Electronics and Communication Engineering": "ECE",
+    "Information Technology": "IT",
+    "Mechanical Engineering": "MECH",
+  };
+
+  useEffect(() => {
+    const getDepartmentCounts = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
+        );
+        const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
+
+        const updatedDataPoints = Object.keys(totalCountsDept).map((deptName) => {
+          const shortName = departmentNameMapping[deptName] || deptName;
+          const count = totalCountsDept[deptName] || 0;
+
+          return {
+            label: shortName,
+            y: count,
+          };
+        });
+
+        setDepartmentCounts(updatedDataPoints);
+      } catch (error) {
+        console.error("Error fetching department counts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    setLoading(true);
+    getDepartmentCounts();
+  }, []);
+
+  const labels = departmentCounts.map((dept) => dept.label); 
+  const data = departmentCounts.map((dept) => dept.y); 
+
+  const chartData = {
+    labels: labels,
     datasets: [
       {
-        label: "Sales",
-        data: [65, 59, 80, 81, 56, 65, 59, 80, 81, 56],
+        label: "Total Events by Department",
+        data: data, 
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -52,7 +90,7 @@ const Chart = () => {
     ],
   };
 
-  const options = {
+  const chartOptions = {
     responsive: true,
     plugins: {
       legend: {
@@ -60,46 +98,46 @@ const Chart = () => {
       },
       title: {
         display: true,
-        text: "Sales Data",
+        text: "Total Events by Department",
       },
     },
   };
 
-  // Data for the CanvasJS Chart
-  const canvasOptions = {
+  const pieChartOptions = {
     exportEnabled: true,
     animationEnabled: true,
     title: {
-      text: "Website Traffic Sources",
+      text: "Department Analytics",
     },
     data: [
       {
         type: "pie",
         startAngle: 75,
-        toolTipContent: "<b>{label}</b>: {y}%",
-        showInLegend: "true",
+        toolTipContent: "<b>{label}</b>: {y} events",
+        showInLegend: true,
         legendText: "{label}",
         indexLabelFontSize: 16,
-        indexLabel: "{label} - {y}%",
-        dataPoints: [
-          { y: 18, label: "Direct" },
-          { y: 49, label: "Organic Search" },
-          { y: 9, label: "Paid Search" },
-          { y: 5, label: "Referral" },
-          { y: 19, label: "Social" },
-        ],
+        indexLabel: "{label} - {y} events",
+        dataPoints: departmentCounts,
       },
     ],
   };
 
   return (
-    <div>
-      <h2>Bar Chart</h2>
-      <Bar data={data} options={options} width={3000} height={1000} />
+    <div className="chart-container">
+      <button onClick={() => window.history.back()} className="back-button">
+        Back
+      </button>
 
-      <div className="w-[40%] h-[30%] mt-36 ml-[25%]">
-    
-        <CanvasJSChart options={canvasOptions} />
+      <h1 className="page-title">Department Analytics</h1>
+
+      <div className="chart-wrapper">
+        <h2 className="chart-title">Total Events by Department (Bar Chart)</h2>
+        <Bar data={chartData} options={chartOptions} />
+
+        <div className="pie-chart-container">
+          <CanvasJSChart options={pieChartOptions} />
+        </div>
       </div>
     </div>
   );

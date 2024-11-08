@@ -90,7 +90,6 @@ const ExcelConversion = async (req, res) => {
     });
 
     // Remove this part to not define worksheet.columns
-
     worksheet.columns = [
       { key: "departments", width: 50 },
       { key: "eventname", width: 30 },
@@ -120,17 +119,17 @@ const ExcelConversion = async (req, res) => {
 
     filteredEvents.forEach((event) => {
       worksheet.addRow({
-        departments: event.departments.join(", "),
-        eventname: event.eventname,
-        organizer: event.organizer,
-        resourceperson: event.resourceperson,
-        eventstartdate: event.eventstartdate,
-        eventenddate: event.eventenddate,
-        eventstarttime: event.eventstarttime,
-        eventendtime: event.eventendtime,
-        venue: event.venue,
-        typeofevent: event.typeofevent,
-        status: event.status,
+        departments: event.departments ? event.departments.join(", ") : "Not Available",
+        eventname: event.eventname || "Not Available",
+        organizer: event.organizer || "Not Available",
+        resourceperson: event.resourceperson ? event.resourceperson.join(", ") : "Not Available",
+        eventstartdate: event.eventstartdate || "Not Available",
+        eventenddate: event.eventenddate || "Not Available",
+        eventstarttime: event.eventstarttime || "Not Available",
+        eventendtime: event.eventendtime || "Not Available",
+        venue: event.venue || "Not Available",
+        typeofevent: event.typeofevent || "Not Available",
+        status: event.status || "Not Available",
       });
     });
 
