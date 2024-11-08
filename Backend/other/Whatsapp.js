@@ -28,7 +28,7 @@ const departmentOptions = [
   { fullName: "All", shortName: "All" },
 ];
 
-const num = "+918438434868"; // The number to send the message to
+const num = "+918438434868";
 
 const sendTodaysEvents = async () => {
   try {
@@ -56,9 +56,9 @@ const sendTodaysEvents = async () => {
 
     eventsToday.forEach((event) => {
       responseMessage += `*Event Name*: ${event.eventname}\n`;
-      responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
-      responseMessage += `*Resource Person*: ${event.resourceperson}\n`;
-      responseMessage += `*Organizer*: ${event.organizer}\n`;
+      // responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
+      // responseMessage += `*Resource Person*: ${event.resourceperson}\n`;
+      // responseMessage += `*Organizer*: ${event.organizer}\n`;
       responseMessage += `*Venue*: ${event.venue}\n`;
       responseMessage += `*Event Start*: ${event.eventstartdate} at ${event.eventstarttime}\n`;
       responseMessage += `*Event End*: ${event.eventenddate} at ${event.eventendtime}\n`;
@@ -75,10 +75,11 @@ const sendTodaysEvents = async () => {
     console.error("Error:", err.message);
   }
 };
-cron.schedule("40 21 * * *", () => {
-  console.log("Scheduled job running at 11:35 PM...");
+cron.schedule("* * * * *", () => {
+  console.log("Scheduled job running every minute...");
   sendTodaysEvents();
 });
+
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
