@@ -7,6 +7,7 @@ import "../Calender.css";
 import { toast, ToastContainer } from "react-toastify";
 import Popup1 from "../PopupModels/Popup1";
 import Popup2 from "../PopupModels/Popup2";
+import DeptPopup from "../PopupModels/DeptPopup";
 const today = new Date();
 
 const products = [
@@ -123,7 +124,7 @@ function Departments() {
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   const handleViewResourcePersons = () => {
-    setSelectedEvent(selectedEventclose)
+    setSelectedEvent(selectedEventclose);
     console.log("selected datas resourseperson : ", selectedEvent);
     setIsResourcePopupOpen(true);
   };
@@ -322,7 +323,7 @@ function Departments() {
         />
       )}
       {selectedEventclose && (
-        <Popup2
+        <DeptPopup
           selectedEvent={selectedEventclose}
           closeEventModal={closeEventModal}
           convertTo12HourFormat={convertTo12HourFormat}

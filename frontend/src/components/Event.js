@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaCalendar,
-  FaSearchLocation,
-  FaSearch,
-  FaTimesCircle,
-} from "react-icons/fa";
+import { FaCalendar, FaSearchLocation, FaSearch } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,32 +7,30 @@ import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
 import Popup2 from "../PopupModels/Popup2";
-import UpdateForm from "./UpdateForm";
-
-const departmentOptions = [
-  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
-  { fullName: "Computer Science Engineering", shortName: "CSE" },
-  {
-    fullName: "Artificial Intelligence and Data Science",
-    shortName: "AI & DS",
-  },
-  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
-  { fullName: "Information Technology", shortName: "IT" },
-  { fullName: "Mechanical Engineering", shortName: "MECH" },
-  {
-    fullName: "Artificial Intelligence and Machine Learning",
-    shortName: "AI & ML",
-  },
-  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
-  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
-  { fullName: "Cybersecurity", shortName: "Cyber" },
-  { fullName: "All", shortName: "All" },
-];
+import DeptPopup from "../PopupModels/DeptPopup";
+// const departmentOptions = [
+//   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+//   { fullName: "Computer Science Engineering", shortName: "CSE" },
+//   {
+//     fullName: "Artificial Intelligence and Data Science",
+//     shortName: "AI & DS",
+//   },
+//   { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+//   { fullName: "Information Technology", shortName: "IT" },
+//   { fullName: "Mechanical Engineering", shortName: "MECH" },
+//   {
+//     fullName: "Artificial Intelligence and Machine Learning",
+//     shortName: "AI & ML",
+//   },
+//   { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+//   { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+//   { fullName: "Cybersecurity", shortName: "Cyber" },
+//   { fullName: "All", shortName: "All" },
+// ];
 function Placement() {
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [iseditOpen, setIseditOpen] = useState(false);
+  const [iseditOpen, setiseditOpen] = useState(false);
+  const [isViewMore, setisViewMore] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,6 +63,8 @@ function Placement() {
   };
 
   const handleOpeneditModal = (event) => {
+    setisViewMore(false);
+    setiseditOpen(true);
     console.log("ccvcccccccccc😤😤😤", event);
 
     // Check if event is defined
@@ -123,7 +118,6 @@ function Placement() {
       status: event.status,
       year: event.year,
     });
-    setIseditOpen(true);
     console.log("resource person detail;s", formData);
   };
 
@@ -160,6 +154,8 @@ function Placement() {
     console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
     setShowDeleteModal(true);
+    setiseditOpen(false);
+    setisViewMore(false);
     setItemToDelete(null); // Reset
   };
 
@@ -254,11 +250,12 @@ function Placement() {
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
-    setIsOpen(true);
+    setiseditOpen(false);
+    setisViewMore(true);
   };
 
   const handleCloseModal = () => {
-    setIsOpen(false);
+    setisViewMore(false);
     setSelectedEvent(null);
   };
 
@@ -292,7 +289,6 @@ function Placement() {
           </h1>
         </div>
       </div>
-
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
           Explore the {eventType} Events
@@ -328,7 +324,6 @@ function Placement() {
           </button>
         </div>
       </div>
-
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
         {filteredData.map((event, index) => (
           <div
@@ -429,8 +424,7 @@ function Placement() {
           </div>
         </div>
       )}
-
-      {isOpen && selectedEvent && (
+      {isViewMore && selectedEvent && (
         <Popup2
           selectedEvent={selectedEvent}
           closeEventModal={closeEventModal}
@@ -441,7 +435,6 @@ function Placement() {
           closeResourcePopup={closeResourcePopup}
         />
       )}
-
       {isResourcePopupOpen && (
         <div
           className="resource-popup-overlay"
@@ -622,7 +615,17 @@ function Placement() {
           </div>
         </div>
       )}
-      {iseditOpen && <UpdateForm selectedEvent={selectedEvent} />}
+      {iseditOpen && (
+        <DeptPopup
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
+      )}{" "}
       <ToastContainer />
     </div>
   );

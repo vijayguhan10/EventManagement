@@ -392,7 +392,7 @@ function UpdateForm({ selectedEvent }) {
   };
 
   return (
-    <div className="p-10">
+    <div className="p-10 w-full overflow-auto">
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
           Update Event
@@ -401,7 +401,6 @@ function UpdateForm({ selectedEvent }) {
           onSubmit={handleFormSubmit}
           className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
-          {/* Select Department Specification */}
           <div className="mb-4">
             <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
               Select the Department Specification
