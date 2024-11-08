@@ -51,7 +51,7 @@ function Placement() {
   };
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
- 
+
   const fetchData = async () => {
     try {
       const response = await axios.post(
@@ -182,7 +182,6 @@ function Placement() {
       return { ...prevFormData, resourceperson: updatedResourcePerson };
     });
   };
-  
 
   const [validationErrors, setValidationErrors] = useState([]);
   const handleSaveResourcePersons = () => {
@@ -558,8 +557,8 @@ function Placement() {
 
             {formData.resourceperson.map((person, index) => (
               <div key={index} className="mb-4 relative">
-                {console.log("form data hwile opening",formData)}
-                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}  
+                {console.log("form data hwile opening", formData)}
+                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-lg font-semibold">{index + 1}.</span>
                   <button
@@ -571,7 +570,7 @@ function Placement() {
                   </button>
                 </div>
 
-                  <input
+                <input
                   type="text"
                   placeholder="Resource Person Name"
                   value={person.name}
