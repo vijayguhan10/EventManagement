@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaSearchLocation, FaSearch } from "react-icons/fa";
+import {
+  FaCalendar,
+  FaSearchLocation,
+  FaSearch,
+
+  FaTimesCircle,
+} from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -7,44 +13,50 @@ import axios from "axios";
 import "../editmodal.css";
 import "../Calender.css";
 import Popup2 from "../PopupModels/Popup2";
-import DeptPopup from "../PopupModels/DeptPopup";
-// const departmentOptions = [
-//   { fullName: "Computer and Communication Engineering", shortName: "CCE" },
-//   { fullName: "Computer Science Engineering", shortName: "CSE" },
-//   {
-//     fullName: "Artificial Intelligence and Data Science",
-//     shortName: "AI & DS",
-//   },
-//   { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
-//   { fullName: "Information Technology", shortName: "IT" },
-//   { fullName: "Mechanical Engineering", shortName: "MECH" },
-//   {
-//     fullName: "Artificial Intelligence and Machine Learning",
-//     shortName: "AI & ML",
-//   },
-//   { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
-//   { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
-//   { fullName: "Cybersecurity", shortName: "Cyber" },
-//   { fullName: "All", shortName: "All" },
-// ];
+
+const departmentOptions = [
+  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+  { fullName: "Computer Science Engineering", shortName: "CSE" },
+  {
+    fullName: "Artificial Intelligence and Data Science",
+    shortName: "AI & DS",
+  },
+  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+  { fullName: "Information Technology", shortName: "IT" },
+  { fullName: "Mechanical Engineering", shortName: "MECH" },
+  {
+    fullName: "Artificial Intelligence and Machine Learning",
+    shortName: "AI & ML",
+  },
+  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+  { fullName: "Cybersecurity", shortName: "Cyber" },
+  { fullName: "All", shortName: "All" },
+];
 function Placement() {
+  const [numResourcePersons, setNumResourcePersons] = useState(0);
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
-  const [iseditOpen, setiseditOpen] = useState(false);
-  const [isViewMore, setisViewMore] = useState(false);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [iseditOpen, setIseditOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectededitEvent, setSelectededitEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventType, setEventType] = useState("All");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEventName, setDeleteEventName] = useState("");
+  const [events, setEvents] = useState([]);
   const [itemToDelete, setItemToDelete] = useState(null);
   const closeEventModal = () => {
     setSelectedEvent(null);
   };
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+  const handleshow = () => {
+    setResourcePersonModalOpen(true);
+  };
   const fetchData = async () => {
     try {
       const response = await axios.post(
@@ -61,10 +73,11 @@ function Placement() {
       setLoading(false);
     }
   };
-
+  const handleeditCloseModal = () => {
+    setIseditOpen(false);
+    setSelectededitEvent(null);
+  };
   const handleOpeneditModal = (event) => {
-    setisViewMore(false);
-    setiseditOpen(true);
     console.log("ccvcccccccccc😤😤😤", event);
 
     // Check if event is defined
@@ -118,6 +131,8 @@ function Placement() {
       status: event.status,
       year: event.year,
     });
+
+    setIseditOpen(true);
     console.log("resource person detail;s", formData);
   };
 
@@ -154,11 +169,15 @@ function Placement() {
     console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setSelectedEvent(event);
     setShowDeleteModal(true);
-    setiseditOpen(false);
-    setisViewMore(false);
     setItemToDelete(null); // Reset
   };
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
   const handleRefreshResourcePersons = () => {
     setResourcePersonDetails([]);
   };
@@ -178,6 +197,7 @@ function Placement() {
       return { ...prevFormData, resourceperson: updatedResourcePerson };
     });
   };
+  
 
   const [validationErrors, setValidationErrors] = useState([]);
   const handleSaveResourcePersons = () => {
@@ -233,30 +253,130 @@ function Placement() {
     typeofevent: "",
     departmentspecification: [],
   });
+  const handleNumResourcePersonsChange = (e) => {
+    const newCount = parseInt(e.target.value, 10); // Ensure a valid number is used
+
+    if (newCount > realresourceperson) {
+      setresoucep(newCount);
+    } else if (newCount < realresourceperson) {
+      setresoucep(realresourceperson);
+    }
+
+    const currentCount = formData.resourceperson.length;
+
+    if (newCount > currentCount) {
+      // Add the necessary number of empty entries
+      const additionalPersons = Array(newCount - currentCount).fill({
+        name: "",
+        specialization: "",
+      });
+      const updatedResourcePersons = [
+        ...formData.resourceperson,
+        ...additionalPersons,
+      ];
+
+      setFormData({
+        ...formData,
+        resourceperson: updatedResourcePersons,
+      });
+      console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    } else if (newCount < currentCount) {
+      const trimmedResourcePersons = formData.resourceperson.slice(0, newCount);
+
+      setFormData({
+        ...formData,
+        resourceperson: trimmedResourcePersons,
+      });
+      console.log("🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥🐦‍🔥", formData);
+    }
+  };
 
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
   const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
+  const handleAddResourcePersons = () => {
+    const additionalPersonsCount =
+      numResourcePersons - resourcePersonDetails.length;
+
+    if (additionalPersonsCount > 0) {
+      const newResourcePersons = Array.from(
+        { length: additionalPersonsCount },
+        () => ({
+          name: "",
+          specialization: "",
+        })
+      );
+      setResourcePersonDetails((prevDetails) => [
+        ...prevDetails,
+        ...newResourcePersons,
+      ]);
+    }
+
+    setResourcePersonModalOpen(true);
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log("before submitting", formData);
+      const updatedEvent = {
+        eventId: selectedEvent._id,
+        eventname: formData.eventname,
+        resourceperson: formData.resourceperson,
+        organizer: formData.organizer,
+        venue: formData.venue,
+        departments: [
+          departmentOptions.find(
+            (dept) => dept.shortName === formData.department
+          )?.fullName,
+        ],
+        eventstarttime: formData.eventstarttime,
+        eventendtime: formData.eventendtime,
+        eventstartdate: formData.eventstartdate,
+        eventenddate: formData.eventenddate,
+        typeofevent: formData.typeofevent,
+      };
+      console.log("consoleing the updated events", updatedEvent);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
+        updatedEvent
+      );
+      handleCloseeditModal();
+      if (response.status === 201 || response.status === 200) {
+        console.log("sucessfull response : ", response);
+        toast.success("Event edited successfully!");
+      }
+      // setLoading(true);
+    } catch (error) {
+      handleCloseeditModal();
+
+      toast.error(error.message);
+      console.error("Error updating event:", error);
+    }
+  };
   const datafetch = (event) => {
     setEventType(event);
     const newFilteredData = data.filter((event) => {
-      return eventType === "All" || event.typeofevent === event;
+      return eventType === "All" || event.typeofevent === event; // Update the condition as per your field
     });
     if (newFilteredData.length > 0) {
-      setSelectedEvent(newFilteredData[0]);
+      setSelectedEvent(newFilteredData[0]); // Set the first event as selected
     } else {
-      setSelectedEvent(null);
+      setSelectedEvent(null); // Reset if no events match
     }
   };
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
-    setiseditOpen(false);
-    setisViewMore(true);
+    setIsOpen(true);
   };
 
   const handleCloseModal = () => {
-    setisViewMore(false);
+    setIsOpen(false);
     setSelectedEvent(null);
+  };
+  const handleCloseeditModal = () => {
+    setIseditOpen(false);
+    setSelectededitEvent(null);
   };
 
   const handleSearch = (e) => {
@@ -289,6 +409,7 @@ function Placement() {
           </h1>
         </div>
       </div>
+
       <div className="xl:flex xl:flex-row justify-between">
         <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
           Explore the {eventType} Events
@@ -324,6 +445,7 @@ function Placement() {
           </button>
         </div>
       </div>
+
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
         {filteredData.map((event, index) => (
           <div
@@ -424,7 +546,8 @@ function Placement() {
           </div>
         </div>
       )}
-      {isViewMore && selectedEvent && (
+
+      {isOpen && selectedEvent && (
         <Popup2
           selectedEvent={selectedEvent}
           closeEventModal={closeEventModal}
@@ -435,6 +558,173 @@ function Placement() {
           closeResourcePopup={closeResourcePopup}
         />
       )}
+      {iseditOpen && (
+        <div
+          style={{ zIndex: 1000 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+        >
+          <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-3xl h-4/5 overflow-y-auto">
+            <span
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={handleeditCloseModal}
+              aria-label="Close"
+            >
+              <FaTimesCircle className="text-red-500 hover:text-red-700 text-xl" />
+            </span>
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Edit Event
+            </h2>
+            <form onSubmit={handleFormSubmit}>
+              {[
+                { label: "Event Name", name: "eventname", type: "text" },
+                { label: "Venue", name: "venue", type: "text" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                    placeholder={`Enter ${label.toLowerCase()}`}
+                  />
+                </label>
+              ))}
+
+              {/* New "Number of Resource Persons" input field for editing */}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Number of Resource Persons
+                </label>
+                <input
+                  type="number"
+                  value={resourcep}
+                  onChange={handleNumResourcePersonsChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  min="0"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddResourcePersons}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Add Resource Persons
+                </button>
+                <button
+                  type="button"
+                  onClick={handleshow}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Show
+                </button>
+              </div>
+
+              <label className="block mb-4">
+                <span className="text-gray-700">Department:</span>
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300 bg-gray-100"
+                >
+                  {departmentOptions.map((dept) => (
+                    <option key={dept.shortName} value={dept.shortName}>
+                      {dept.fullName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {/* Radio Buttons for Type of Event */}
+              <fieldset className="mb-4">
+                <legend className="text-gray-700">Type of Event:</legend>
+                {[
+                  "Workshop",
+                  "Seminar",
+                  "Guest Lecture",
+                  "Webinar",
+                  "Conference",
+                  "Project Contest",
+                  "Hackathon",
+                  "Symposium",
+                  "Competition",
+                  "Leadership Talk",
+                  "Placement Drive",
+                  "Celebration",
+                  "Prize Distribution",
+                  "Student Training",
+                  "Project Expo",
+                  "Outreach",
+                  "Extension Activity",
+                  "Value Added Course",
+                  "Orientation Faculty",
+                  "Orientation Student",
+                  "Faculty Development Program",
+                  "Sports Event",
+                  "Lab/Center of Excellence Inauguration",
+                  "MoU Signing",
+                  "Annual Day",
+                  "Graduation Day",
+                  "Sports Day",
+                  "Alumni Event",
+                  "Culturals",
+                  "Tech Fest",
+                  "NSS",
+                  "NCC Event",
+                  "Interaction with Outside Experts",
+                ].map((type) => (
+                  <label key={type} className="block mb-2">
+                    <input
+                      type="radio"
+                      name="typeofevent"
+                      value={type}
+                      checked={formData.typeofevent === type}
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </fieldset>
+
+              {[
+                {
+                  label: "Event Start Time",
+                  name: "eventstarttime",
+                  type: "time",
+                },
+                { label: "Event End Time", name: "eventendtime", type: "time" },
+                {
+                  label: "Event Start Date",
+                  name: "eventstartdate",
+                  type: "date",
+                },
+                { label: "Event End Date", name: "eventenddate", type: "date" },
+              ].map(({ label, name, type }) => (
+                <label className="block mb-4" key={name}>
+                  <span className="text-gray-700">{label}:</span>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-blue-300"
+                  />
+                </label>
+              ))}
+
+              <button
+                type="submit"
+                className="mt-4 w-full bg-blue-500 text-white font-semibold rounded-lg py-2 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Update Event
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {isResourcePopupOpen && (
         <div
           className="resource-popup-overlay"
@@ -550,8 +840,8 @@ function Placement() {
 
             {formData.resourceperson.map((person, index) => (
               <div key={index} className="mb-4 relative">
-                {console.log("form data hwile opening", formData)}
-                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}
+                {console.log("form data hwile opening",formData)}
+                {console.log("😎😎😎😎😎😪😪", formData.resourceperson)}  
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-lg font-semibold">{index + 1}.</span>
                   <button
@@ -563,7 +853,7 @@ function Placement() {
                   </button>
                 </div>
 
-                <input
+                  <input
                   type="text"
                   placeholder="Resource Person Name"
                   value={person.name}
@@ -615,17 +905,6 @@ function Placement() {
           </div>
         </div>
       )}
-      {iseditOpen && (
-        <DeptPopup
-          selectedEvent={selectedEvent}
-          closeEventModal={closeEventModal}
-          convertTo12HourFormat={convertTo12HourFormat}
-          handleViewResourcePersons={handleViewResourcePersons}
-          DepartmentPopup={DepartmentPopup}
-          SetDepartmentPopup={SetDepartmentPopup}
-          closeResourcePopup={closeResourcePopup}
-        />
-      )}{" "}
       <ToastContainer />
     </div>
   );

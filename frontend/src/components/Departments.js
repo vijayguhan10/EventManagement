@@ -7,6 +7,7 @@ import "../Calender.css";
 import { toast, ToastContainer } from "react-toastify";
 import Popup1 from "../PopupModels/Popup1";
 import Popup2 from "../PopupModels/Popup2";
+import DeptPopup from "../PopupModels/DeptPopup";
 const today = new Date();
 
 const products = [
@@ -97,9 +98,8 @@ function Departments() {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date("2024-10-14"));
   const [isEventListOpen, setIsEventListOpen] = useState(false);
-  
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
-
   const [selecteddepartment, setdepartment] = useState("");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,6 +124,8 @@ function Departments() {
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   const handleViewResourcePersons = () => {
+    setSelectedEvent(selectedEventclose);
+    console.log("selected datas resourseperson : ", selectedEvent);
     setIsResourcePopupOpen(true);
   };
   const closeResourcePopup = () => {
@@ -131,7 +133,6 @@ function Departments() {
     setIsResourcePopupOpen(false);
   };
 
-  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -167,13 +168,12 @@ function Departments() {
     }
   };
 
-
   const convertTo12HourFormat = (time) => {
     if (!time) return "";
     let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
     const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; 
+    hours = hours % 12 || 12;
     return `${hours}:${minutes} ${ampm}`;
   };
   useEffect(() => {
@@ -192,14 +192,12 @@ function Departments() {
           };
         });
         setData(updatedProducts);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
     setLoading(true);
     getCount();
-  }, []); 
+  }, []);
 
-  
   const closeEventModal = () => {
     setSelectedEventclose(null);
   };
@@ -215,14 +213,9 @@ function Departments() {
 
       console.log("response data: ", response);
       setIsEventListOpen(true);
-
-      if (
-        response.data &&
-        response.data.events &&
-        response.data.events.length > 0
-      ) {
-        setEvents(response.data.events);
-        console.log("response data: ", response.data);
+      if (response.data && response.data && response.data.length > 0) {
+        setEvents(response.data);
+        console.log("response data aftersettingup: ", response.data);
       } else {
         console.log("No events fetched");
         setEvents([]);
@@ -246,8 +239,6 @@ function Departments() {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
-
 
   if (!loading) {
     return (
@@ -332,8 +323,8 @@ function Departments() {
         />
       )}
       {selectedEventclose && (
-        <Popup2
-          selectedEvent={selectedEvent}
+        <DeptPopup
+          selectedEvent={selectedEventclose}
           closeEventModal={closeEventModal}
           convertTo12HourFormat={convertTo12HourFormat}
           handleViewResourcePersons={handleViewResourcePersons}
@@ -452,7 +443,95 @@ function Departments() {
           </div>
         </div>
       )}
-     
+      {isResourcePopupOpen && selectedEvent && (
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
+              &times;
+            </button>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer />
     </div>
   );
