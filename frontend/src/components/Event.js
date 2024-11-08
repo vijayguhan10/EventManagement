@@ -254,7 +254,7 @@ function Placement() {
     departmentspecification: [],
   });
   const handleNumResourcePersonsChange = (e) => {
-    const newCount = parseInt(e.target.value, 10); // Ensure a valid number is used
+    const newCount = parseInt(e.target.value, 10); 
 
     if (newCount > realresourceperson) {
       setresoucep(newCount);
@@ -265,7 +265,7 @@ function Placement() {
     const currentCount = formData.resourceperson.length;
 
     if (newCount > currentCount) {
-      // Add the necessary number of empty entries
+    
       const additionalPersons = Array(newCount - currentCount).fill({
         name: "",
         specialization: "",
