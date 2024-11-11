@@ -123,8 +123,7 @@ if (event.resourceperson && Array.isArray(event.resourceperson)) {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", 'attachment; filename="events-report.pdf"');
   res.send(buffer);
-};
-exports.generatePdf = async (req, res) => {
+};exports.generatePdf = async (req, res) => {
   try {
     const { fromDate, toDate, departments, year, fullYear, selectedeventtype } = req.query;
     console.log("Required data for the PDF:", req.query);
@@ -135,21 +134,29 @@ exports.generatePdf = async (req, res) => {
     const currentDate = moment();
     const oneYearAgo = currentDate.clone().subtract(1, "year").format("YYYY-MM-DD");
 
+    const from = moment(fromDate).format("YYYY-MM-DD");
+    const to = moment(toDate).format("YYYY-MM-DD");
+
     const filteredEvents = events.filter((event) => {
       const eventStartDate = moment(event.eventstartdate, "DD/MM/YY").format("YYYY-MM-DD");
       const eventEndDate = moment(event.eventenddate, "DD/MM/YY").format("YYYY-MM-DD");
 
-      const from = moment(fromDate).format("YYYY-MM-DD");
-      const to = moment(toDate).format("YYYY-MM-DD");
-      if (!(eventStartDate >= from && eventEndDate <= to)) {
+      if (fullYear) {
+        if (eventEndDate > to) {
+          return false;
+        }
+      } else {
+        if (!(eventStartDate >= from && eventEndDate <= to)) {
+          return false; 
+        }
+      }
+
+      if (year && !year.some(y => event.year.includes(y))) {
         return false;
       }
 
-      if (year && !year.includes(event.year)) {
-        return false;
-      }
       const isAllDepartments = departments && departments.includes("All");
-      const departmentMatch = isAllDepartments||(departments && event.departments && departments.some(dept => event.departments.includes(dept)));
+      const departmentMatch = isAllDepartments || (departments && event.departments && event.departments.some(dept => event.departments.includes(dept)));
 
       const specificationMatch = selectedeventtype && event.departmentspecification && selectedeventtype.some(spec => event.departmentspecification.includes(spec));
 
@@ -161,7 +168,8 @@ exports.generatePdf = async (req, res) => {
     });
 
     console.log("Filtered Events:", filteredEvents);
-console.log("resource persons",events[0].resourceperson);
+    console.log("resource persons", events[0].resourceperson);
+
     PdfConversion(filteredEvents, fromDate, toDate, res);
   } catch (error) {
     console.error("Error generating PDF:", error);

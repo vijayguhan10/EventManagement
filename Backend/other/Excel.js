@@ -19,15 +19,17 @@ const ExcelConversion = async (req, res) => {
 
       const from = moment(fromDate).format("YYYY-MM-DD");
       const to = moment(toDate).format("YYYY-MM-DD");
+
       if (!(eventStartDate >= from && eventEndDate <= to)) {
         return false;
       }
 
-      if (year && !year.includes(event.year)) {
+      if (year && !year.some(y => event.year.includes(y))) {
         return false;
       }
 
-      const departmentMatch = departments && event.departments && departments.some(dept => event.departments.includes(dept));
+      const isAllDepartments = departments && departments.includes("All");
+      const departmentMatch = isAllDepartments || (departments && event.departments && event.departments.some(dept => event.departments.includes(dept)));
 
       const specificationMatch = selectedeventtype && event.departmentspecification && selectedeventtype.some(spec => event.departmentspecification.includes(spec));
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import UpdateForm from "../components/UpdateForm";
-
+import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
 const DeptPopup = ({
   selectedEvent,
   closeEventModal,
@@ -11,13 +12,62 @@ const DeptPopup = ({
   closeResourcePopup,
   onDeleteEvent,
 }) => {
+  const [isViewMore, setisViewMore] = useState(false);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const fetchData = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/event/getalldata`
+      );
+      const filteredData = response.data.eventdata.filter(
+        (elem) => elem.status === "pending"
+      );
+      console.log("rrrrrrrrrrrrrrrrrrrrrrr : ", filteredData);
+      setData(filteredData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
+  };
+  const handleCloseModal = () => {
+    setisViewMore(false);
+    setevent(null);
+  };
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const[event,setevent]=useState(null)
+const [deleteEventName, setDeleteEventName] = useState("");
   if (!selectedEvent) return null;
   const handleCloseResourcePopup = () => {
     SetDepartmentPopup(false);
   };
-  
+  const handleDelete = async () => {
+    if (deleteEventName === selectedEvent.eventname) {
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/event/delete_event`,
+          { eventid: selectedEvent._id }
+        );
+        toast.success("Event deleted successfully!");
+        setShowDeleteModal(false);
+        setDeleteEventName("");
+        fetchData(); // Fetch the data again after deletion to update the list
+        handleCloseModal();
+      } catch (error) {
+        toast.error("Failed to delete the event.");
+      }
+    } else {
+      alert("Event name does not match. Please try again.");
+    }
+  };
+   const handleDeleteConfirmation = (event) => {
+    console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
+    setevent(event);
+    setShowDeleteModal(true);
+   
+  };
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
     { fullName: "Computer Science Engineering", shortName: "CSE" },
@@ -159,6 +209,38 @@ const DeptPopup = ({
                 </div>
               </div>
             )}
+             {showDeleteModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+            <p>
+              Are you sure you want to delete the event{" "}
+              <strong>{selectedEvent.eventname}</strong>? Type the event name to
+              confirm:
+            </p>
+            <input
+              type="text"
+              value={deleteEventName}
+              onChange={(e) => setDeleteEventName(e.target.value)}
+              className="border rounded p-2 w-full mt-2"
+            />
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-500 text-white rounded px-4 py-2"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
           </div>
 
           <div className="custom-modal-row">
@@ -211,7 +293,7 @@ const DeptPopup = ({
           </button>
           <button
             className="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none"
-            onClick={onDeleteEvent}
+            onClick={handleDeleteConfirmation}
           >
             Delete
           </button>

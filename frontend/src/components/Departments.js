@@ -211,7 +211,7 @@ function Departments() {
         { department: event }
       );
 
-      console.log("response data: ", response);
+      console.log("response data: ", response.data);
       setIsEventListOpen(true);
       if (response.data && response.data && response.data.length > 0) {
         setEvents(response.data);

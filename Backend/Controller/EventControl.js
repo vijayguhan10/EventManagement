@@ -597,29 +597,32 @@ exports.departmentevent = async (req, res) => {
     if (!department || department.length === 0) {
       events = await Event.find({});
     } else if (department === "otherspecification") {
-      console.log(department, "😎 Department received");
-
-      events = await Event.find({ departments: null });
-      console.log("consoling the passing events : ", events);
-      return res.status(200).json({
-        message: "otherspecification data passed successfully",
-        events,
-      });
+      events = await Event.find({ departmentspecification: { $exists: true, $ne: [] } });
+      console.log("Retrieved events for 'otherspecification':", events);
+    
     } else {
-      events = await Event.find({ departments: { $in: department } });
+      const departmentArray = Array.isArray(department) ? department : [department];
+console.log(departmentArray)
+      events = await Event.find({
+        $or: [
+          { departments: { $in: departmentArray } },
+          { departments: "All" }
+        ]
+      });
     }
 
     if (!events || events.length === 0) {
       return res.status(200).json([]);
     }
 
-    console.log(events, "Retrieved events");
+    console.log("Retrieved events:", events);
     return res.status(200).json(events);
   } catch (err) {
     console.error("Error fetching department events: ", err);
     return res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 exports.getTotalCount = async (req, res) => {
   const userid = req.userId;
