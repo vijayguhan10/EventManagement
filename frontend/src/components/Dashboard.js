@@ -87,7 +87,10 @@ const Dashboard = () => {
     { fullName: "All", shortName: "All" },
   ];
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
-
+ const getShortName = (fullName) => {
+    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+    return department ? department.shortName : fullName;
+  };
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
     if (selectedDeptShortName === "All") {
@@ -377,7 +380,8 @@ const Dashboard = () => {
                   >
                     <div>
                       <h2 className="text-2xl font-bold">{event.eventname}</h2>
-                      <p className="text-lg font-light">{event.departments}</p>
+                      <p className="text-lg font-light">{event.departments .map((dept) => getShortName(dept))
+                  .join(", ")}</p>
                     </div>
                     <img src={cup} alt="Event Icon" className="w-20 h-20" />
                   </div>

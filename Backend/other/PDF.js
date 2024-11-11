@@ -148,8 +148,8 @@ exports.generatePdf = async (req, res) => {
       if (year && !year.includes(event.year)) {
         return false;
       }
-
-      const departmentMatch = departments && event.departments && departments.some(dept => event.departments.includes(dept));
+      const isAllDepartments = departments && departments.includes("All");
+      const departmentMatch = isAllDepartments||(departments && event.departments && departments.some(dept => event.departments.includes(dept)));
 
       const specificationMatch = selectedeventtype && event.departmentspecification && selectedeventtype.some(spec => event.departmentspecification.includes(spec));
 

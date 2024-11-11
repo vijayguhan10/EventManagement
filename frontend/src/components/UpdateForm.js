@@ -37,6 +37,7 @@ function UpdateForm({ selectedEvent }) {
     departmentspecification: [],
     year: "",
   });
+// const[setselecteddepartment,department]=useState([]);
 
   const [numResourcePersons, setNumResourcePersons] = useState(0);
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
@@ -328,18 +329,16 @@ function UpdateForm({ selectedEvent }) {
     setResourcePersonModalOpen(false);
   };
 
-  // Handle Event Type Selection
   const handleEventTypeSelection = (type) => {
     setFormData((prev) => ({ ...prev, eventType: type }));
     setShowEventTypeModal(false);
   };
 
-  // Handle Form Submission
+  
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
-    // Basic validation
     if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
     if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
     if (!formData.year) newErrors.year = "Event year is required";
@@ -358,12 +357,21 @@ function UpdateForm({ selectedEvent }) {
       setErrors(newErrors);
       return;
     }
-
+    let processedResourcePersons;
+    if (formData.resourcePersons.length === 1) {
+      // Single resource person: [{ sabari: 'dsa' }]
+      processedResourcePersons = [formData.resourcePersons[0]];
+    } else {
+      // Multiple resource persons: { sabari: 'dsa', 'vijay guhan': 'cpp' }
+      processedResourcePersons = formData.resourcePersons.reduce((acc, item) => {
+        return { ...acc, ...item };
+      }, {});
+    }
     try {
       const updatedEvent = {
         eventId: selectedEvent._id,
         eventname: formData.eventTitle,
-        resourceperson: formData.resourcePersons,
+        resourcePersons:processedResourcePersons,
         organizer: formData.organizer, // If applicable
         venue: formData.eventVenue,
         departments: formData.departments,

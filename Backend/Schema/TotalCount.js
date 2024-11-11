@@ -15,6 +15,7 @@ const TotalCountSchema = new mongoose.Schema({
       "Computer Science and Business Systems": 0,
       "Electrical and Electronics Engineering": 0,
       "Cybersecurity": 0,
+      "otherspecification":0
     },
   },
 });

@@ -14,7 +14,33 @@ const DeptPopup = ({
   const [showUpdateForm, setShowUpdateForm] = useState(false);
 
   if (!selectedEvent) return null;
-
+  const handleCloseResourcePopup = () => {
+    SetDepartmentPopup(false);
+  };
+  
+  const departmentOptions = [
+    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+    { fullName: "Computer Science Engineering", shortName: "CSE" },
+    {
+      fullName: "Artificial Intelligence and Data Science",
+      shortName: "AI & DS",
+    },
+    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+    { fullName: "Information Technology", shortName: "IT" },
+    { fullName: "Mechanical Engineering", shortName: "MECH" },
+    {
+      fullName: "Artificial Intelligence and Machine Learning",
+      shortName: "AI & ML",
+    },
+    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+    { fullName: "Cybersecurity", shortName: "Cyber" },
+    { fullName: "All", shortName: "All" },
+  ];
+  const getShortName = (fullName) => {
+    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+    return department ? department.shortName : fullName;
+  };
   return (
     <div className="custom-modal-overlay">
       <div className="custom-modal-content">
@@ -32,7 +58,8 @@ const DeptPopup = ({
               <div className="custom-modal-row">
                 <strong>Department:</strong>
                 <span className="custom-modal-value">
-                  {selectedEvent.departments.join(", ")}
+                  {selectedEvent.departments .map((dept) => getShortName(dept))
+                  .join(", ")}
                 </span>
               </div>
             )}
@@ -85,7 +112,7 @@ const DeptPopup = ({
                   </h2>
                   <button
                     className="custom-close-modal"
-                    onClick={closeResourcePopup}
+                    onClick={handleCloseResourcePopup}
                     style={{
                       position: "absolute",
                       top: "10px",
