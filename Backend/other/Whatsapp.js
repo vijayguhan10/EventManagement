@@ -166,11 +166,12 @@ const SendAutoScheduling = async () => {
     console.error("Error:", err);
   }
 };
+// Schedule the job to run at 11:37 PM every day
+cron.schedule("38 23 * * *", () => {
+  console.log("Scheduled job running at 11:37 PM...");
+  SendAutoScheduling();
+});
 
-// cron.schedule("* * * * * *", () => {
-//   console.log("Scheduled job running every minute...");
-//   SendAutoScheduling();
-// });
 
 const getMessage = async (req, res) => {
   try {
