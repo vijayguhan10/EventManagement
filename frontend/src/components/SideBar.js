@@ -24,7 +24,7 @@ const SideBar = () => {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
         if (decoded.exp > currentTime) {
-          setRole(decoded.role); 
+          setRole(decoded.role);
         }
       } catch (error) {
         setRole(null);
@@ -47,7 +47,7 @@ const SideBar = () => {
       <button
         onClick={toggleSidebar}
         type="button"
-        className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        className="inline-flex items-center p-2 mt-2  -ms-5 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
       >
         <span className="sr-only">Open sidebar</span>
         <svg
@@ -99,7 +99,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaEdit />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       MediaMax
                     </span>
                   </Link>
@@ -112,7 +112,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaHistory />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       History
                     </span>
                   </Link>
@@ -128,7 +128,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaHome />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Dashboard
                     </span>
                   </Link>
@@ -141,7 +141,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaHistory />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       History
                     </span>
                   </Link>
@@ -154,7 +154,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaAddressBook />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Events
                     </span>
                   </Link>
@@ -167,7 +167,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaDiscourse />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Departments
                     </span>
                   </Link>
@@ -176,11 +176,13 @@ const SideBar = () => {
                   <Link
                     to="/CanceledEvents"
                     className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/CanceledEvents" ? "bg-gray-300" : ""
+                      location.pathname === "/CanceledEvents"
+                        ? "bg-gray-300"
+                        : ""
                     }`}
                   >
                     <FaHome />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1 -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Canceled Events
                     </span>
                   </Link>
@@ -193,7 +195,7 @@ const SideBar = () => {
                     }`}
                   >
                     <FaChartArea />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Charts
                     </span>
                   </Link>
@@ -206,7 +208,7 @@ const SideBar = () => {
                     }`}
                   >
                     {/* <FaEdit />
-                    <span className="flex-1 ms-3 whitespace-nowrap font-Afacad text-2xl">
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       MediaMax
                     </span> */}
                   </Link>
@@ -217,11 +219,22 @@ const SideBar = () => {
             <Link
               to="/"
               onClick={handleLogout}
-              className="text-xl bg-white ml-80 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff] transform mb-96 -translate-x-[230%] -translate-y-[-105%]"
+              className="text-xl bg-white ml-80 xl:mr-20 font-bold font-Afacad w-28 h-8 flex justify-center items-center shadow-md shadow-[#00000013] rounded-lg text-[#9a41ff] transform mb-10 -translate-x-[280%] "
             >
               Logout
             </Link>
           </ul>
+          <div className="mt-3  font-Afacad text-white text-sm font-light border-t pt-4 border-gray-300">
+            <p className="text-lg font-semibold">Mentored By:</p>
+            <p>Sarfaraz Ahmed</p>
+
+            <p className="text-lg font-semibold mt-4">Developed By:</p>
+            <p>Vijay Guhan KM</p>
+            <p>Sabari M</p>
+
+            <p className="mt-4">Department of Computer Science Engineering</p>
+            <p>Batch 2023-2027</p>
+          </div>
         </div>
       </aside>
 
