@@ -167,7 +167,7 @@ const SendAutoScheduling = async () => {
   }
 };
 // Schedule the job to run at 11:37 PM every day
-cron.schedule("38 23 * * *", () => {
+cron.schedule("41 23 * * *", () => {
   console.log("Scheduled job running at 11:37 PM...");
   SendAutoScheduling();
 });
