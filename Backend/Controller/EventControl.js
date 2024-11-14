@@ -214,7 +214,6 @@ exports.CreateEvent = async (req, res) => {
       createdEvents.push(savedEvent);
     }
 
-    // Update the total count if departments were provided
     const count = await TotalCount.findOne({});
     if (!count) {
       await initializeTotalCount();

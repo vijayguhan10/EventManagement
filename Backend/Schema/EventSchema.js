@@ -70,8 +70,9 @@ const EventDataSchema = new mongoose.Schema({
     type: String,
   },
   eventDescription: {
+    default: "",
     type: String,
-    required: true,
+    // required: true,
   },
   year: {
     required: true,

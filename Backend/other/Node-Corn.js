@@ -12,7 +12,7 @@ const convertToDateTime = (dateString, timeString) => {
   const period = hours >= 12 ? 'PM' : 'AM';
   const hours12 = hours % 12 || 12;
 
-  console.log(`Converted Time: ${hours12}:${minutes} ${period}`);
+  // console.log(`Converted Time: ${hours12}:${minutes} ${period}`);
   return new Date(fullYear, month - 1, day, hours, minutes);
 };
 
@@ -32,18 +32,18 @@ const ScheduledCompletion = cron.schedule("* * * * * ", async () => {
         event.eventenddate,
         event.eventendtime
       );
-      console.log("Checking event with end date and time:", eventEndDateTime);
+      // console.log("Checking event with end date and time:", eventEndDateTime);
       
       if (eventEndDateTime <= currentDate) {
         await Event.updateOne(
           { _id: event._id },
           { $set: { status: "completed" } }
         );
-        console.log(`Event ${event._id} marked as completed`);
+        // console.log(`Event ${event._id} marked as completed`);
       }
     }
 
-    console.log("Completed events updated");
+    // console.log("Completed events updated");
   } catch (error) {
     console.error("Error updating completed events:", error);
   }
