@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../Scroll.css";
 import "../resourceperson.css";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch,FaCheckCircle,FaTimes} from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
@@ -31,7 +31,7 @@ const Dashboard = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token: ", decoded); // This will help you see if the token contains name and role
+        console.log("Decoded token: ", decoded); 
         setName(decoded.name || "Guest");
         setRole(decoded.role || "User");
       } catch (error) {
@@ -87,7 +87,10 @@ const Dashboard = () => {
     { fullName: "All", shortName: "All" },
   ];
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
-
+ const getShortName = (fullName) => {
+    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+    return department ? department.shortName : fullName;
+  };
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
     if (selectedDeptShortName === "All") {
@@ -366,28 +369,54 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
-          <div className="mx-auto p-0">
-            <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
-              {filteredSearchData.length > 0 ? (
-                filteredSearchData.map((event, index) => (
-                  <div
-                    key={index}
-                    className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-                    onClick={() => openEventModal(event)}
-                  >
-                    <div>
-                      <h2 className="text-2xl font-bold">{event.eventname}</h2>
-                      <p className="text-lg font-light">{event.departments}</p>
-                    </div>
-                    <img src={cup} alt="Event Icon" className="w-20 h-20" />
-                  </div>
-                ))
-              ) : (
-                <p>No events for today.</p>
-              )}
-            </div>
+        <div className="mx-auto p-0">
+        <div className="mx-auto p-0">
+   
+<div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
+  {filteredSearchData.length > 0 ? (
+    filteredSearchData.map((event, index) => (
+      <div
+        key={index}
+        className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+        onClick={() => openEventModal(event)}
+      >
+        {/* Event Content */}
+        <div className="flex justify-between items-center w-full">
+          <div>
+            <h2 className="text-2xl font-bold">{event.eventname}</h2>
+            <p className="text-lg font-light">
+              {event.departments
+                .map((dept) => getShortName(dept))
+                .join(", ")}
+            </p>
           </div>
         </div>
+
+        {/* Status Icon Container in Top-Left */}
+        {/* <div className="absolute top-4 left-4 flex items-center space-x-2">
+          {event.status === "decline" && (
+            <FaTimes className="text-red-600 w-7 h-7" />
+          )}
+          {event.status === "completed" && (
+            <FaCheckCircle className="text-green-600 w-7 h-7" />
+          )}
+        </div> */}
+
+        {/* Event Image (cup icon) */}
+        <img src={cup} alt="Event Icon" className="w-20 h-20" />
+      </div>
+    ))
+  ) : (
+    <p>No events for today.</p>
+  )}
+</div>
+
+  </div>
+
+
+</div>
+</div>
+
 
         <div className="flex justify-center ml-60 mb-4 w-full">
           <CalendarComponent />

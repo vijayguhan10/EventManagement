@@ -16,7 +16,8 @@ const initializeTotalCount = async () => {
         "Artificial Intelligence and Machine Learning": 0,
         "Computer Science and Business Systems": 0,
         "Electrical and Electronics Engineering": 0,
-        Cybersecurity: 0,
+        'Cybersecurity': 0,
+        "otherspecification":0
       },
     });
     await newTotalCount.save();
@@ -41,10 +42,12 @@ const incrementDepartmentCount = async (departments) => {
           "totalCounts.Computer Science and Business Systems": 1,
           "totalCounts.Electrical and Electronics Engineering": 1,
           "totalCounts.Cybersecurity": 1,
+          "totalCounts.otherspecification":1
         },
       }
     );
   } else {
+    
     for (const department of departments) {
       await TotalCount.updateOne(
         {},
@@ -52,7 +55,51 @@ const incrementDepartmentCount = async (departments) => {
       );
     }
   }
+};const decrementDepartmentCount = async (departments) => {
+  console.log("departments : ", departments);
+
+  if (departments.includes("All")) {
+    await TotalCount.updateOne(
+      {},
+      {
+        $inc: {
+          "totalCounts.Computer and Communication Engineering": -1,
+          "totalCounts.Computer Science Engineering": -1,
+          "totalCounts.Artificial Intelligence and Data Science": -1,
+          "totalCounts.Electronics and Communication Engineering": -1,
+          "totalCounts.Information Technology": -1,
+          "totalCounts.Mechanical Engineering": -1,
+          "totalCounts.Artificial Intelligence and Machine Learning": -1,
+          "totalCounts.Computer Science and Business Systems": -1,
+          "totalCounts.Electrical and Electronics Engineering": -1,
+          "totalCounts.Cybersecurity": -1,
+          "totalCounts.otherspecification": -1,
+        },
+      }
+    );
+  } else {
+    for (const department of departments) {
+      // Decrement the count for each department
+      await TotalCount.updateOne(
+        {},
+        { $inc: { [`totalCounts.${department}`]: -1 } }
+      );
+
+      // Ensure the count doesn't go below zero
+      const updatedCount = await TotalCount.findOne({});
+      const currentCount = updatedCount.totalCounts[department];
+
+      if (currentCount < 0) {
+        // If the count is below zero, set it to zero
+        await TotalCount.updateOne(
+          {},
+          { $set: { [`totalCounts.${department}`]: 0 } }
+        );
+      }
+    }
+  }
 };
+
 const updateDepartmentCount = async (oldDepartment, newDepartment) => {
   if (oldDepartment === "All") {
     await TotalCount.updateOne(
@@ -104,8 +151,7 @@ const updateDepartmentCount = async (oldDepartment, newDepartment) => {
       { $inc: { [`totalCounts.${newDepartment}`]: 1 } }
     );
   }
-};
-exports.CreateEvent = async (req, res) => {
+};exports.CreateEvent = async (req, res) => {
   console.log("Request body:", req.body);
   try {
     const {
@@ -124,109 +170,113 @@ exports.CreateEvent = async (req, res) => {
       year,
     } = req.body;
     const userId = req.userId;
-    console.log("consoling the form data", req.body);
-    // Validate the user
+    console.log("Consoling the form data", req.body);
+    console.log("resource persons",resourcePersons)
+
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
     }
+
     const resourceperson = Object.entries(resourcePersons || {}).map(
       ([key, value]) => ({ [key]: value })
     );
-    // Parse departmentspecification if it's a string
+
     let formattedDepartmentspecification;
     if (typeof departmentspecification === "string") {
       try {
         formattedDepartmentspecification = JSON.parse(departmentspecification);
       } catch (error) {
-        console.error(
-          "Failed to parse departmentspecification as JSON:",
-          error
-        );
-        return res
-          .status(400)
-          .json({ message: "Invalid departmentspecification format." });
+        console.error("Failed to parse departmentspecification as JSON:", error);
+        return res.status(400).json({ message: "Invalid departmentspecification format." });
       }
     } else {
       formattedDepartmentspecification = departmentspecification;
     }
 
-    // Ensure departmentspecification is an array
     if (!Array.isArray(formattedDepartmentspecification)) {
-      return res
-        .status(400)
-        .json({ message: "departmentspecification must be an array." });
+      return res.status(400).json({ message: "departmentspecification must be an array." });
     }
 
-    const createdEvents = [];
     let departmentsToProcess = [];
+    let imageUrl = "https://digicult.it/wp-content/uploads/2022/03/earlylife.png";  // Initialize imageUrl here
 
-    // Determine departments to process based on conditions
     if (departments.includes("All")) {
-      departmentsToProcess = images_dept.map((item) => item.name);
+      departmentsToProcess = ["All"];
+      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";  // Change imageUrl when "All" is included
     } else if (!departments.length && formattedDepartmentspecification.length) {
       departmentsToProcess = ["otherspecification"];
     } else {
       departmentsToProcess = departments;
     }
 
-    // Loop through each department and create events
-    for (const department of departmentsToProcess) {
-      // Skip otherspecification if "All" is included in departments
-      if (departments.includes("All") && department === "otherspecification") {
-        continue;
-      }
-
-      const departmentData =
-        department !== "otherspecification"
-          ? images_dept.find((item) => item.name === department)
-          : null;
-
-      const imageUrl =
-        department === "otherspecification"
-          ? "https://digicult.it/wp-content/uploads/2022/03/earlylife.png"
-          : departmentData
-          ? departmentData[
-              Object.keys(departmentData).find((key) => key !== "name")
-            ]
-          : null;
-
-      const newEvent = new Event({
-        userid: userId,
-        eventname,
-        resourceperson,
-        venue,
-        eventstarttime,
-        eventendtime,
-        eventstartdate: formatDate(eventstartdate),
-        eventenddate: formatDate(eventenddate),
-        status,
-        typeofevent,
-        departments: department !== "otherspecification" ? department : null,
-        imageurl: imageUrl,
-        eventDescription: eventDescription,
-        departmentspecification: formattedDepartmentspecification,
-        year,
-      });
-
-      const savedEvent = await newEvent.save();
-      console.log("Saved event:", savedEvent);
-      createdEvents.push(savedEvent);
+    if (departments.includes("All") || departmentsToProcess.includes("otherspecification")) {
+      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";  // Update imageUrl for "All" or "otherspecification"
+    } else if (departments.length && departmentsToProcess.length) {
+      const departmentData = images_dept.find((item) => departments.includes(item.name));
+      imageUrl = departmentData
+        ? departmentData[Object.keys(departmentData).find((key) => key !== "name")]
+        : imageUrl;
     }
+
+    const newEvent = new Event({
+      userid: userId,
+      eventname,
+      resourceperson,
+      venue,
+      eventstarttime,
+      eventendtime,
+      eventstartdate: formatDate(eventstartdate),
+      eventenddate: formatDate(eventenddate),
+      status,
+      typeofevent,
+      departments: departmentsToProcess,
+      imageurl: imageUrl,
+      eventDescription,
+      departmentspecification: formattedDepartmentspecification,
+      year,
+    });
+
+    const savedEvent = await newEvent.save();
+    console.log("Saved event:", savedEvent);
 
     const count = await TotalCount.findOne({});
     if (!count) {
       await initializeTotalCount();
-    } else if (departments.length) {
+    }
+
+    if (departments.includes("All")) {
+      const allDepartments = [
+        "Computer and Communication Engineering",
+        "Computer Science Engineering",
+        "Artificial Intelligence and Data Science",
+        "Electronics and Communication Engineering",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Artificial Intelligence and Machine Learning",
+        "Computer Science and Business Systems",
+        "Electrical and Electronics Engineering",
+        "Cybersecurity",
+      ];
+      for (const dept of allDepartments) {
+        await incrementDepartmentCount([dept]);
+      }
+      if (departmentspecification.length) {
+        await incrementDepartmentCount(["otherspecification"]);
+      }
+    } else {
       await incrementDepartmentCount(departments);
+      if (departmentspecification.length) {
+        await incrementDepartmentCount(["otherspecification"]);
+      }
     }
 
     const updatedCounts = await TotalCount.find({});
     console.log("Incremented model data:", updatedCounts);
 
     return res.status(201).json({
-      message: "Events created successfully",
-      events: createdEvents,
+      message: "Event created successfully",
+      event: savedEvent,
       year: year,
     });
   } catch (error) {
@@ -244,17 +294,20 @@ exports.updateevent = async (req, res) => {
     const {
       eventId,
       eventname,
-      resourceperson,
-      organizer,
+      resourcePersons,
+      departmentspecification,
       venue,
       eventstarttime,
       eventendtime,
       eventstartdate,
       eventenddate,
-      departments,
       typeofevent,
+      departments,
+      year,
+      description,
     } = req.body;
-console.log("consoling the updaegt",req.body);
+    console.log("resour5ce persopnm",resourcePersons)
+    console.log("consoling the updaegt", req.body);
     const st_date = formatDate(eventstartdate);
     const end_date = formatDate(eventenddate);
     const userId = req.userId;
@@ -268,60 +321,177 @@ console.log("consoling the updaegt",req.body);
     if (!eventToUpdate) {
       return res.status(404).json({ message: "Event not found" });
     }
-
+    console.log(eventToUpdate);
+    console.log();
     const oldDepartment = eventToUpdate.departments;
+    const oldspecification = eventToUpdate.departmentspecification;
+    console.log("😎😎", departments, oldspecification);
+    if (oldDepartment.includes("All")) {
+      const allDepartments = [
+        "Computer and Communication Engineering",
+        "Computer Science Engineering",
+        "Artificial Intelligence and Data Science",
+        "Electronics and Communication Engineering",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Artificial Intelligence and Machine Learning",
+        "Computer Science and Business Systems",
+        "Electrical and Electronics Engineering",
+        "Cybersecurity",
+      ];
+      if (oldspecification.length) {
+        console.log("consoled");
+        console.log("😤😤😤😤",oldspecification);
+        await decrementDepartmentCount(["otherspecification"]);
+      }
+      for (const dept of allDepartments) {
+        await decrementDepartmentCount([dept]);
+      }
+    } else if (oldspecification || oldDepartment.length) {
+      if (oldspecification.length) {
+        console.log("consoled");
+        console.log("😒😒",oldDepartment)
+        await decrementDepartmentCount(["otherspecification"]);
+      }
+      if (oldDepartment.length) {
+        await decrementDepartmentCount(oldDepartment);
+      }
+    }
+    const resourceperson = Object.entries(resourcePersons || {}).map(
+      ([key, value]) => ({ [key]: value })
+    );
+    let formattedDepartmentspecification;
+    if (typeof departmentspecification === "string") {
+      try {
+        formattedDepartmentspecification = JSON.parse(departmentspecification);
+      } catch (error) {
+        console.error(
+          "Failed to parse departmentspecification as JSON:",
+          error
+        );
+        return res
+          .status(400)
+          .json({ message: "Invalid departmentspecification format." });
+      }
+    } else {
+      formattedDepartmentspecification = departmentspecification;
+    }
 
-    let updatedFields = {
+    if (!Array.isArray(formattedDepartmentspecification)) {
+      return res
+        .status(400)
+        .json({ message: "departmentspecification must be an array." });
+    }
+
+    const createdEvents = [];
+    let departmentsToProcess = [];
+
+    if (departments.includes("All")) {
+      departmentsToProcess = ["All"];
+      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";
+    } else if (!departments.length && formattedDepartmentspecification.length) {
+      departmentsToProcess = ["otherspecification"];
+    } else {
+      departmentsToProcess = departments;
+    }
+
+    for (const department of departmentsToProcess) {
+      if (departments.includes("All") && department === "otherspecification") {
+        continue;
+      }
+
+      const departmentData =
+        department !== "otherspecification"
+          ? images_dept.find((item) => item.name === department)
+          : null;
+
+      let imageUrl =
+        department === "otherspecification"
+          ? "https://digicult.it/wp-content/uploads/2022/03/earlylife.png"
+          : departmentData
+          ? departmentData[
+              Object.keys(departmentData).find((key) => key !== "name")
+            ]
+          : null;
+      console.log("image url******", imageUrl);
+      if (!imageUrl) {
+        imageUrl =
+          "https://digicult.it/wp-content/uploads/2022/03/earlylife.png";
+      }
+
+    }
+
+  
+    let updatedfield={
       eventname,
       resourceperson,
-      organizer,
+      departmentspecification,
       venue,
       eventstarttime,
       eventendtime,
-      eventstartdate: st_date,
-      eventenddate: end_date,
+      eventstartdate:st_date,
+      eventenddate:end_date,
       typeofevent,
-    };
+      departments,
+      year,
+      description,
 
-    if (departments && departments.length > 0) {
-      const departmentName = departments[0];
-
-      const departmentData = images_dept.find(
-        (item) => item.name === departmentName
-      );
-
-      const imageKey = departmentData
-        ? Object.keys(departmentData).find((key) => key !== "name")
-        : null;
-      const imageUrl = imageKey ? departmentData[imageKey] : null;
-
-      if (imageUrl) {
-        updatedFields.imageurl = imageUrl;
-      }
-
-      updatedFields.departments = departments;
     }
-
-    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedFields, {
+    
+    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedfield, {
       new: true,
     });
-
     if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    await updateDepartmentCount(oldDepartment, departments[0]);
+    if (departments.includes("All")) {
+      const allDepartments = [
+        "Computer and Communication Engineering",
+        "Computer Science Engineering",
+        "Artificial Intelligence and Data Science",
+        "Electronics and Communication Engineering",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Artificial Intelligence and Machine Learning",
+        "Computer Science and Business Systems",
+        "Electrical and Electronics Engineering",
+        "Cybersecurity",
+      ];
+      if (departmentspecification.length) {
+        console.log("consoled");
+        console.log(departmentspecification);
+        await incrementDepartmentCount(["otherspecification"]);
+      }
+      for (const dept of allDepartments) {
+        await incrementDepartmentCount([dept]);
+      }
+    } else if (departmentspecification || departments.length) {
+      if (departmentspecification.length) {
+        console.log("consoled");
+        await incrementDepartmentCount(["otherspecification"]);
+      }
+      if (departments.length) {
+        await incrementDepartmentCount(departments);
+      }
+    }
 
-    return res.status(200).json({
-      message: "Event updated successfully",
-      event: updatedEvent,
+    const updatedCounts = await TotalCount.find({});
+    console.log("Incremented model data:", updatedCounts);
+
+    return res.status(201).json({
+      message: "Events updated successfully",
+      events: createdEvents,
+      year: year,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in updateevent:", error.message);
     return res.status(500).json({
       message: "Sorry, there was an error processing your request.",
       error: error.message,
     });
+
+    
   }
 };
 exports.deleteEvent = async (req, res) => {
@@ -427,29 +597,32 @@ exports.departmentevent = async (req, res) => {
     if (!department || department.length === 0) {
       events = await Event.find({});
     } else if (department === "otherspecification") {
-      console.log(department, "😎 Department received");
-
-      events = await Event.find({ departments: null });
-      console.log("consoling the passing events : ", events);
-      return res.status(200).json({
-        message: "otherspecification data passed successfully",
-        events,
-      });
+      events = await Event.find({ departmentspecification: { $exists: true, $ne: [] } });
+      console.log("Retrieved events for 'otherspecification':", events);
+    
     } else {
-      events = await Event.find({ departments: { $in: department } });
+      const departmentArray = Array.isArray(department) ? department : [department];
+console.log(departmentArray)
+      events = await Event.find({
+        $or: [
+          { departments: { $in: departmentArray } },
+          { departments: "All" }
+        ]
+      });
     }
 
     if (!events || events.length === 0) {
       return res.status(200).json([]);
     }
 
-    console.log(events, "Retrieved events");
+    console.log("Retrieved events:", events);
     return res.status(200).json(events);
   } catch (err) {
     console.error("Error fetching department events: ", err);
     return res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 exports.getTotalCount = async (req, res) => {
   const userid = req.userId;

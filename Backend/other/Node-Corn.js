@@ -22,7 +22,7 @@ const railwayTimeString = "15:30";
 const convertedDateTime = convertToDateTime(dateString, railwayTimeString);
 console.log("Converted DateTime:", convertedDateTime);
 
-const ScheduledCompletion = cron.schedule("* * * * * ", async () => {
+const ScheduledCompletion = cron.schedule("* * * * *", async () => {
   try {
     const currentDate = new Date();
     const events = await Event.find({ status: { $eq: "pending" } });

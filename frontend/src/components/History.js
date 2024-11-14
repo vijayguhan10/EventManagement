@@ -3,10 +3,12 @@ import { FaCalendar, FaSearchLocation, FaSearch } from "react-icons/fa";
 import SideBar from "./SideBar";
 import "../Modal.css";
 import axios from "axios";
+import Popup2 from "../PopupModels/Popup2";
 import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 function History() {
   const [isOpen, setIsOpen] = useState(false);
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,6 +16,9 @@ function History() {
   const [eventType, setEventType] = useState("All");
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };  
   const handleDelete = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
@@ -75,12 +80,13 @@ function History() {
   const closeResourcePopup = () => {
     setIsResourcePopupOpen(false);
   };
+  const [isViewMore, setisViewMore] = useState(false);
 
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
-    setIsOpen(true);
+    setisViewMore(true);
   };
 
   const handleCloseModal = () => {
@@ -274,6 +280,17 @@ function History() {
             </div>
           </div>
         </div>
+      )}
+        {isViewMore && selectedEvent && (
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
       )}
       {isResourcePopupOpen && (
         <div

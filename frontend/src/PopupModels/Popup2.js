@@ -1,5 +1,24 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { jwtDecode } from "jwt-decode";
+const departmentOptions = [
+  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
+  { fullName: "Computer Science Engineering", shortName: "CSE" },
+  {
+    fullName: "Artificial Intelligence and Data Science",
+    shortName: "AI & DS",
+  },
+  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
+  { fullName: "Information Technology", shortName: "IT" },
+  { fullName: "Mechanical Engineering", shortName: "MECH" },
+  {
+    fullName: "Artificial Intelligence and Machine Learning",
+    shortName: "AI & ML",
+  },
+  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
+  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
+  { fullName: "Cybersecurity", shortName: "Cyber" },
+  { fullName: "All", shortName: "All" },
+];
 const Popup2 = ({
   selectedEvent,
   closeEventModal,
@@ -8,9 +27,8 @@ const Popup2 = ({
   DepartmentPopup,
   SetDepartmentPopup,
   closeResourcePopup,
-}) => { 
-  
-  const [token, setToken] = useState(localStorage.getItem("authToken"));
+}) => {
+  const [token] = useState(localStorage.getItem("authToken"));
 
   const isTokenValid = (token) => {
     if (!token) return { isValid: false, role: null };
@@ -18,19 +36,24 @@ const Popup2 = ({
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
       const isValid = decoded.exp > currentTime;
-      var role = decoded.role;
-     
+      const role = decoded.role;
       return { isValid, role };
     } catch (error) {
       return { isValid: false, role: null };
     }
   };
-  if (!selectedEvent) return null; 
 
-
+  if (!selectedEvent) return null;
 
   const { isValid: isAuthenticated, role } = isTokenValid(token);
 
+  const handleCloseResourcePopup = () => {
+    SetDepartmentPopup(false);
+  };
+  const getShortName = (fullName) => {
+    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+    return department ? department.shortName : fullName;
+  };
 
   return (
     <div className="custom-modal-overlay">
@@ -38,26 +61,30 @@ const Popup2 = ({
         <button className="custom-close-modal" onClick={closeEventModal}>
           &times;
         </button>
-        {isAuthenticated && role !== 'mediamax'  && (
-    <img
-      src={selectedEvent.imageurl}
-      alt="Event"
-      className="custom-modal-image"
-    />
-  ) }
+
+        {isAuthenticated && role !== "mediamax" && (
+          <img
+            src={selectedEvent.imageurl}
+            alt="Event"
+            className="custom-modal-image"
+          />
+        )}
+
         <div className="custom-modal-header">
           <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
         </div>
+
         <div className="custom-modal-body">
-          {selectedEvent.departments &&
-            selectedEvent.departments.length > 0 && (
-              <div className="custom-modal-row">
-                <strong>Department:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departments.join(", ")}
-                </span>
-              </div>
-            )}
+          {selectedEvent.departments && selectedEvent.departments.length > 0 && (
+            <div className="custom-modal-row">
+              <strong>Department:</strong>
+              <span className="custom-modal-value">
+                {selectedEvent.departments
+                  .map((dept) => getShortName(dept))
+                  .join(", ")}
+              </span>
+            </div>
+          )}
 
           <div className="custom-modal-row">
             <strong>Specification:</strong>
@@ -65,11 +92,13 @@ const Popup2 = ({
               onClick={() => SetDepartmentPopup(!DepartmentPopup)}
               className="custom-modal-value"
             >
-              view
+              View
             </span>
+
             {DepartmentPopup && (
               <div
                 className="resource-popup-overlay"
+                onClick={handleCloseResourcePopup}
                 style={{
                   zIndex: 9999,
                   backgroundColor: "rgba(0, 0, 0, 0.6)",
@@ -85,6 +114,7 @@ const Popup2 = ({
               >
                 <div
                   className="resource-popup-content"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
                     backgroundColor: "#fff",
                     borderRadius: "10px",
@@ -105,9 +135,10 @@ const Popup2 = ({
                   >
                     Departments In Detail
                   </h2>
+
                   <button
                     className="custom-close-modal"
-                    onClick={closeResourcePopup}
+                    onClick={handleCloseResourcePopup}
                     style={{
                       position: "absolute",
                       top: "10px",
@@ -121,6 +152,7 @@ const Popup2 = ({
                   >
                     &times;
                   </button>
+
                   <div
                     className="resource-person-list"
                     style={{
@@ -160,28 +192,33 @@ const Popup2 = ({
             <strong>Venue:</strong>
             <span className="custom-modal-value">{selectedEvent.venue}</span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Resource Person:</strong>
             <span className="custom-modal-value">
               <button onClick={handleViewResourcePersons}>View</button>
             </span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Year:</strong>
             <span className="custom-modal-value">{selectedEvent.year}</span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Event Start Date:</strong>
             <span className="custom-modal-value">
               {selectedEvent.eventstartdate}
             </span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Event End Date:</strong>
             <span className="custom-modal-value">
               {selectedEvent.eventenddate}
             </span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Time:</strong>
             <span className="custom-modal-value">
@@ -189,19 +226,21 @@ const Popup2 = ({
               {convertTo12HourFormat(selectedEvent.eventendtime)}
             </span>
           </div>
+
           <div className="custom-modal-row">
             <strong>Event Type:</strong>
             <span className="custom-modal-value">
               {selectedEvent.typeofevent}
             </span>
           </div>
-          {isAuthenticated&&role==='mediamax'&&(
-             <div className="custom-modal-row">
-             <strong>Event Description:</strong>
-             <span className="custom-modal-value">
-               {selectedEvent.eventDescription}
-             </span>
-           </div>
+
+          {isAuthenticated && role === "mediamax" && (
+            <div className="custom-modal-row">
+              <strong>Event Description:</strong>
+              <span className="custom-modal-value">
+                {selectedEvent.eventDescription}
+              </span>
+            </div>
           )}
         </div>
       </div>

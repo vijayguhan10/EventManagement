@@ -36,6 +36,7 @@ const EventDataSchema = new mongoose.Schema({
       "Electrical and Electronics Engineering",
       "Cybersecurity",
       "All",
+      "otherspecification"
     ],
   },
   departmentspecification: {

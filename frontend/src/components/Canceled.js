@@ -156,6 +156,7 @@ function History() {
               src={event.imageurl}
               alt={event.eventname}
             />
+            
             <div className="ml-5 mt-3 flex flex-row gap-1">
               <FaCalendar size={20} className="mt-1" color="#46459d" />
               <h1 className="text-xl text-[#8b21e8] font-Afacad">
