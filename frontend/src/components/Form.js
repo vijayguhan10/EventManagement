@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useNavigate } from "react-router-dom";
 function Forms() {
   const eventTypes = [
     "Workshop",
@@ -44,7 +44,7 @@ function Forms() {
     setShowEventTypeModal(false);
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   const [newDepartment, setNewDepartment] = useState("");
@@ -127,7 +127,7 @@ function Forms() {
       setNewDepartment("");
       setIsOtherSelected(false); // Reset after adding
     } else {
-      setErrors({ ...errors, departments: "Please enter a department name." });
+      // setErrors({ ...errors, departments: "Please enter a department name." });
     }
   };
   const closeModal = () => {
@@ -298,8 +298,8 @@ function Forms() {
 
     if (!formData.eventType)
       newErrors.eventType = "Please select an event type";
-    if (!formData.eventDescription)
-      newErrors.eventDescription = "Event description is required";
+    // if (!formData.eventDescription)
+    // newErrors.eventDescription = "Event description is required";
 
     if (Object.keys(newErrors).length > 0) {
       console.log(Object.keys(newErrors).length);
@@ -311,7 +311,7 @@ function Forms() {
     try {
       console.log("posting the form data : ", formData);
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/event/create_event`,
+        ` ${process.env.REACT_APP_BASE_URL}/event/create_event`,
         {
           eventname: formData.eventTitle,
           resourcePersons: formData.resourcePersons,
@@ -332,13 +332,16 @@ function Forms() {
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
-        toast.success("Event added successfully!");
+        setTimeout(() => {
+          toast.success("Event added successfully!");
+          navigate("/Dashboard");
+        }, 1000);
       }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
     setErrors({});
   };
@@ -681,7 +684,7 @@ function Forms() {
 
                     <input
                       type="text"
-                      placeholder="Specialization"
+                      placeholder="Affilation"
                       value={person.specialization}
                       onChange={(e) =>
                         handleResourcePersonDetailChange(
