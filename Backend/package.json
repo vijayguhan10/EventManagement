@@ -2,12 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Event Management software using MERN for SECE",
-  "main": "app.js",
-  "scripts": {
+  "main": "index.js",
+ "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "vercel-build": "echo 'Running Vercel build script' && npm install && npm run build"
+    "start": "node index.js"
   },
   "author": "Vijay Guhan",
   "license": "ISC",
