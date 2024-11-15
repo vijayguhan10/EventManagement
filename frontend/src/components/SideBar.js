@@ -124,12 +124,25 @@ const SideBar = () => {
                   <Link
                     to="/Dashboard"
                     className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+                      location.pathname === "/Addlogins" ? "bg-gray-300" : ""
                     }`}
                   >
                     <FaHome />
                     <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
                       Dashboard
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/Addlogins"
+                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+                    }`}
+                  >
+                    <FaHome />
+                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+                      Add Login
                     </span>
                   </Link>
                 </li>
