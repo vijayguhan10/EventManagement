@@ -10,7 +10,7 @@ router.get("/geteventdata/:id", jsonwebtoken, Event.Get_Detailed_Info);
 router.post("/getalldata", jsonwebtoken, Event.getallevents);
 router.get("/generatedpdf-doc", jsonwebtoken, pdf.generatePdf);
 router.get("/generateExcel-sheet", jsonwebtoken, ExcelSheet.ExcelConversion);
-
+router.patch("/updatedesigned",jsonwebtoken,Event.updatedesigned)
 router.post("/getdepartmentdata", jsonwebtoken, Event.departmentevent);
 router.get("/gettotalcounts", jsonwebtoken, Event.getTotalCount);
 module.exports = router;

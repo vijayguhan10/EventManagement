@@ -494,6 +494,34 @@ exports.updateevent = async (req, res) => {
     
   }
 };
+
+exports.updatedesigned = async (req, res) => {
+  console.log("Request Body:", req.body);
+  try {
+    const { eventid, status } = req.body;
+
+    if (!eventid || !status) {
+      return res.status(400).json({ message: "Event ID and status are required" });
+    }
+
+    const event = await Event.findById(eventid);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    console.log("Event before update:", event);
+    event.designstatus = status; 
+    await event.save();
+
+    console.log("Event after update:", event);
+    res.status(200).json({ designstatus: event.designstatus });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Error updating status" });
+  }
+};
+
+
 exports.deleteEvent = async (req, res) => {
   try {
     const { eventid } = req.body;

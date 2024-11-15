@@ -79,6 +79,15 @@ const EventDataSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  designed: {
+    type: Boolean,
+    default: false,
+  },
+  designstatus: {
+    type: String,
+    enum: ["Yet to Complete", "In Progress", "Completed"],
+    default: "Yet to Complete",
+  },
 });
 
 const EventData = mongoose.model("EventData", EventDataSchema);

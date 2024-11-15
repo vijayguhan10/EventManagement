@@ -16,7 +16,7 @@ function MediaMax() {
 
 
 
-  
+  const [dropdownOpen, setDropdownOpen] = useState({});
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [iseditOpen, setiseditOpen] = useState(false);
   const [isViewMore, setisViewMore] = useState(false);
@@ -222,7 +222,50 @@ function MediaMax() {
     typeofevent: "",
     departmentspecification: [],
   });
+  const handleStatusChange = (event, newStatus) => {
+    setStatus((prevStatus) => ({
+      ...prevStatus,
+      [event._id]: newStatus,
+    }));
 
+    handleUpdateStatus(event, newStatus);
+
+    setOpenDropdownIndex(null);
+  };
+  const handleUpdateStatus = async (event, status) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/event/updatedesigned`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            eventid: event._id,
+            status, 
+          }),
+        }
+      );
+  
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to update status");
+  
+      setData((prevData) =>
+        prevData.map((e) =>
+          e._id === event._id ? { ...e, status: data.status } : e
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+  
+  
+  const [openDropdownIndex, setOpenDropdownIndex] = useState(null); // Track the open dropdown
+
+  
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
   const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
   const datafetch = (event) => {
@@ -236,7 +279,7 @@ function MediaMax() {
       setSelectedEvent(null);
     }
   };
-
+  const [status, setStatus] = useState({}); 
   const handleOpenModal = (event) => {
     setSelectedEvent(event);
     setiseditOpen(false);
@@ -284,7 +327,7 @@ function MediaMax() {
         </h1>
 
         {/* Filter UI */}
-        <div className="mt-3 ml-5">
+        {/* <div className="mt-3 ml-5">
           <select
             value={eventType}
             onChange={(e) => datafetch(e.target.value)}
@@ -295,7 +338,7 @@ function MediaMax() {
             <option value="Nontechnical">Non-Technical</option>
             <option value="Placement">Placement</option>
           </select>
-        </div>
+        </div> */}
 
         <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
           <input
@@ -314,7 +357,16 @@ function MediaMax() {
         </div>
       </div>
       <div className="xl:grid xl:grid-cols-3 xl:gap-6 flex flex-col gap-5 m-4 xl:mt-5">
-        {filteredData.map((event, index) => (
+      {filteredData.map((event, index) => {
+        const allStatuses = ["Yet to Complete", "In Progress", "Completed"];
+        const remainingStatuses = allStatuses.filter((status) => status !== event.designstatus);
+
+        // Toggle dropdown visibility on button click
+        const toggleDropdown = () => {
+          setOpenDropdownIndex(openDropdownIndex === index ? null : index);
+        };
+
+        return (
           <div
             key={index}
             className="w-96 h-full shadow-md shadow-[#0b0b0c67] rounded-lg relative"
@@ -342,9 +394,7 @@ function MediaMax() {
               </h1>
             </div>
             <div className="ml-5 flex flex-col gap-3 mt-3">
-              <h1 className="font-bold text-3xl font-Afacad">
-                {event.eventname}
-              </h1>
+              <h1 className="font-bold text-3xl font-Afacad">{event.eventname}</h1>
               <h1 className="font-bold text-gray-500 text-xl font-Afacad">
                 {event.organizer}
               </h1>
@@ -353,9 +403,7 @@ function MediaMax() {
                   className="mt-1 mr-1 font-Afacad"
                   color="#06060b9b"
                 />
-                <h1 className="font-bold text-xl text-[#06060b9b]">
-                  {event.venue}
-                </h1>
+                <h1 className="font-bold text-xl text-[#06060b9b]">{event.venue}</h1>
               </div>
               <div className="flex flex-row gap-2 mt-2">
                 <button
@@ -364,12 +412,50 @@ function MediaMax() {
                 >
                   View More
                 </button>
-                
+
+                {/* Status Dropdown Button */}
+                <div className="relative">
+                <button
+  className={`text-xl font-Afacad text-white font-bold rounded-md w-36 mb-2 ${
+    (status[event._id] || event.designstatus) === "Completed"
+      ? "bg-green-600"
+      : (status[event._id] || event.designstatus) === "In Progress"
+      ? "bg-yellow-500"
+      : (status[event._id] || event.designstatus) === "Yet to Complete"
+      ? "bg-red-500"
+      : "bg-gray-500" 
+  }`}
+  onClick={toggleDropdown}
+>
+  {status[event._id] || event.designstatus || "Status"}
+</button>
+
+                  {openDropdownIndex === index && (
+                    <div className="absolute bottom-full mb-2 bg-white border rounded-lg shadow-lg z-10 w-36">
+                      {remainingStatuses.map((status) => (
+                        <button
+                          key={status}
+                          className={`block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left ${
+                            event.designstatus === status ? "font-bold" : ""
+                          }`}
+                          onClick={() => handleStatusChange(event, status)} 
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        );
+      })}
+
+
+
+</div>
+
       {showDeleteModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
