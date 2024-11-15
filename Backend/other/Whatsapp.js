@@ -1,38 +1,10 @@
-const twilio = require("twilio");
-const cloudinary = require("cloudinary").v2;
-const cron = require("node-cron");
+var nodemailer = require("nodemailer");
+
 require("dotenv").config();
 const Event = require("../Schema/EventSchema");
-const nodeHtmlToImage = require("node-html-to-image");
-const client = new twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
-const axios = require("axios");
-const departmentOptions = [
-  { fullName: "Computer and Communication Engineering", shortName: "CCE" },
-  { fullName: "Computer Science Engineering", shortName: "CSE" },
-  {
-    fullName: "Artificial Intelligence and Data Science",
-    shortName: "AI & DS",
-  },
-  { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
-  { fullName: "Information Technology", shortName: "IT" },
-  { fullName: "Mechanical Engineering", shortName: "MECH" },
-  {
-    fullName: "Artificial Intelligence and Machine Learning",
-    shortName: "AI & ML",
-  },
-  { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
-  { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
-  { fullName: "All", shortName: "All" },
-];
-
-const num = "+918438434868";
-
 const convertTo12HourFormat = (time) => {
-  let [hours, minutes] = time.split(':').map(Number); // Assuming time is in HH:MM format
-  let period = hours >= 12 ? 'PM' : 'AM';
+  let [hours, minutes] = time.split(":").map(Number); // Assuming time is in HH:MM format
+  let period = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12; // Convert hour to 12-hour format
   minutes = minutes < 10 ? `0${minutes}` : minutes; // Add leading zero if minutes are less than 10
   return `${hours}:${minutes} ${period}`;
@@ -40,11 +12,19 @@ const convertTo12HourFormat = (time) => {
 
 const sendAutoSchedulingEmail = async () => {
   try {
-    const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
-
+    const recipientEmails = [
+      "vijayguhan10@gmail.com",
+      "sabari.m2023cse@sece.ac.in",
+      "sabarim636901@gmail.com",
+    ];
 
     const today = new Date();
-    const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
+    const formattedToday = `${String(today.getDate()).padStart(
+      2,
+      "0"
+    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
+      today.getFullYear()
+    ).slice(-2)}`;
 
     // Fetch events scheduled for today
     const eventsToday = await Event.find({ eventstartdate: formattedToday });
@@ -53,7 +33,7 @@ const sendAutoSchedulingEmail = async () => {
       console.log(noEventsMessage);
 
       // Send email notifying no events
-      await sendEmail(recipientEmails, 'No Events Scheduled', noEventsMessage);
+      await sendEmail(recipientEmails, "No Events Scheduled", noEventsMessage);
       return;
     }
 
@@ -76,7 +56,9 @@ const sendAutoSchedulingEmail = async () => {
 
     // Loop through events and append them to the table
     eventsToday.forEach((event) => {
-      const eventStartTimeFormatted = convertTo12HourFormat(event.eventstarttime);
+      const eventStartTimeFormatted = convertTo12HourFormat(
+        event.eventstarttime
+      );
       const eventEndTimeFormatted = convertTo12HourFormat(event.eventendtime);
 
       htmlContent += `
@@ -98,7 +80,11 @@ const sendAutoSchedulingEmail = async () => {
       </html>`;
 
     // Send the email with the event details to multiple recipients
-    await sendEmail(recipientEmails, `Events Scheduled for ${formattedToday}`, htmlContent);
+    await sendEmail(
+      recipientEmails,
+      `Events Scheduled for ${formattedToday}`,
+      htmlContent
+    );
     console.log("Email sent for today's events.");
   } catch (err) {
     console.error("Error:", err);
@@ -106,23 +92,21 @@ const sendAutoSchedulingEmail = async () => {
 };
 
 const sendEmail = async (to, subject, htmlContent) => {
-  var nodemailer = require("nodemailer");
-
   // Set up the SMTP transport for Gmail
   var sender = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: "sabarim6369@gmail.com", // Your Gmail address
-      pass: "gsdn ofbj bvqp bwxt",  // Your Gmail app password (NOT your Gmail account password)
+      pass: "gsdn ofbj bvqp bwxt", // Your Gmail app password (NOT your Gmail account password)
     },
   });
 
   // Compose the email to multiple recipients
   var composeMail = {
     from: "sabarim6369@gmail.com", // Sender address
-    to: to.join(", "),            // Join all recipient emails with a comma
-    subject: subject,             // Subject line
-    html: htmlContent,            // HTML body content
+    to: to.join(", "), // Join all recipient emails with a comma
+    subject: subject, // Subject line
+    html: htmlContent, // HTML body content
   };
 
   // Use async/await for sending the email
@@ -134,7 +118,5 @@ const sendEmail = async (to, subject, htmlContent) => {
     console.log("Some problem occurred:", err);
   }
 };
-
-
 
 module.exports = { sendAutoSchedulingEmail };
