@@ -318,7 +318,7 @@ const Dashboard = () => {
   const filteredSearchData = filteredData.filter((event) => {
     const department = Array.isArray(event.departments)
       ? event.departments.join(", ")
-      : event.departments || ""; // Handle cases where departments might be null or undefined
+      : event.departments || "";
 
     return (
       (event.eventname &&
@@ -352,7 +352,7 @@ const Dashboard = () => {
             </h1>
             <h1 className="text-xl font-Afacad mt-3 font-bold">Todays Data</h1>
           </div>
-          <div className="absolute ml-[310%] mb-32 pl-">
+          {/* <div className="absolute ml-[310%] mb-32 pl-">
             <input
               type="text"
               placeholder="Search events..."
@@ -366,7 +366,7 @@ const Dashboard = () => {
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-md">
               Search
             </button>
-          </div>
+          </div> */}
         </div>
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
         <div className="mx-auto p-0">
@@ -419,7 +419,10 @@ const Dashboard = () => {
 
 
         <div className="flex justify-center ml-60 mb-4 w-full">
-          <CalendarComponent />
+          <CalendarComponent
+             searchQuery={searchQuery}
+             handleSearchChange={handleSearchChange}
+           />
         </div>
       </div>
       <div className="flex justify-center items-center mt-28 relative -left-[18%] bottom-32">
