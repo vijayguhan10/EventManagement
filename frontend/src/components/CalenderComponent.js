@@ -342,7 +342,7 @@ const CalendarComponent = () => {
         setEvents(filteredData);
       } catch (error) {
         console.error("Failed to fetch data:", error);
-        toast.error("Failed to fetch data.");
+        toast.warning("No events today.");
       } finally {
         setLoading(false);
       }
