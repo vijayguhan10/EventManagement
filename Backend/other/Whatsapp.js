@@ -179,10 +179,10 @@ const sendEmail = async (to, subject, htmlContent) => {
 
 const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
 
-cron.schedule("* * * * * *", () => {
-  console.log("Scheduled job running...");
-  sendAutoSchedulingEmail(recipientEmails);
-});
+// cron.schedule("* * * * * *", () => {
+//   console.log("Scheduled job running...");
+//   sendAutoSchedulingEmail(recipientEmails);
+// });
 
 
 
