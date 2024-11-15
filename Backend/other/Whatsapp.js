@@ -76,30 +76,32 @@ const sendTodaysEvents = async () => {
     console.error("Error:", err.message);
   }
 };
+const convertTo12HourFormat = (time) => {
+  let [hours, minutes] = time.split(':').map(Number); // Assuming time is in HH:MM format
+  let period = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12; // Convert hour to 12-hour format
+  minutes = minutes < 10 ? `0${minutes}` : minutes; // Add leading zero if minutes are less than 10
+  return `${hours}:${minutes} ${period}`;
+};
 
-const SendAutoScheduling = async () => {
+const sendAutoSchedulingEmail = async (recipientEmails) => {
   try {
     const today = new Date();
-    const formattedToday = `${String(today.getDate()).padStart(
-      2,
-      "0"
-    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
-      today.getFullYear()
-    ).slice(-2)}`;
+    const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
 
+    // Fetch events scheduled for today
     const eventsToday = await Event.find({ eventstartdate: formattedToday });
     if (eventsToday.length === 0) {
       const noEventsMessage = "No events scheduled for today.";
-      await client.messages.create({
-        body: noEventsMessage,
-        from: `whatsapp:+14155238886`,
-        to: `whatsapp:${num}`,
-      });
-      console.log("No events scheduled.");
+      console.log(noEventsMessage);
+
+      // Send email notifying no events
+      await sendEmail(recipientEmails, 'No Events Scheduled', noEventsMessage);
       return;
     }
 
-    let htmlContent = ` 
+    // Prepare the HTML content for the email
+    let htmlContent = `
       <html>
         <body style="font-family: Arial, sans-serif;">
           <h1 style="text-align: center;">Auto Scheduling Events for ${formattedToday}</h1>
@@ -112,18 +114,24 @@ const SendAutoScheduling = async () => {
               <th>Event Start</th>
               <th>Event End</th>
               <th>Status</th>
+              <th>Design Status</th>
             </tr>`;
 
+    // Loop through events and append them to the table
     eventsToday.forEach((event) => {
+      const eventStartTimeFormatted = convertTo12HourFormat(event.eventstarttime);
+      const eventEndTimeFormatted = convertTo12HourFormat(event.eventendtime);
+
       htmlContent += `
         <tr>
           <td>${event.eventname}</td>
           <td>${event.typeofevent}</td>
           <td>${event.departments[0]}</td>
           <td>${event.venue}</td>
-          <td>${event.eventstartdate} at ${event.eventstarttime}</td>
-          <td>${event.eventenddate} at ${event.eventendtime}</td>
+          <td>${event.eventstartdate} at ${eventStartTimeFormatted}</td>
+          <td>${event.eventenddate} at ${eventEndTimeFormatted}</td>
           <td>${event.status}</td>
+          <td>${event.designstatus}</td>
         </tr>`;
     });
 
@@ -132,45 +140,52 @@ const SendAutoScheduling = async () => {
         </body>
       </html>`;
 
-    // Path to save the image generated from HTML content
-    const imagePath = "D:/EventManagement/Backend/event-schedule-image.png";
-    console.log("Saving image to: ", imagePath);
-
-    await nodeHtmlToImage({
-      output: imagePath,
-      html: htmlContent,
-    });
-    console.log("Image generated successfully.");
-
-    cloudinary.config({
-      cloud_name: "dcwji5ei8",
-      api_key: "547275286925134",
-      api_secret: "WHCckQ1aIg4jGq59qoK3HIeDDOU",
-    });
-
-    const cloudinaryResponse = await cloudinary.uploader.upload(imagePath, {
-      folder: "event_schedules",
-    });
-    const cloudinaryUrl = cloudinaryResponse.secure_url;
-    console.log("Image uploaded to Cloudinary. URL:", cloudinaryUrl);
-
-    await client.messages.create({
-      body: "Today's Events",
-      from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
-      to: `whatsapp:${num}`,
-      mediaUrl: [cloudinaryUrl],
-    });
-
-    console.log("Message sent for today's events with image.");
+    // Send the email with the event details to multiple recipients
+    await sendEmail(recipientEmails, `Events Scheduled for ${formattedToday}`, htmlContent);
+    console.log("Email sent for today's events.");
   } catch (err) {
     console.error("Error:", err);
   }
 };
-// Schedule the job to run at 11:37 PM every day
-// cron.schedule("* * * * *", () => {
-//   console.log("Scheduled job running at 11:37 PM...");
-//   SendAutoScheduling();
-// });
+
+const sendEmail = async (to, subject, htmlContent) => {
+  var nodemailer = require("nodemailer");
+
+  // Set up the SMTP transport for Gmail
+  var sender = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "sabarim6369@gmail.com", // Your Gmail address
+      pass: "gsdn ofbj bvqp bwxt",  // Your Gmail app password (NOT your Gmail account password)
+    },
+  });
+
+  // Compose the email to multiple recipients
+  var composeMail = {
+    from: "sabarim6369@gmail.com", // Sender address
+    to: to.join(", "),            // Join all recipient emails with a comma
+    subject: subject,             // Subject line
+    html: htmlContent,            // HTML body content
+  };
+
+  // Use async/await for sending the email
+  try {
+    const info = await sender.sendMail(composeMail);
+    console.log("Mail sent successfully:", info.response);
+  } catch (err) {
+    console.log("Some problem occurred:", err);
+  }
+};
+
+const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
+
+// You can enable the cron job if needed
+cron.schedule("*/5 * * * *", () => {  // Run every 5 minutes
+  console.log("Scheduled job running...");
+  sendAutoSchedulingEmail(recipientEmails);
+  sendAutoSchedulingEmail(recipientEmails);
+});
+
 
 
 const getMessage = async (req, res) => {
