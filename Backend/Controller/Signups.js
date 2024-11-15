@@ -7,16 +7,17 @@ const secretKey = process.env.JWT_SECRET_TOKEN || "yourDefaultSecretKey";
 console.log("secret key while creating token :", secretKey);
 exports.Signup = async (req, res) => {
   const { name, email, password, role } = req.body;
+  console.log("request for signup  : ",req.body);
 
   try {
-    const findAlreadyUserExist = await Signups.findOne({ email });
+    // const findAlreadyUserExist = await Signups.findOne({ email });
 
-    if (findAlreadyUserExist) {
-      return res.status(401).json({
-        message: "User ID already exists",
-        userid: findAlreadyUserExist,
-      });
-    }
+    // if (findAlreadyUserExist) {
+    //   return res.status(401).json({
+    //     message: "User ID already exists",
+    //     userid: findAlreadyUserExist,
+    //   });
+    // }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -28,7 +29,7 @@ exports.Signup = async (req, res) => {
     });
 
     await newUser.save();
-
+    console.log("event been fetching");
     const token = jwt.sign(
       {
         userId: newUser._id,

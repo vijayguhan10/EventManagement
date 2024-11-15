@@ -11,6 +11,7 @@ import AdminDashBoard from "../components/AdminDashBoard";
 import Chart from "../components/Chart";
 import Mediamax from "../components/MediaMax";
 import { jwtDecode } from "jwt-decode";
+import SignupAdmin from "../components/SignupAdmin";
 const InitialRouter = () => {
   const [token, setToken] = useState(localStorage.getItem("authToken"));
 
@@ -56,6 +57,7 @@ const InitialRouter = () => {
           <Route path="/Form" element={<Forms />} />
           <Route path="/Departments" element={<Departments />} />
           <Route path="/CanceledEvents" element={<Canceled />} />
+
           <Route path="/charts" element={<Chart />} />
         </>
       )}
@@ -70,6 +72,7 @@ const InitialRouter = () => {
 
       {isAuthenticated && role !== "admin" && role !== "mediamax" && (
         <>
+          <Route path="/Addlogins" element={<SignupAdmin />} />
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/Placement" element={<Placement />} />
           <Route path="/History" element={<History />} />

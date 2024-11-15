@@ -15,6 +15,8 @@ var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const Dashboard = () => {
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
 
+  /* The above code snippet is written in JavaScript and is using React's useState hook to manage state
+  in a functional component. Here is a breakdown of what each useState hook is doing: */
   const [showIcons, setShowIcons] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -26,6 +28,12 @@ const Dashboard = () => {
   const [departments, setDepartments] = useState([]);
   const [isFullYear, setIsFullYear] = useState(false);
   const [selectedYears, setSelectedYears] = useState([]);
+  /* The above code is using the `useEffect` hook in React to retrieve an authentication token from the
+  local storage. If the token exists, it decodes the token using `jwtDecode`, logs the decoded token
+  to the console, and sets the `name` and `role` state variables based on the decoded token values.
+  If there is an error during decoding, it logs an error message to the console. This code is likely
+  part of a component that handles user authentication and sets user information based on the
+  decoded token. */
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
