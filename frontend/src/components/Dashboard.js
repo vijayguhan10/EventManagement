@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../Scroll.css";
 import "../resourceperson.css";
-import { FaSearch,FaCheckCircle,FaTimes} from "react-icons/fa";
+import { FaSearch, FaCheckCircle, FaTimes } from "react-icons/fa";
 import CanvasJSReact from "@canvasjs/react-charts"; // Importing CanvasJS for pie chart
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
@@ -31,7 +31,7 @@ const Dashboard = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token: ", decoded); 
+        console.log("Decoded token: ", decoded);
         setName(decoded.name || "Guest");
         setRole(decoded.role || "User");
       } catch (error) {
@@ -52,13 +52,11 @@ const Dashboard = () => {
       if (event.target.checked) {
         setSelectedYears([1, 2, 3, 4]);
       } else {
-       
         setSelectedYears([]);
       }
     } else {
       setSelectedYears((prevSelected) => {
         if (prevSelected.includes(year)) {
-
           return prevSelected.filter((y) => y !== year);
         } else {
           return [...prevSelected, year].filter((y) => y !== "All"); // Remove "All" if selecting individual years
@@ -87,8 +85,10 @@ const Dashboard = () => {
     { fullName: "All", shortName: "All" },
   ];
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
- const getShortName = (fullName) => {
-    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+  const getShortName = (fullName) => {
+    const department = departmentOptions.find(
+      (dept) => dept.fullName === fullName
+    );
     return department ? department.shortName : fullName;
   };
   const handleDepartmentChange = (event) => {
@@ -248,7 +248,7 @@ const Dashboard = () => {
     { name: "Electrical and Electronics Engineering" },
     { name: "Electronics and Communication Engineering" },
     { name: "Information Technology" },
-    { name: "Mechanical Engineering" }
+    { name: "Mechanical Engineering" },
   ]);
   const departmentNameMapping = {
     "Artificial Intelligence and Data Science": "AI & DS",
@@ -256,7 +256,7 @@ const Dashboard = () => {
     "Computer Science Engineering": "CSE",
     "Computer Science and Business Systems": "CSBS",
     "Computer and Communication Engineering": "CCE",
-    "Cybersecurity": "Cyber",
+    Cybersecurity: "Cyber",
     "Electrical and Electronics Engineering": "EEE",
     "Electronics and Communication Engineering": "ECE",
     "Information Technology": "IT",
@@ -270,18 +270,19 @@ const Dashboard = () => {
           `${process.env.REACT_APP_BASE_URL}/event/gettotalcounts`
         );
         const totalCountsDept = response.data.TotalCountsDept[0].totalCounts;
-  
+
         const updatedDataPoints = products.map((product) => {
           const departmentName = product.name;
-          const shortName = departmentNameMapping[departmentName] || departmentName;
+          const shortName =
+            departmentNameMapping[departmentName] || departmentName;
           const count = totalCountsDept[departmentName] || 0;
-  
+
           return {
             label: shortName,
-            y: count
+            y: count,
           };
         });
-  
+
         setDataPoints(updatedDataPoints);
       } catch (error) {
         console.error("Error fetching department counts:", error);
@@ -289,7 +290,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-  
+
     setLoading(true);
     getCount();
   }, [products]);
@@ -308,7 +309,7 @@ const Dashboard = () => {
         legendText: "{label}",
         indexLabelFontSize: 16,
         indexLabel: "{label} - {y} events",
-        dataPoints: dataPoints
+        dataPoints: dataPoints,
       },
     ],
   };
@@ -352,48 +353,51 @@ const Dashboard = () => {
             </h1>
             <h1 className="text-xl font-Afacad mt-3 font-bold">Todays Data</h1>
           </div>
-          <div className="absolute ml-[310%] mb-32 pl-">
-            <input
-              type="text"
-              placeholder="Search events..."
-              className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
-              <FaSearch size={20} />
+          <div className="flex justify-center ml-[94%] items-center mb-32">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                placeholder="Search events..."
+                className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
+                <FaSearch size={20} />
+              </div>
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-md">
+                Search
+              </button>
             </div>
-            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-md">
-              Search
-            </button>
           </div>
         </div>
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
-        <div className="mx-auto p-0">
-        <div className="mx-auto p-0">
-   
-<div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
-  {filteredSearchData.length > 0 ? (
-    filteredSearchData.map((event, index) => (
-      <div
-        key={index}
-        className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-        onClick={() => openEventModal(event)}
-      >
-        {/* Event Content */}
-        <div className="flex justify-between items-center w-full">
-          <div>
-            <h2 className="text-2xl font-bold">{event.eventname}</h2>
-            <p className="text-lg font-light">
-              {event.departments
-                .map((dept) => getShortName(dept))
-                .join(", ")}
-            </p>
-          </div>
-        </div>
+          <div className="mx-auto p-0">
+            <div className="mx-auto p-0">
+              <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
+                {filteredSearchData.length > 0 ? (
+                  filteredSearchData.map((event, index) => (
+                    <div
+                      key={index}
+                      className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+                      onClick={() => openEventModal(event)}
+                    >
+                      {/* Event Content */}
+                      <div className="flex justify-between items-center w-full">
+                        <div>
+                          <h2 className="text-2xl font-bold">
+                            {event.eventname}
+                          </h2>
+                          <p className="text-lg font-light">
+                            {event.departments
+                              .map((dept) => getShortName(dept))
+                              .join(", ")}
+                          </p>
+                        </div>
+                      </div>
 
-        {/* Status Icon Container in Top-Left */}
-        {/* <div className="absolute top-4 left-4 flex items-center space-x-2">
+                      {/* Status Icon Container in Top-Left */}
+                      {/* <div className="absolute top-4 left-4 flex items-center space-x-2">
           {event.status === "decline" && (
             <FaTimes className="text-red-600 w-7 h-7" />
           )}
@@ -402,21 +406,17 @@ const Dashboard = () => {
           )}
         </div> */}
 
-        {/* Event Image (cup icon) */}
-        <img src={cup} alt="Event Icon" className="w-20 h-20" />
-      </div>
-    ))
-  ) : (
-    <p>No events for today.</p>
-  )}
-</div>
-
-  </div>
-
-
-</div>
-</div>
-
+                      {/* Event Image (cup icon) */}
+                      <img src={cup} alt="Event Icon" className="w-20 h-20" />
+                    </div>
+                  ))
+                ) : (
+                  <p>No events for today.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="flex justify-center ml-60 mb-4 w-full">
           <CalendarComponent />

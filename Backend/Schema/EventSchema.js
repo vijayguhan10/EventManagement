@@ -9,6 +9,10 @@ const EventDataSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  iqac: {
+    required: true,
+    type: String,
+  },
   resourceperson: {
     required: true,
     type: [{ type: mongoose.Schema.Types.Mixed }],
@@ -36,7 +40,7 @@ const EventDataSchema = new mongoose.Schema({
       "Electrical and Electronics Engineering",
       "Cybersecurity",
       "All",
-      "otherspecification"
+      "otherspecification",
     ],
   },
   departmentspecification: {

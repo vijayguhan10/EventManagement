@@ -59,6 +59,7 @@ function Forms() {
   const [showDepartments, setShowDepartments] = useState(false);
   const [formData, setFormData] = useState({
     eventTitle: "",
+    iqac: "",
     eventVenue: "",
     startDate: "",
     endDate: "",
@@ -286,6 +287,7 @@ function Forms() {
     // console.log("form data ", formData);
     e.preventDefault();
     const newErrors = {};
+    if (!formData.iqac) newErrors.iqac = "IQAC Number is Required";
     if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
     if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
     if (!formData.year) newErrors.year = "Event year is required";
@@ -313,6 +315,7 @@ function Forms() {
       const response = await axios.post(
         ` ${process.env.REACT_APP_BASE_URL}/event/create_event`,
         {
+          iqac: formData.iqac,
           eventname: formData.eventTitle,
           resourcePersons: formData.resourcePersons,
           venue: formData.eventVenue,
@@ -373,6 +376,21 @@ function Forms() {
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              IQAC Number
+            </label>
+            <input
+              type="text"
+              name="iqac"
+              value={formData.iqac}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.iqac && (
+              <span className="text-red-500">{errors.iqac}</span>
+            )}
+          </div>
           <div className="mb-4">
             <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
               Select the Department Specification
