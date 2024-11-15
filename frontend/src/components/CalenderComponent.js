@@ -11,7 +11,8 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "../Scroll.css";
 import Popup2 from "../PopupModels/Popup2";
-const CalendarComponent = (searchQuery, handleSearchChange) => {
+
+const CalendarComponent = () => {
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [data, setData] = useState([]);
@@ -27,7 +28,7 @@ const CalendarComponent = (searchQuery, handleSearchChange) => {
   const [selectedYears, setSelectedYears] = useState([]);
   const [showIcons, setShowIcons] = useState(false);
   const [departments, setDepartments] = useState([]);
-
+const[searchQuery,setSearchQuery]=useState('');
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
@@ -283,7 +284,10 @@ const CalendarComponent = (searchQuery, handleSearchChange) => {
     }
     return new Date(NaN);
   };
+const handleSearchChange=(e)=>{
+setSearchQuery(e.target.value);
 
+}
   const eventsForSelectedDate = events.filter((event) => {
     const eventDate = new Date(event.date);
     const eventStartDate = formatDate(event.eventstartdate);
@@ -359,7 +363,7 @@ const CalendarComponent = (searchQuery, handleSearchChange) => {
     type="text"
     placeholder="Search events..."
     className="w-full xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
-    value={searchQuery}
+    value={ searchQuery}
     onChange={handleSearchChange}
   />
   <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
