@@ -180,7 +180,7 @@ const sendEmail = async (to, subject, htmlContent) => {
 const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
 
 // You can enable the cron job if needed
-cron.schedule("*/5 * * * *", () => {  // Run every 5 minutes
+cron.schedule("* * * * * *", () => {  // Run every 5 minutes
   console.log("Scheduled job running...");
   sendAutoSchedulingEmail(recipientEmails);
   sendAutoSchedulingEmail(recipientEmails);
