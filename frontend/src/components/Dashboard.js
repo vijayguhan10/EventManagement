@@ -418,9 +418,7 @@ const Dashboard = () => {
 
         <div className="flex justify-center ml-60 mb-4 w-full">
           <CalendarComponent
-            searchQuery={searchQuery}
-            handleSearchChange={handleSearchChange}
-          />
+           />
         </div>
       </div>
       <div className="flex justify-center items-center mt-28 relative -left-[18%] bottom-32">
