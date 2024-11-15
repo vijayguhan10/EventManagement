@@ -27,7 +27,7 @@ const CalendarComponent = (searchQuery, handleSearchChange) => {
   const [selectedYears, setSelectedYears] = useState([]);
   const [showIcons, setShowIcons] = useState(false);
   const [departments, setDepartments] = useState([]);
-const[searchQuery,setSearchQuery]=useState('');
+
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const handleDepartmentChange = (event) => {
     const selectedDeptShortName = event.target.value;
