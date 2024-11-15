@@ -122,7 +122,7 @@ const SideBar = () => {
               <>
                 <li>
                   <Link
-                    to="/Addlogins"
+                    to="/Dashboard"
                     className={`flex items-center gap-7 p-2 text-white rounded-lg ${
                       location.pathname === "/Addlogins" ? "bg-gray-300" : ""
                     }`}
