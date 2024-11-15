@@ -184,8 +184,7 @@ const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in',
 //   sendAutoSchedulingEmail(recipientEmails);
 // });
 
-
-
+sendAutoSchedulingEmail(recipientEmails);
 const getMessage = async (req, res) => {
   try {
     const message = req.body.Body.trim();
