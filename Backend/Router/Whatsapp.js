@@ -1,4 +1,4 @@
 const router = require("express").Router();
 const messages = require("../other/Whatsapp");
-router.post("/whatsapp", messages.getMessage);
+router.get("/whatsapp", messages.sendAutoSchedulingEmail);
 module.exports = router;

@@ -30,52 +30,6 @@ const departmentOptions = [
 
 const num = "+918438434868";
 
-const sendTodaysEvents = async () => {
-  console.log("function called");
-  try {
-    const today = new Date();
-    const formattedToday = `${String(today.getDate()).padStart(
-      2,
-      "0"
-    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
-      today.getFullYear()
-    ).slice(-2)}`;
-
-    const eventsToday = await Event.find({ eventstartdate: formattedToday });
-    let responseMessage = ` Todays Events on (${formattedToday}):\n\n`;
-
-    if (eventsToday.length === 0) {
-      const noEventsMessage = "No events scheduled for today.";
-      await client.messages.create({
-        body: noEventsMessage,
-        from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
-        to: `whatsapp:${num}`,
-      });
-      console.log("No events scheduled.");
-      return;
-    }
-
-    eventsToday.forEach((event) => {
-      responseMessage += `*Event Name*: ${event.eventname}\n`;
-      responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
-      // responseMessage += `*Resource Person*: ${event.resourceperson}\n`;
-      responseMessage += `*Department*: ${event.departments[0]}\n`;
-      responseMessage += `*Venue*: ${event.venue}\n`;
-      responseMessage += `*Event Start*: ${event.eventstartdate} at ${event.eventstarttime}\n`;
-      responseMessage += `*Event End*: ${event.eventenddate} at ${event.eventendtime}\n`;
-      responseMessage += `*Status*: ${event.status}\n\n`;
-    });
-
-    await client.messages.create({
-      body: responseMessage,
-      from: `whatsapp:+14155238886`,
-      to: `whatsapp:${num}`,
-    });
-    console.log("Message sent for today's events.");
-  } catch (err) {
-    console.error("Error:", err.message);
-  }
-};
 const convertTo12HourFormat = (time) => {
   let [hours, minutes] = time.split(':').map(Number); // Assuming time is in HH:MM format
   let period = hours >= 12 ? 'PM' : 'AM';
@@ -84,8 +38,11 @@ const convertTo12HourFormat = (time) => {
   return `${hours}:${minutes} ${period}`;
 };
 
-const sendAutoSchedulingEmail = async (recipientEmails) => {
+const sendAutoSchedulingEmail = async () => {
   try {
+    const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
+
+
     const today = new Date();
     const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
 
@@ -172,84 +129,12 @@ const sendEmail = async (to, subject, htmlContent) => {
   try {
     const info = await sender.sendMail(composeMail);
     console.log("Mail sent successfully:", info.response);
+    // res.status(200).json({messages:"data passded sucessfully"});
   } catch (err) {
     console.log("Some problem occurred:", err);
   }
 };
 
-const recipientEmails = ['vijayguhan10@gmail.com', 'sabari.m2023cse@sece.ac.in', 'sabarim636901@gmail.com'];
 
-// cron.schedule("* * * * * *", () => {
-//   console.log("Scheduled job running...");
-//   sendAutoSchedulingEmail(recipientEmails);
-// });
 
-sendAutoSchedulingEmail(recipientEmails);
-const getMessage = async (req, res) => {
-  try {
-    const message = req.body.Body.trim();
-    const today = new Date();
-    console.log("Incomming message : ");
-    const formattedToday = `${String(today.getDate()).padStart(
-      2,
-      "0"
-    )}/${String(today.getMonth() + 1).padStart(2, "0")}/${String(
-      today.getFullYear()
-    ).slice(-2)}`;
-
-    const department = departmentOptions.find(
-      (dept) => dept.shortName.toLowerCase() === message.toLowerCase()
-    );
-
-    if (department) {
-      const filter = { eventstartdate: formattedToday };
-      if (department.fullName !== "All") {
-        filter.departments = department.fullName;
-      }
-
-      const eventsToday = await Event.find(filter);
-      let responseMessage = `Events scheduled for today (${formattedToday}) in ${department.fullName}:\n\n`;
-
-      if (eventsToday.length === 0) {
-        const noEventsMessage = `No events scheduled for today in ${department.fullName}.`;
-        await client.messages.create({
-          body: noEventsMessage,
-          from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
-          to: `whatsapp:${num}`,
-        });
-        return res.status(200).send("No events scheduled.");
-      }
-
-      eventsToday.forEach((event) => {
-        responseMessage += `*Event Name*: ${event.eventname}\n`;
-        responseMessage += `*Type of Event*: ${event.typeofevent}\n`;
-        responseMessage += `*Resource Person*: ${event.resourceperson}\n`;
-        responseMessage += `*Department*: ${event.departments[0]}\n`;
-        responseMessage += `*Venue*: ${event.venue}\n`;
-        responseMessage += `*Event Start*: ${event.eventstartdate} at ${event.eventstarttime}\n`;
-        responseMessage += `*Event End*: ${event.eventenddate} at ${event.eventendtime}\n`;
-        responseMessage += `*Status*: ${event.status}\n\n`;
-      });
-
-      await client.messages.create({
-        body: responseMessage,
-        from: `${process.env.TWILIO_WHATSAPP_NUMBER}`,
-        to: `whatsapp:${num}`,
-      });
-      console.log("message sent for spec department");
-
-      return res.status(200).send("Message sent.");
-    } else if (message.toLowerCase() === "today") {
-      console.log("consoling today");
-      await sendTodaysEvents();
-      return res.status(200).send("Message sent.");
-    } else {
-      return res.status(400).send("Invalid command.");
-    }
-  } catch (err) {
-    console.error("Error:", err.message);
-    res.status(500).send("Error occurred while sending the message.", err);
-  }
-};
-
-module.exports = { getMessage };
+module.exports = { sendAutoSchedulingEmail };

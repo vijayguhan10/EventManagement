@@ -13,7 +13,7 @@ import { jwtDecode } from "jwt-decode";
 
 const SideBar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Use useLocation to get the current path
+  const location = useLocation(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [role, setRole] = useState(null);
 
