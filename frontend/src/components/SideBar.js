@@ -124,7 +124,7 @@ const SideBar = () => {
                   <Link
                     to="/Dashboard"
                     className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Addlogins" ? "bg-gray-300" : ""
+                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
                     }`}
                   >
                     <FaHome />
@@ -137,7 +137,7 @@ const SideBar = () => {
                   <Link
                     to="/Addlogins"
                     className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+                      location.pathname === "/Addlogins" ? "bg-gray-300" : ""
                     }`}
                   >
                     <FaHome />
