@@ -1,16 +1,18 @@
 var nodemailer = require("nodemailer");
+var cron = require("node-cron");
 
 require("dotenv").config();
 const Event = require("../Schema/EventSchema");
+
 const convertTo12HourFormat = (time) => {
-  let [hours, minutes] = time.split(":").map(Number); // Assuming time is in HH:MM format
+  let [hours, minutes] = time.split(":").map(Number); 
   let period = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12; // Convert hour to 12-hour format
-  minutes = minutes < 10 ? `0${minutes}` : minutes; // Add leading zero if minutes are less than 10
+  hours = hours % 12 || 12;
+  minutes = minutes < 10 ? `0${minutes}` : minutes;
   return `${hours}:${minutes} ${period}`;
 };
 
-const sendAutoSchedulingEmail = async (req, res) => {
+const sendAutoSchedulingEmail = async () => {
   try {
     const recipientEmails = [
       "vijayguhan10@gmail.com",
@@ -26,18 +28,15 @@ const sendAutoSchedulingEmail = async (req, res) => {
       today.getFullYear()
     ).slice(-2)}`;
 
-    // Fetch events scheduled for today
     const eventsToday = await Event.find({ eventstartdate: formattedToday });
     if (eventsToday.length === 0) {
       const noEventsMessage = "No events scheduled for today.";
       console.log(noEventsMessage);
 
-      // Send email notifying no events
       await sendEmail(recipientEmails, "No Events Scheduled", noEventsMessage);
       return;
     }
 
-    // Prepare the HTML content for the email
     let htmlContent = `
       <html>
         <body style="font-family: Arial, sans-serif;">
@@ -54,7 +53,6 @@ const sendAutoSchedulingEmail = async (req, res) => {
               <th>Design Status</th>
             </tr>`;
 
-    // Loop through events and append them to the table
     eventsToday.forEach((event) => {
       const eventStartTimeFormatted = convertTo12HourFormat(
         event.eventstarttime
@@ -79,45 +77,43 @@ const sendAutoSchedulingEmail = async (req, res) => {
         </body>
       </html>`;
 
-    // Send the email with the event details to multiple recipients
     await sendEmail(
       recipientEmails,
       `Events Scheduled for ${formattedToday}`,
       htmlContent
     );
     console.log("Email sent for today's events.");
-    res.status(200).json({message: "Mail send success"})
   } catch (err) {
     console.error("Error:", err);
   }
 };
 
 const sendEmail = async (to, subject, htmlContent) => {
-  // Set up the SMTP transport for Gmail
   var sender = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "sabarim6369@gmail.com", // Your Gmail address
-      pass: "gsdn ofbj bvqp bwxt", // Your Gmail app password (NOT your Gmail account password)
+      user: "sabarim6369@gmail.com", 
+      pass: "gsdn ofbj bvqp bwxt", 
     },
   });
-
-  // Compose the email to multiple recipients
   var composeMail = {
-    from: "sabarim6369@gmail.com", // Sender address
-    to: to.join(", "), // Join all recipient emails with a comma
-    subject: subject, // Subject line
-    html: htmlContent, // HTML body content
+    from: "sabarim6369@gmail.com", 
+    to: to.join(", "), 
+    subject: subject, 
+    html: htmlContent,
   };
 
-  // Use async/await for sending the email
   try {
     const info = await sender.sendMail(composeMail);
     console.log("Mail sent successfully:", info.response);
-    // res.status(200).json({messages:"data passded sucessfully"});
   } catch (err) {
     console.log("Some problem occurred:", err);
   }
 };
+
+cron.schedule("* * * * * *", async () => {
+  console.log("Running scheduled task: Sending auto-scheduling email");
+  await sendAutoSchedulingEmail();
+});
 
 module.exports = { sendAutoSchedulingEmail };
