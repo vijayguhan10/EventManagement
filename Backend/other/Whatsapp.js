@@ -10,7 +10,7 @@ const convertTo12HourFormat = (time) => {
   return `${hours}:${minutes} ${period}`;
 };
 
-const sendAutoSchedulingEmail = async () => {
+const sendAutoSchedulingEmail = async (req, res) => {
   try {
     const recipientEmails = [
       "vijayguhan10@gmail.com",
@@ -86,6 +86,7 @@ const sendAutoSchedulingEmail = async () => {
       htmlContent
     );
     console.log("Email sent for today's events.");
+    res.status(200).json({message: "Mail send success"})
   } catch (err) {
     console.error("Error:", err);
   }
