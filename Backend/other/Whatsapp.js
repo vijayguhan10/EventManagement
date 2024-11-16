@@ -5,7 +5,7 @@ require("dotenv").config();
 const Event = require("../Schema/EventSchema");
 
 const convertTo12HourFormat = (time) => {
-  let [hours, minutes] = time.split(":").map(Number); 
+  let [hours, minutes] = time.split(":").map(Number);
   let period = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
   minutes = minutes < 10 ? `0${minutes}` : minutes;
@@ -92,14 +92,14 @@ const sendEmail = async (to, subject, htmlContent) => {
   var sender = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "sabarim6369@gmail.com", 
-      pass: "gsdn ofbj bvqp bwxt", 
+      user: "sabarim6369@gmail.com",
+      pass: "gsdn ofbj bvqp bwxt",
     },
   });
   var composeMail = {
-    from: "sabarim6369@gmail.com", 
-    to: to.join(", "), 
-    subject: subject, 
+    from: "sabarim6369@gmail.com",
+    to: to.join(", "),
+    subject: subject,
     html: htmlContent,
   };
 
@@ -111,8 +111,10 @@ const sendEmail = async (to, subject, htmlContent) => {
   }
 };
 
-cron.schedule("* * * * * *", async () => {
-  console.log("Running scheduled task: Sending auto-scheduling email");
+cron.schedule("0 0 12 * * *", async () => {
+  console.log(
+    "Running scheduled task: Sending auto-scheduling email at 12:00 PM"
+  );
   await sendAutoSchedulingEmail();
 });
 
