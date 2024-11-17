@@ -378,51 +378,54 @@ const Dashboard = () => {
           </div> */}
         </div>
         <div className="xl:ml-72 h-80 mt-5 xl:w-[80%] w-full bg-white">
-          <div className="mx-auto p-0">
-            <div className="mx-auto p-0">
-              <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
-                {filteredSearchData.length > 0 ? (
-                  filteredSearchData.map((event, index) => (
-                    <div
-                      key={index}
-                      className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
-                      onClick={() => openEventModal(event)}
-                    >
-                      {/* Event Content */}
-                      <div className="flex justify-between items-center w-full">
-                        <div>
-                          <h2 className="text-2xl font-bold">
-                            {event.eventname}
-                          </h2>
-                          <p className="text-lg font-light">
-                            {event.departments
-                              .map((dept) => getShortName(dept))
-                              .join(", ")}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Status Icon Container in Top-Left */}
-                      {/* <div className="absolute top-4 left-4 flex items-center space-x-2">
-          {event.status === "decline" && (
-            <FaTimes className="text-red-600 w-7 h-7" />
-          )}
-          {event.status === "completed" && (
-            <FaCheckCircle className="text-green-600 w-7 h-7" />
-          )}
-        </div> */}
-
-                      {/* Event Image (cup icon) */}
-                      <img src={cup} alt="Event Icon" className="w-20 h-20" />
-                    </div>
-                  ))
-                ) : (
-                  <p>No events for today.</p>
-                )}
+  <div className="mx-auto p-0">
+    <div className="mx-auto p-0">
+      <div className="max-h-[300px] border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth">
+        {filteredSearchData.length > 0 ? (
+          filteredSearchData.map((event, index) => (
+            <div
+              key={index}
+              className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+              onClick={() => openEventModal(event)}
+            >
+              {/* Event Content */}
+              <div className="flex justify-between items-center w-full">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {event.eventname}
+                  </h2>
+                  <p className="text-lg font-light">
+                    {event.departments
+                      .map((dept) => getShortName(dept))
+                      .join(", ")}
+                  </p>
+                </div>
               </div>
+
+              {/* Event Image (cup icon) */}
+              <img src={cup} alt="Event Icon" className="w-20 h-20" />
             </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-center p-6">
+          <img 
+  src="https://via.placeholder.com/128?text=No+Events" 
+  alt="No Events" 
+  className="w-32 h-32 mb-4 opacity-70"
+/>
+
+            <h2 className="text-2xl font-semibold text-gray-500">
+              No Events Scheduled
+            </h2>
+            <p className="text-lg text-gray-400 mt-2">
+              Check back later for updates or explore upcoming events!
+            </p>
           </div>
-        </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="flex justify-center ml-60 mb-4 w-full">
           <CalendarComponent

@@ -293,12 +293,18 @@ const CalendarComponent = () => {
   const eventsForSelectedDate = events.filter((event) => {
     const eventDate = new Date(event.date);
     const eventStartDate = formatDate(event.eventstartdate);
+    const eventenddate=formatDate(event.eventenddate);
+    const selectedDateObj = new Date(selectedDate); 
+    console.log(selectedDateObj,"selected date obj")
 
     return (
       eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
-      eventStartDate.toLocaleDateString() === selectedDate.toLocaleDateString()
+      (selectedDateObj >= eventStartDate && selectedDateObj <= eventenddate)
     );
   });
+
+  
+  
   const handleDownloadClick = () => {
     setShowIcons(!showIcons);
   };
