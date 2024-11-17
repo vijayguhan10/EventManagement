@@ -443,7 +443,7 @@ const CalendarComponent = () => {
         </div>
 
         {/* Department Section */}
-        <div className="container absolute bottom-[-55%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
+        <div className="container absolute bottom-[-65%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
           <h1 className="text-xl font-bold text-center text-black">
             Department Report Generator
           </h1>
@@ -590,6 +590,31 @@ const CalendarComponent = () => {
               </div>
             </div>
           )}
+           <div className="text-center mb-4 flex items-center space-x-4">
+        {showIcons && (
+          <>
+            <FaFilePdf
+              size={34}
+              color="#7312f1d3"
+              onClick={handleGeneratePDF}
+              className="cursor-pointer hover:scale-105 transition-transform duration-300"
+            />
+            <FaFileExcel
+              size={34}
+              color="#7312f1d3"
+              onClick={downloadExcelReport}
+              className="cursor-pointer hover:scale-105 transition-transform duration-300"
+            />
+          </>
+        )}
+        <button
+          type="button"
+          onClick={handleDownloadClick}
+          className="focus:outline-none text-white bg-[#7312f1d3] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
+        >
+          {showIcons ? "Hide" : "Download"}
+        </button>
+      </div>
         </div>
       </div>
 
