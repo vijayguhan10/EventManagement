@@ -408,11 +408,11 @@ const Dashboard = () => {
           ))
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
-          <img 
-  src="https://via.placeholder.com/128?text=No+Events" 
-  alt="No Events" 
-  className="w-32 h-32 mb-4 opacity-70"
-/>
+<svg xmlns="http://www.w3.org/2000/svg" className="w-32 h-32 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 19a7 7 0 100-14 7 7 0 000 14z" />
+</svg>
+
+
 
             <h2 className="text-2xl font-semibold text-gray-500">
               No Events Scheduled
