@@ -70,7 +70,11 @@ function Forms() {
     eventDescription: "",
     departments: [],
     departmentspecification: [],
+    students: false, 
+    teachers: false,
+    alumnis: false, 
   });
+  
   const handleRefreshResourcePersons = () => {
     setResourcePersonDetails([]);
   };
@@ -224,7 +228,7 @@ function Forms() {
   ];
   // Handle checkbox changes
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type,checked  } = e.target;
 
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
@@ -241,10 +245,8 @@ function Forms() {
         }
       } else if (value === "Others") {
         setIsOtherSelected(e.target.checked);
-        // If "Others" is checked, disable other checkboxes
         setDisableIndividual(e.target.checked);
         if (!e.target.checked) {
-          // Enable other checkboxes if "Others" is unchecked
           setDisableIndividual(false);
         }
       } else {
@@ -257,6 +259,9 @@ function Forms() {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
+    }
+    else if (["students", "teachers", "alumnis"].includes(name)) {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -329,15 +334,18 @@ function Forms() {
           year: formData.year,
           eventDescription: formData.eventDescription,
           departmentspecification: formData.departmentspecification,
+          students: formData.students,
+          teachers: formData.teachers,
+          alumnis: formData.alumnis, 
         }
       );
-
+console.log("response",response)
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         setTimeout(() => {
           toast.success("Event added successfully!");
-          navigate("/Dashboard");
+          // navigate("/Dashboard");
         }, 1000);
       }
     } catch (error) {
@@ -364,6 +372,7 @@ function Forms() {
     { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
     { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
     { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
+    { value: "Others", label: "Others" },
   ];
 
   return (
@@ -501,26 +510,66 @@ function Forms() {
               </div>
             )}
           </div>
-
           <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Year
-            </label>
-            <select
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select Year</option>
-              {yearOptions.map((year) => (
-                <option key={year.value} value={year.value}>
-                  {year.label}
-                </option>
-              ))}
-            </select>
-            {errors.year && <span className="text-red-500">{errors.year}</span>}
-          </div>
+  <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+    Year
+  </label>
+  <select
+    name="year"
+    value={formData.year}
+    onChange={handleChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+  >
+    <option value="">Select Year</option>
+    {yearOptions.map((year) => (
+      <option key={year.value} value={year.value}>
+        {year.label}
+      </option>
+    ))}
+  </select>
+  {errors.year && <span className="text-red-500">{errors.year}</span>}
+</div>
+
+<div className="mb-4">
+  <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+    Categories
+  </label>
+  <div className="flex items-center space-x-4">
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="students"
+        checked={formData.students || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Students</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="teachers"
+        checked={formData.teachers || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Teachers</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="alumnis"
+        checked={formData.alumnis || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Alumnis</span>
+    </label>
+  </div>
+  {errors.categories && (
+    <span className="text-red-500">{errors.categories}</span>
+  )}
+</div>
 
           <div className="mb-4">
             <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
