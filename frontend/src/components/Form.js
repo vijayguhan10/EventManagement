@@ -345,7 +345,7 @@ console.log("response",response)
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         setTimeout(() => {
           toast.success("Event added successfully!");
-          // navigate("/Dashboard");
+          navigate("/Dashboard");
         }, 1000);
       }
     } catch (error) {
