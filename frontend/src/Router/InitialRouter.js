@@ -69,6 +69,14 @@ const InitialRouter = () => {
           <Route path="*" element={<Navigate to="/mediamax" />} />
         </>
       )}
+      {isAuthenticated && role === "ps" && (
+        <>
+        <Route path="/Dashboard" element={<Dashboard />}/>
+          <Route path="/mediamax" element={<Mediamax />} />
+          <Route path="/History" element={<History />} />
+          <Route path="*" element={<Navigate to="/mediamax" />} />
+        </>
+      )}
 
       {isAuthenticated && role !== "admin" && role !== "mediamax" && (
         <>
