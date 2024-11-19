@@ -1,9 +1,48 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { isCancel } from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
 function Forms() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const [newDepartment, setNewDepartment] = useState("");
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
+  const [disableIndividual, setDisableIndividual] = useState(false);
+  const [disableAll, setDisableAll] = useState(false);
+
+  const [showEventTypeModal, setShowEventTypeModal] = useState(false);
+
+  const [ShowProfessionalBodies, setShowProfessionalBodies] = useState(false);
+  const [internationalInput, setInternationalInput] = useState("");
+  const internationalRelations = [
+    "IEEE",
+    "ISTE",
+    "IETE",
+    "IEI",
+    "IGEN",
+    "WICYS",
+    "CSI",
+    "OTHERS",
+  ];
+  const logos = [
+    "AICTE",
+    "IAC",
+    "VIKASH bHARATH",
+    "sKILL INDIA",
+    "IEEE",
+    "SDG",
+    "OTHERS",
+    "ISTE",
+    "IETE",
+    "IEI",
+    "IGEN",
+    "WICYS",
+    "CSI",
+  ];
+  const [searchTerm, setSearchTerm] = useState("");
   const eventTypes = [
     "Workshop",
     "Seminar",
@@ -39,21 +78,37 @@ function Forms() {
     "NCC Event",
     "Interaction with Outside Experts",
   ];
+  // const InternationalRelations = [
+  //   "IEEE",
+  //   "ISTE",
+  //   "IETE",
+  //   "IEI",
+  //   "IGEN",
+  //   "WICYS",
+  //   "CSI",
+  //   "OTHERS",
+  // ];
   const handleEventTypeSelection = (type) => {
-    setFormData((prev) => ({ ...prev, eventType: type }));
+    setFormData((prev) => ({
+      ...prev,
+      eventType: [...prev.eventType, type],
+    }));
     setShowEventTypeModal(false);
   };
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const token = localStorage.getItem("authToken");
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const [newDepartment, setNewDepartment] = useState("");
-  const [isOtherSelected, setIsOtherSelected] = useState(false);
-  const [disableIndividual, setDisableIndividual] = useState(false);
-  const [disableAll, setDisableAll] = useState(false);
+  const handleEventTypeInternational = (type) => {
+    setFormData((prev) => ({
+      ...prev,
+      international: [...prev.international, type],
+    }));
+    setShowProfessionalBodies(false);
+  };
 
-  const [showEventTypeModal, setShowEventTypeModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const handleInputChange = (e) => {
+  //   setInternationalInput(e.target.value);
+  //   console.log("component triggered");
+  //   console.log("International Inputs : ", internationalInput);
+  // };
+
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [showDepartments, setShowDepartments] = useState(false);
@@ -66,9 +121,12 @@ function Forms() {
     startTime: "",
     endTime: "",
     resourcePersons: [],
+    international: "",
     eventType: "",
+    logos: [],
     eventDescription: "",
     departments: [],
+
     departmentspecification: [],
   });
   const handleRefreshResourcePersons = () => {
@@ -152,7 +210,6 @@ function Forms() {
     }
 
     setValidationErrors([]);
-
     const formattedResourcePersons = resourcePersonDetails.reduce(
       (acc, person) => {
         acc[person.name] = person.specialization;
@@ -166,6 +223,77 @@ function Forms() {
       resourcePersons: formattedResourcePersons,
     }));
     setResourcePersonModalOpen(false);
+  };
+  const handleRefreshOrganizers = () => {
+    setOrganizerDetails([]);
+  };
+
+  const [numOrganizers, setNumOrganizers] = useState(0);
+  const [organizerModalOpen, setOrganizerModalOpen] = useState(false);
+  const [organizerDetails, setOrganizerDetails] = useState([]);
+
+  const handleNumOrganizersChange = (e) => {
+    setNumOrganizers(e.target.value);
+  };
+
+  const handleDeleteOrganizer = (index) => {
+    setOrganizerDetails((prevDetails) =>
+      prevDetails.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleAddOrganizers = () => {
+    const additionalOrganizersCount = numOrganizers - organizerDetails.length;
+
+    if (additionalOrganizersCount > 0) {
+      const newOrganizers = Array.from(
+        { length: additionalOrganizersCount },
+        () => ({
+          name: "",
+          phone: "",
+          designation: "",
+        })
+      );
+      setOrganizerDetails((prevDetails) => [...prevDetails, ...newOrganizers]);
+    }
+
+    setOrganizerModalOpen(true);
+  };
+
+  const handleOrganizerDetailChange = (index, field, value) => {
+    const updatedDetails = [...organizerDetails];
+    updatedDetails[index][field] = value;
+    setOrganizerDetails(updatedDetails);
+  };
+
+  const handleSaveOrganizers = () => {
+    const errors = organizerDetails.reduce((acc, organizer, index) => {
+      if (!organizer.name || !organizer.phone || !organizer.designation) {
+        acc.push(index);
+      }
+      return acc;
+    }, []);
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+
+    const formattedOrganizers = organizerDetails.reduce((acc, organizer) => {
+      acc[organizer.name] = {
+        phone: organizer.phone,
+        designation: organizer.designation,
+      };
+      return acc;
+    }, {});
+
+    setFormData((prev) => ({
+      ...prev,
+      organizers: formattedOrganizers,
+    }));
+    setOrganizerModalOpen(false);
   };
 
   // const handleRemovePerson = (index) => {
@@ -283,6 +411,24 @@ function Forms() {
       }
     });
   };
+  const handleLogosChange = (event) => {
+    const { value, checked } = event.target;
+
+    setFormData((prevFormData) => {
+      if (checked) {
+        return {
+          ...prevFormData,
+          logos: [...prevFormData.logos, value],
+        };
+      } else {
+        return {
+          ...prevFormData,
+          logos: prevFormData.logos.filter((logo) => logo !== value),
+        };
+      }
+    });
+  };
+
   const handleSubmit = async (e) => {
     // console.log("form data ", formData);
     e.preventDefault();
@@ -305,7 +451,6 @@ function Forms() {
 
     if (Object.keys(newErrors).length > 0) {
       console.log(Object.keys(newErrors).length);
-      console.log("dfffffff");
       setErrors(newErrors);
       return;
     }
@@ -323,9 +468,12 @@ function Forms() {
           eventendtime: formData.endTime,
           eventstartdate: formData.startDate.replace(/-/g, "/"),
           eventenddate: formData.endDate.replace(/-/g, "/"),
-          typeofevent: formData.eventType,
+          typeofevent: formData.eventType[0].toString(),
           departments: formData.departments,
           status: "pending",
+          organizer: organizerDetails,
+          logos: formData.logos,
+          international: formData.international,
           year: formData.year,
           eventDescription: formData.eventDescription,
           departmentspecification: formData.departmentspecification,
@@ -344,7 +492,6 @@ function Forms() {
       console.error("Error:", error);
       toast.error("Error adding event. Please try again.");
     } finally {
-      setIsSubmitting(false);
     }
     setErrors({});
   };
@@ -368,456 +515,651 @@ function Forms() {
 
   return (
     <div className="p-10">
-      <div className="flex flex-col items-center">
+      <div className="">
         <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
           Create Event
         </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
-        >
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              IQAC Number
-            </label>
-            <input
-              type="text"
-              name="iqac"
-              value={formData.iqac}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.iqac && (
-              <span className="text-red-500">{errors.iqac}</span>
-            )}
-          </div>
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
-              Select the Department Specification
-            </label>
-            <div className="flex flex-wrap mb-4">
-              {individualDepartments.map((department) => (
-                <div key={department} className="mr-4 mb-2">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      name="departmentspecification"
-                      value={department}
-                      checked={formData.departmentspecification.includes(
-                        department
-                      )}
-                      onChange={handleDepartmentsChange}
-                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                    />
-                    <span className="ml-2 text-gray-700">{department}</span>
-                  </label>
-                </div>
-              ))}
+        <div className="flex flex-col items-center">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
+          >
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                IQAC Number
+              </label>
+              <input
+                type="text"
+                name="iqac"
+                value={formData.iqac}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.iqac && (
+                <span className="text-red-500">{errors.iqac}</span>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Number of Organizers
+              </label>
+              <input
+                type="number"
+                value={numOrganizers}
+                onChange={handleNumOrganizersChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                min="0"
+              />
+              <button
+                type="button"
+                onClick={handleAddOrganizers}
+                className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+              >
+                Add Organizer
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={handleShowDepartments}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-            >
-              Show Departments
-            </button>
+            {organizerModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => setOrganizerModalOpen(false)}
+                    className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
+                  >
+                    <FaTimes />
+                  </button>
 
-            {showDepartments && (
-              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                  <h2 className="text-lg font-bold mb-4 text-gray-800">
-                    Select Departments
+                  <h2 className="text-2xl font-bold mb-4 flex items-center">
+                    Enter Organizers
+                    <button
+                      type="button"
+                      onClick={handleRefreshOrganizers}
+                      className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                      title="Refresh"
+                    >
+                      &#8635;
+                    </button>
                   </h2>
-                  <div className="flex flex-wrap mb-4">
-                    {departmentOptions.map((department) => (
-                      <div key={department.shortName} className="mr-4 mb-2">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="checkbox"
-                            name="departments"
-                            value={department.fullName}
-                            checked={formData.departments.includes(
-                              department.fullName
-                            )}
-                            onChange={handleChange}
-                            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                            disabled={
-                              department.fullName === "All"
-                                ? disableAll
-                                : disableIndividual
-                            }
-                          />
-                          <span className="ml-2 text-gray-700">
-                            {department.shortName}
-                          </span>
-                        </label>
+
+                  {organizerDetails.map((organizer, index) => (
+                    <div key={index} className="mb-4 relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-lg font-semibold">
+                          {index + 1}.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrganizer(index)}
+                          className="text-red-500 hover:text-red-700 text-xl font-bold"
+                        >
+                          &times;
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                  <label className="inline-flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      name="departments"
-                      value="Others"
-                      checked={isOtherSelected}
-                      onChange={(e) => {
-                        setIsOtherSelected(e.target.checked);
-                        handleChange(e);
-                      }}
-                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                    />
-                    <span className="ml-2 text-gray-700">Others</span>
-                  </label>
-                  {isOtherSelected && (
-                    <div className="mt-4">
-                      <label className="block text-gray-700 font-semibold mb-1">
-                        Specify Other Department
-                      </label>
+
                       <input
                         type="text"
-                        placeholder="Enter Other Department"
-                        value={newDepartment}
-                        onChange={(e) => setNewDepartment(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Organizer Name"
+                        value={organizer.name}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
                       />
-                      <button
-                        onClick={handleAddDepartment}
-                        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
-                      >
-                        Add Department
-                      </button>
+                      {validationErrors.includes(index) && !organizer.name && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a name.
+                        </p>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="designation"
+                        value={organizer.designation}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "designation",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                      />
+                      {validationErrors.includes(index) && !organizer.role && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a designation.
+                        </p>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Phone Number"
+                        value={organizer.phone}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "phone",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                      {validationErrors.includes(index) && !organizer.phone && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a phone number.
+                        </p>
+                      )}
                     </div>
-                  )}
-                  <div className="mt-4 flex justify-end">
+                  ))}
+
+                  <div className="flex justify-end">
                     <button
-                      onClick={closeModal}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                      type="button"
+                      onClick={handleSaveOrganizers}
+                      className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
                     >
-                      Close
+                      Save
                     </button>
                   </div>
                 </div>
               </div>
             )}
-          </div>
 
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Year
-            </label>
-            <select
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select Year</option>
-              {yearOptions.map((year) => (
-                <option key={year.value} value={year.value}>
-                  {year.label}
-                </option>
-              ))}
-            </select>
-            {errors.year && <span className="text-red-500">{errors.year}</span>}
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Event Title
-            </label>
-            <input
-              type="text"
-              name="eventTitle"
-              value={formData.eventTitle}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.eventTitle && (
-              <span className="text-red-500">{errors.eventTitle}</span>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Event Venue
-            </label>
-            <input
-              type="text"
-              name="eventVenue"
-              value={formData.eventVenue}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.eventVenue && (
-              <span className="text-red-500">{errors.eventVenue}</span>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Start Date
-            </label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              min={today}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.startDate && (
-              <span className="text-red-500">{errors.startDate}</span>
-            )}
-          </div>
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              End Date
-            </label>
-            <input
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              min={formData.startDate || today}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.endDate && (
-              <span className="text-red-500">{errors.endDate}</span>
-            )}
-          </div>
-
-          {/* Time Selection */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Start Time
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+                Select the Department Specification
               </label>
-              <input
-                type="time"
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.startTime && (
-                <span className="text-red-500">{errors.startTime}</span>
-              )}
-            </div>
-            <div>
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                End Time
-              </label>
-              <input
-                type="time"
-                name="endTime"
-                value={formData.endTime}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.endTime && (
-                <span className="text-red-500">{errors.endTime}</span>
-              )}
-            </div>
-          </div>
-
-          {/* Resource Person */}
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Number of Resource Persons
-            </label>
-            <input
-              type="number"
-              value={numResourcePersons}
-              onChange={handleNumResourcePersonsChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              min="0"
-            />
-            <button
-              type="button"
-              onClick={handleAddResourcePersons}
-              className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-            >
-              Add Resource Persons
-            </button>
-          </div>
-          {/* Modal for Resource Persons */}
-          {resourcePersonModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-              <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                {/* Close and Refresh Buttons */}
-                <button
-                  type="button"
-                  onClick={() => setResourcePersonModalOpen(false)}
-                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
-                >
-                  &times;
-                </button>
-
-                <h2 className="text-2xl font-bold mb-4 flex items-center">
-                  Enter Resource Persons
-                  <button
-                    type="button"
-                    onClick={handleRefreshResourcePersons}
-                    className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                    title="Refresh"
-                  >
-                    &#8635;
-                  </button>
-                </h2>
-
-                {resourcePersonDetails.map((person, index) => (
-                  <div key={index} className="mb-4 relative">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-lg font-semibold">
-                        {index + 1}.
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteResourcePerson(index)}
-                        className="text-red-500 hover:text-red-700 text-xl font-bold"
-                      >
-                        &times;
-                      </button>
-                    </div>
-
-                    <input
-                      type="text"
-                      placeholder="Resource Person Name"
-                      value={person.name}
-                      onChange={(e) =>
-                        handleResourcePersonDetailChange(
-                          index,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                    />
-                    {validationErrors.includes(index) && !person.name && (
-                      <p className="text-red-500 text-xl mt-1">
-                        Please enter a name.
-                      </p>
-                    )}
-
-                    <input
-                      type="text"
-                      placeholder="Affilation"
-                      value={person.specialization}
-                      onChange={(e) =>
-                        handleResourcePersonDetailChange(
-                          index,
-                          "specialization",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                    {validationErrors.includes(index) &&
-                      !person.specialization && (
-                        <p className="text-red-500 text-xl mt-1">
-                          Please enter a specialization.
-                        </p>
-                      )}
+              <div className="flex flex-wrap mb-4">
+                {individualDepartments.map((department) => (
+                  <div key={department} className="mr-4 mb-2">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="departmentspecification"
+                        value={department}
+                        checked={formData.departmentspecification.includes(
+                          department
+                        )}
+                        onChange={handleDepartmentsChange}
+                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                      />
+                      <span className="ml-2 text-gray-700">{department}</span>
+                    </label>
                   </div>
                 ))}
+              </div>
 
-                <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleShowDepartments}
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+              >
+                Show Departments
+              </button>
+
+              {showDepartments && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                    <h2 className="text-lg font-bold mb-4 text-gray-800">
+                      Select Departments
+                    </h2>
+                    <div className="flex flex-wrap mb-4">
+                      {departmentOptions.map((department) => (
+                        <div key={department.shortName} className="mr-4 mb-2">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              name="departments"
+                              value={department.fullName}
+                              checked={formData.departments.includes(
+                                department.fullName
+                              )}
+                              onChange={handleChange}
+                              className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                              disabled={
+                                department.fullName === "All"
+                                  ? disableAll
+                                  : disableIndividual
+                              }
+                            />
+                            <span className="ml-2 text-gray-700">
+                              {department.shortName}
+                            </span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <label className="inline-flex items-center mb-4">
+                      <input
+                        type="checkbox"
+                        name="departments"
+                        value="Others"
+                        checked={isOtherSelected}
+                        onChange={(e) => {
+                          setIsOtherSelected(e.target.checked);
+                          handleChange(e);
+                        }}
+                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                      />
+                      <span className="ml-2 text-gray-700">Others</span>
+                    </label>
+                    {isOtherSelected && (
+                      <div className="mt-4">
+                        <label className="block text-gray-700 font-semibold mb-1">
+                          Specify Other Department
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Enter Other Department"
+                          value={newDepartment}
+                          onChange={(e) => setNewDepartment(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={handleAddDepartment}
+                          className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+                        >
+                          Add Department
+                        </button>
+                      </div>
+                    )}
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={closeModal}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Year
+              </label>
+              <select
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Select Year</option>
+                {yearOptions.map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </select>
+              {errors.year && (
+                <span className="text-red-500">{errors.year}</span>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Event Title
+              </label>
+              <input
+                type="text"
+                name="eventTitle"
+                value={formData.eventTitle}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.eventTitle && (
+                <span className="text-red-500">{errors.eventTitle}</span>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Event Venue
+              </label>
+              <input
+                type="text"
+                name="eventVenue"
+                value={formData.eventVenue}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.eventVenue && (
+                <span className="text-red-500">{errors.eventVenue}</span>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                min={today}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.startDate && (
+                <span className="text-red-500">{errors.startDate}</span>
+              )}
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                End Date
+              </label>
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                min={formData.startDate || today}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.endDate && (
+                <span className="text-red-500">{errors.endDate}</span>
+              )}
+            </div>
+            {/* Time Selection */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.startTime && (
+                  <span className="text-red-500">{errors.startTime}</span>
+                )}
+              </div>
+              <div>
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.endTime && (
+                  <span className="text-red-500">{errors.endTime}</span>
+                )}
+              </div>
+            </div>
+            {/* Resource Person */}
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Number of Resource Persons
+              </label>
+              <input
+                type="number"
+                value={numResourcePersons}
+                onChange={handleNumResourcePersonsChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                min="0"
+              />
+              <button
+                type="button"
+                onClick={handleAddResourcePersons}
+                className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+              >
+                Add Resource Persons
+              </button>
+            </div>
+            {resourcePersonModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
                   <button
                     type="button"
-                    onClick={handleSaveResourcePersons}
-                    className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                    onClick={() => setResourcePersonModalOpen(false)}
+                    className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
                   >
-                    Save
+                    <FaTimes />
                   </button>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Specialization */}
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Description
-            </label>
-            <input
-              type="text"
-              name="eventDescription"
-              value={formData.eventDescription}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-            {errors.eventDescription && (
-              <span className="text-red-500">{errors.eventDescription}</span>
-            )}
-          </div>
+                  <h2 className="text-2xl font-bold mb-4 flex items-center">
+                    Enter Resource Persons
+                    <button
+                      type="button"
+                      onClick={handleRefreshResourcePersons}
+                      className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                      title="Refresh"
+                    >
+                      &#8635;
+                    </button>
+                  </h2>
 
-          {/* Event Type Selection */}
-          <div className="mb-4">
-            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-              Event Type
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowEventTypeModal(true)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-            >
-              {formData.eventType || "Select Event Type"}
-            </button>
-            {errors.eventType && (
-              <span className="text-red-500">{errors.eventType}</span>
-            )}
-          </div>
-
-          {/* Event Type Modal */}
-          {showEventTypeModal && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold">Select Event Type</h2>
-                  <button
-                    onClick={() => setShowEventTypeModal(false)}
-                    className="text-gray-500"
-                  >
-                    &times;
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search Event Type"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                />
-                <div className="max-h-64 overflow-y-auto">
-                  {eventTypes
-                    .filter((type) =>
-                      type.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                    .map((type) => (
-                      <div
-                        key={type}
-                        onClick={() => handleEventTypeSelection(type)}
-                        className="p-2 cursor-pointer hover:bg-gray-200 rounded"
-                      >
-                        {type}
+                  {resourcePersonDetails.map((person, index) => (
+                    <div key={index} className="mb-4 relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-lg font-semibold">
+                          {index + 1}.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteResourcePerson(index)}
+                          className="text-red-500 hover:text-red-700 text-xl font-bold"
+                        >
+                          &times;
+                        </button>
                       </div>
-                    ))}
+
+                      <input
+                        type="text"
+                        placeholder="Resource Person Name"
+                        value={person.name}
+                        onChange={(e) =>
+                          handleResourcePersonDetailChange(
+                            index,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                      />
+                      {validationErrors.includes(index) && !person.name && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a name.
+                        </p>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Affilation"
+                        value={person.specialization}
+                        onChange={(e) =>
+                          handleResourcePersonDetailChange(
+                            index,
+                            "specialization",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                      {validationErrors.includes(index) &&
+                        !person.specialization && (
+                          <p className="text-red-500 text-xl mt-1">
+                            Please enter a specialization.
+                          </p>
+                        )}
+                    </div>
+                  ))}
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSaveResourcePersons}
+                      className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
+            )}
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Professional societies and bodies involved
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowProfessionalBodies(true)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+              >
+                {formData.eventType || "Professional Societies"}
+              </button>
             </div>
-          )}
-
-          <div className="mt-8 flex justify-center">
-            <button
-              type="submit"
-              className="bg-[#7848F4] text-white font-bold py-2 px-6 rounded-full hover:bg-[#5929c4] focus:outline-none"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>{" "}
+            {ShowProfessionalBodies && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold">
+                      Professional societies and bodies involved
+                    </h2>
+                    <button
+                      onClick={() => setShowProfessionalBodies(false)}
+                      className="text-gray-500 text-3xl"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Professional societies and bodies involved"
+                    value={internationalInput}
+                    onChange={(e) => setInternationalInput(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  />
+                  <div className="max-h-64 overflow-y-auto">
+                    {internationalRelations
+                      .filter((type) =>
+                        type
+                          .toLowerCase()
+                          .includes(internationalInput.toLowerCase())
+                      )
+                      .map((type1) => (
+                        <div
+                          key={type1}
+                          onClick={() => handleEventTypeInternational(type1)}
+                          className="p-2 cursor-pointer hover:bg-gray-200 rounded"
+                        >
+                          {type1}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+                Choose the Logos
+              </label>
+              <div className="flex flex-wrap mb-4">
+                {logos.map((logo) => (
+                  <div key={logo} className="mr-4 mb-2">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="departmentspecification"
+                        value={logo}
+                        checked={formData.logos.includes(logo)}
+                        onChange={handleLogosChange}
+                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                      />
+                      <span className="ml-2 text-gray-700">{logo}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Description
+              </label>
+              <input
+                type="text"
+                name="eventDescription"
+                value={formData.eventDescription}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.eventDescription && (
+                <span className="text-red-500">{errors.eventDescription}</span>
+              )}
+            </div>
+            {/* Event Type Selection */}
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Event Type
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowEventTypeModal(true)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+              >
+                {formData.eventType || "Select Event Type"}
+              </button>
+              {errors.eventType && (
+                <span className="text-red-500">{errors.eventType}</span>
+              )}
+            </div>
+            {showEventTypeModal && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold">Select Event Type</h2>
+                    <button
+                      onClick={() => setShowEventTypeModal(false)}
+                      className="text-gray-500"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search Event Type"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                  />
+                  <div className="max-h-64 overflow-y-auto">
+                    {eventTypes
+                      .filter((type) =>
+                        type.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((type) => (
+                        <div
+                          key={type}
+                          onClick={() => handleEventTypeSelection(type)}
+                          className="p-2 cursor-pointer hover:bg-gray-200 rounded"
+                        >
+                          {type}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="mt-8 flex justify-center">
+              <button
+                type="submit"
+                className="bg-[#7848F4] text-white font-bold py-2 px-6 rounded-full hover:bg-[#5929c4] focus:outline-none"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
       <ToastContainer />
     </div>
   );

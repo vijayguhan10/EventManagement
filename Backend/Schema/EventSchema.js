@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const EventDataSchema = new mongoose.Schema({
   userid: {
     required: true,
@@ -17,11 +18,6 @@ const EventDataSchema = new mongoose.Schema({
     required: true,
     type: [{ type: mongoose.Schema.Types.Mixed }],
   },
-
-  // organizer: {
-  //   required: true,
-  //   type: String,
-  // },
   venue: {
     required: true,
     type: String,
@@ -77,7 +73,6 @@ const EventDataSchema = new mongoose.Schema({
   eventDescription: {
     default: "",
     type: String,
-    // required: true,
   },
   year: {
     required: true,
@@ -91,6 +86,15 @@ const EventDataSchema = new mongoose.Schema({
     type: String,
     enum: ["Yet to Complete", "In Progress", "Completed"],
     default: "Yet to Complete",
+  },
+  organizer: {
+    type: [{ type: mongoose.Schema.Types.Mixed }],
+  },
+  logos: {
+    type: [String],
+  },
+  international: {
+    type: String,
   },
 });
 

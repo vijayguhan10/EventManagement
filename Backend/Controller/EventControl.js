@@ -171,6 +171,9 @@ exports.CreateEvent = async (req, res) => {
       status,
       departments,
       year,
+      organizer,
+      logos,
+      international,
     } = req.body;
     const userId = req.userId;
     console.log("Consoling the form data", req.body);
@@ -254,6 +257,9 @@ exports.CreateEvent = async (req, res) => {
       eventDescription,
       departmentspecification: formattedDepartmentspecification,
       year,
+      organizer, // New field added
+      logos, // New field added
+      international, // New field added
     });
 
     const savedEvent = await newEvent.save();
@@ -515,7 +521,9 @@ exports.updatedesigned = async (req, res) => {
     const { eventid, status } = req.body;
 
     if (!eventid || !status) {
-      return res.status(400).json({ message: "Event ID and status are required" });
+      return res
+        .status(400)
+        .json({ message: "Event ID and status are required" });
     }
 
     const event = await Event.findById(eventid);
@@ -524,7 +532,7 @@ exports.updatedesigned = async (req, res) => {
     }
 
     console.log("Event before update:", event);
-    event.designstatus = status; 
+    event.designstatus = status;
     await event.save();
 
     console.log("Event after update:", event);
@@ -534,7 +542,6 @@ exports.updatedesigned = async (req, res) => {
     res.status(500).json({ message: "Error updating status" });
   }
 };
-
 
 exports.deleteEvent = async (req, res) => {
   try {
