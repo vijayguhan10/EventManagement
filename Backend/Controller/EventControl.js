@@ -174,6 +174,9 @@ exports.CreateEvent = async (req, res) => {
       organizer,
       logos,
       international,
+      students, // New field
+      teachers, // New field
+      alumnis
     } = req.body;
     const userId = req.userId;
     console.log("Consoling the form data", req.body);
@@ -260,6 +263,9 @@ exports.CreateEvent = async (req, res) => {
       organizer, // New field added
       logos, // New field added
       international, // New field added
+      students, // Added field
+      teachers, // Added field
+      alumnis
     });
 
     const savedEvent = await newEvent.save();
@@ -330,6 +336,9 @@ exports.updateevent = async (req, res) => {
       departments,
       year,
       description,
+      students, // New field
+      teachers, // New field
+      alumnis
     } = req.body;
     console.log("resour5ce persopnm", resourcePersons);
     console.log("consoling the updaegt", req.body);
@@ -458,6 +467,9 @@ exports.updateevent = async (req, res) => {
       departments,
       year,
       description,
+      students, // Added field
+      teachers, // Added field
+      alumnis
     };
 
     const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedfield, {

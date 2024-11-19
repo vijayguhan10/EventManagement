@@ -11,7 +11,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "../Scroll.css";
 import Popup2 from "../PopupModels/Popup2";
-
+import { jwtDecode } from "jwt-decode";
 const CalendarComponent = () => {
   const [SearchQuery, setSearchQuery] = useState("");
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
@@ -55,6 +55,21 @@ const CalendarComponent = () => {
     }
   };
 
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");   
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token: ", decoded);
+        setName(decoded.name || "Guest");
+        setRole(decoded.role || "User");
+      } catch (error) {
+        console.error("Error decoding token", error);
+      }
+    }
+  }, []);
   /*
   deparment specifcation popup in report geenrator
   */
@@ -425,21 +440,24 @@ const CalendarComponent = () => {
             </p>
           </div>
 
-          {isFutureOrToday(selectedDate) ? (
-            <Link
-              to="/Form"
-              className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-            >
-              Add Event
-            </Link>
-          ) : (
-            <button
-              className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
-              disabled
-            >
-              Add Event
-            </button>
-          )}
+          {role !== "ps" && (
+  isFutureOrToday(selectedDate) ? (
+    <Link
+      to="/Form"
+      className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+    >
+      Add Event
+    </Link>
+  ) : (
+    <button
+      className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
+      disabled
+    >
+      Add Event
+    </button>
+  )
+)}
+
         </div>
 
         {/* Department Section */}

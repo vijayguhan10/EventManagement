@@ -7,20 +7,23 @@ const secretKey = process.env.JWT_SECRET_TOKEN || "yourDefaultSecretKey";
 console.log("secret key while creating token :", secretKey);
 exports.Signup = async (req, res) => {
   const { name, email, password, role } = req.body;
-  console.log("request for signup  : ",req.body);
+  console.log("Request for signup: ", req.body);
 
   try {
-    // const findAlreadyUserExist = await Signups.findOne({ email });
+    // Check if the email already exists
+    const findAlreadyUserExist = await Signups.findOne({ email });
 
-    // if (findAlreadyUserExist) {
-    //   return res.status(401).json({
-    //     message: "User ID already exists",
-    //     userid: findAlreadyUserExist,
-    //   });
-    // }
+    if (findAlreadyUserExist) {
+      return res.status(401).json({
+        message: "User ID already exists",
+        userId: findAlreadyUserExist._id, // Optionally return the existing user's ID
+      });
+    }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a new user
     const newUser = new Signups({
       name,
       email,
@@ -28,8 +31,11 @@ exports.Signup = async (req, res) => {
       role,
     });
 
+    // Save the new user to the database
     await newUser.save();
-    console.log("event been fetching");
+    console.log("New user registered successfully");
+
+    // Generate a JWT token
     const token = jwt.sign(
       {
         userId: newUser._id,
@@ -37,18 +43,21 @@ exports.Signup = async (req, res) => {
         role: newUser.role,
         name: newUser.name,
       },
-      secretKey,
+      secretKey, // Replace with your actual secret key
       { expiresIn: "7d" }
     );
 
+    // Send a success response with the token
     res.status(201).json({
       message: "User registered successfully",
       token: token,
     });
   } catch (err) {
-    res.status(500).json({ message: "Error in signing up", error: err });
+    console.error("Error during signup:", err);
+    res.status(500).json({ message: "Error in signing up", error: err.message });
   }
 };
+
 
 exports.Login = async (req, res) => {
   console.log("request  to the body : ", req.body);

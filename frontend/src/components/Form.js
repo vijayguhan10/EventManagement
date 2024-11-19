@@ -128,7 +128,11 @@ function Forms() {
     departments: [],
 
     departmentspecification: [],
+    students: false, 
+    teachers: false,
+    alumnis: false, 
   });
+  
   const handleRefreshResourcePersons = () => {
     setResourcePersonDetails([]);
   };
@@ -352,7 +356,7 @@ function Forms() {
   ];
   // Handle checkbox changes
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type,checked  } = e.target;
 
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
@@ -369,10 +373,8 @@ function Forms() {
         }
       } else if (value === "Others") {
         setIsOtherSelected(e.target.checked);
-        // If "Others" is checked, disable other checkboxes
         setDisableIndividual(e.target.checked);
         if (!e.target.checked) {
-          // Enable other checkboxes if "Others" is unchecked
           setDisableIndividual(false);
         }
       } else {
@@ -385,6 +387,9 @@ function Forms() {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
+    }
+    else if (["students", "teachers", "alumnis"].includes(name)) {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -477,16 +482,20 @@ function Forms() {
           year: formData.year,
           eventDescription: formData.eventDescription,
           departmentspecification: formData.departmentspecification,
+          students: formData.students,
+          teachers: formData.teachers,
+          alumnis: formData.alumnis, 
         }
       );
-
+console.log("response",response)
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         setTimeout(() => {
           toast.success("Event added successfully!");
           navigate("/Dashboard");
-        }, 1000);
+        }, 2000);
+        
       }
     } catch (error) {
       console.error("Error:", error);
@@ -511,6 +520,7 @@ function Forms() {
     { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
     { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
     { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
+    { value: "Others", label: "Others" },
   ];
 
   return (

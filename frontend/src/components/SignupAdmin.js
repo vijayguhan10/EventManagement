@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 const SignupAdmin = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -21,10 +21,36 @@ const SignupAdmin = () => {
       [name]: value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error("Name is required.", {
+        autoClose: 2000,
+      });
+      return;
+    }
+    if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) {
+      toast.warning("Please enter a valid email address.(@sece.ac.in)", {
+        autoClose: 2000,
+      });
+      return;
+    }
+    if (!formData.password.trim() || formData.password.length < 4) {
+      toast.warning("Password must be at least  characters long.", {
+        autoClose: 2000,
+      });
+      return;
+    }
+    if (!formData.role) {
+      toast.warning("Please select a role.", {
+        autoClose: 2000,
+      });
+      return;
+    }
+  
+    // Proceed with API call if validation passes
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/sece/Signup`,
@@ -32,22 +58,23 @@ const SignupAdmin = () => {
       );
       if (response.status === 201) {
         toast.success("Signup successful!", {
-        //   position: toast.POSITION.TOP_CENTER,
           autoClose: 2000,
         });
         navigate("/Dashboard");
       }
     } catch (error) {
-      toast.error("Signup failed. Please try again.", {
-        // position: toast.POSITION.TOP_CENTER,
+      toast.error("Email alread exists", {
         autoClose: 2000,
       });
       console.error("Error during signup:", error);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            <ToastContainer />
+
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
         <img
           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFLv67xzywDAy0jor5mGuOL9dpZXPj_GGz6g&s"
@@ -137,13 +164,25 @@ const SignupAdmin = () => {
                 <input
                   type="radio"
                   name="role"
+                  value="ps"
+                  checked={formData.role === "ps"}
+                  onChange={handleChange}
+                  required
+                  className="form-radio text-indigo-600"
+                />
+                <span>Personal secretory</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="role"
                   value="mediamax"
                   checked={formData.role === "mediamax"}
                   onChange={handleChange}
                   required
                   className="form-radio text-indigo-600"
                 />
-                <span>MediaMax</span>
+                <span>Media Center</span>
               </label>
             </div>
           </div>

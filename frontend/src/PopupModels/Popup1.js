@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const Popup1 = ({
   eventsForSelectedDate,
@@ -6,6 +6,32 @@ const Popup1 = ({
   closeEventList,
   openEventModal,
 }) => {
+  // Function to close modal when Escape key is pressed
+  const handleCloseOnEscape = (e) => {
+    if (e.key === "Escape") {
+      closeEventList();
+    }
+  };
+
+  // Function to close modal when clicking outside the modal
+  const handleCloseOnClickOutside = (e) => {
+    if (e.target.classList.contains("modal-overlay")) {
+      closeEventList();
+    }
+  };
+
+  // Adding event listeners on component mount and cleaning up on unmount
+  useEffect(() => {
+    document.addEventListener("keydown", handleCloseOnEscape);
+    document.addEventListener("click", handleCloseOnClickOutside);
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      document.removeEventListener("keydown", handleCloseOnEscape);
+      document.removeEventListener("click", handleCloseOnClickOutside);
+    };
+  }, []); // Empty dependency array ensures this runs only once (on mount and unmount)
+
   return (
     <div className="modal-overlay">
       <div className="modal-content font-Afacad font-semibold">
@@ -32,27 +58,21 @@ const Popup1 = ({
                   <span className="event-name">{event.eventname}</span>
                   <span
                     className={`event-category ${
-                      event.category
-                        ? event.category.toLowerCase()
-                        : "default-category"
+                      event.category ? event.category.toLowerCase() : "default-category"
                     }`}
                   >
                     {event.typeofevent}
                   </span>
                   <span
                     className={`event-category ${
-                      event.category
-                        ? event.category.toLowerCase()
-                        : "default-category"
+                      event.category ? event.category.toLowerCase() : "default-category"
                     }`}
                   >
                     {event.status}
                   </span>
                   <span
                     className={`event-icon ${
-                      event.category
-                        ? event.category.toLowerCase()
-                        : "default-category"
+                      event.category ? event.category.toLowerCase() : "default-category"
                     }`}
                   >
                     {event.category === "Tech" ? "📘" : "📕"}

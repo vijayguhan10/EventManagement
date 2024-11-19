@@ -96,6 +96,9 @@ const EventDataSchema = new mongoose.Schema({
   international: {
     type: String,
   },
+  students: { type: Boolean, default: false }, // New field for "Students"
+  teachers: { type: Boolean, default: false }, // New field for "Teachers"
+  alumnis: { type: Boolean, default: false },
 });
 
 const EventData = mongoose.model("EventData", EventDataSchema);
