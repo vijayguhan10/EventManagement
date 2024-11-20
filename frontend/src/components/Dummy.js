@@ -1,66 +1,189 @@
-import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar";
-import "../Calender.css";
-import forwardarrow from "../assets/Forward Arrow.png";
-import "../resourceperson.css";
-import Popup1 from "../PopupModels/Popup1";
-import { FaFilePdf, FaSearch, FaFileExcel } from "react-icons/fa";
-import prevarrow from "../assets/Forward Arrow (1).png";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import "../Scroll.css";
-import Popup2 from "../PopupModels/Popup2";
-const CalendarComponent = () => {
-  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [data, setData] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isEventListOpen, setIsEventListOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [isFullYear, setIsFullYear] = useState(false);
-  const [selectedYears, setSelectedYears] = useState([]);
-  const [showIcons, setShowIcons] = useState(false);
-  const [departments, setDepartments] = useState([]);
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+function Forms() {
+  const eventTypes = [
+    "Workshop",
+    "Seminar",
+    "Guest Lecture",
+    "Webinar",
+    "Conference",
+    "Project Contest",
+    "Hackathon",
+    "Symposium",
+    "Competition",
+    "Leadership Talk",
+    "Placement Drive",
+    "Celebration",
+    "Prize Distribution",
+    "Student Training",
+    "Project Expo",
+    "Outreach",
+    "Extension Activity",
+    "Value Added Course",
+    "Orientation Faculty",
+    "Orientation Student",
+    "Faculty Development Program",
+    "Sports Event",
+    "Lab/Center of Excellence Inauguration",
+    "MoU Signing",
+    "Annual Day",
+    "Graduation Day",
+    "Sports Day",
+    "Alumni Event",
+    "Culturals",
+    "Tech Fest",
+    "NSS",
+    "NCC Event",
+    "Interaction with Outside Experts",
+  ];
+  const handleEventTypeSelection = (type) => {
+    setFormData((prev) => ({ ...prev, eventType: type }));
+    setShowEventTypeModal(false);
+  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  const [newDepartment, setNewDepartment] = useState("");
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
+  const [disableIndividual, setDisableIndividual] = useState(false);
+  const [disableAll, setDisableAll] = useState(false);
 
-  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
-  const handleDepartmentChange = (event) => {
-    const selectedDeptShortName = event.target.value;
-    if (selectedDeptShortName === "All") {
-      if (event.target.checked) {
-        setDepartments(["All"]);
-      } else {
-        setDepartments([]);
-      }
-    } else {
-      const selectedDeptFullName = departmentOptions.find(
-        (dept) => dept.shortName === selectedDeptShortName
-      ).fullName;
-
-      setDepartments((prevDepartments) => {
-        if (prevDepartments.includes("All")) {
-          return [selectedDeptFullName];
-        }
-
-        return prevDepartments.includes(selectedDeptFullName)
-          ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
-          : [...prevDepartments, selectedDeptFullName];
-      });
-    }
+  const [showEventTypeModal, setShowEventTypeModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [errors, setErrors] = useState({});
+  const today = new Date().toISOString().split("T")[0];
+  const [showDepartments, setShowDepartments] = useState(false);
+  const [formData, setFormData] = useState({
+    eventTitle: "",
+    iqac: "",
+    eventVenue: "",
+    startDate: "",
+    endDate: "",
+    startTime: "",
+    endTime: "",
+    resourcePersons: [],
+    eventType: "",
+    eventDescription: "",
+    departments: [],
+    departmentspecification: [],
+    students: false, 
+    teachers: false,
+    alumnis: false, 
+  });
+  
+  const handleRefreshResourcePersons = () => {
+    setResourcePersonDetails([]);
   };
 
+  const [numResourcePersons, setNumResourcePersons] = useState(0);
+  const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
+  const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
+  const handleNumResourcePersonsChange = (e) => {
+    setNumResourcePersons(e.target.value);
+  };
+  const handleDeleteResourcePerson = (index) => {
+    setResourcePersonDetails((prevDetails) =>
+      prevDetails.filter((_, i) => i !== index)
+    );
+  };
+  const handleAddResourcePersons = () => {
+    const additionalPersonsCount =
+      numResourcePersons - resourcePersonDetails.length;
 
+    if (additionalPersonsCount > 0) {
+      const newResourcePersons = Array.from(
+        { length: additionalPersonsCount },
+        () => ({
+          name: "",
+          specialization: "",
+        })
+      );
+      setResourcePersonDetails((prevDetails) => [
+        ...prevDetails,
+        ...newResourcePersons,
+      ]);
+    }
 
+    setResourcePersonModalOpen(true);
+  };
 
-  /*
-  deparment specifcation popup in report geenrator
-  */
-  const eventTypes = [
+  const handleResourcePersonDetailChange = (index, field, value) => {
+    const updatedDetails = [...resourcePersonDetails];
+    updatedDetails[index][field] = value;
+    setResourcePersonDetails(updatedDetails);
+  };
+
+  const [validationErrors, setValidationErrors] = useState([]);
+  const handleShowDepartments = () => {
+    setErrors({});
+    setShowDepartments(true);
+  };
+
+  const handleAddDepartment = () => {
+    if (newDepartment) {
+      setFormData((prev) => ({
+        ...prev,
+        departments: [...prev.departments, newDepartment],
+      }));
+      setNewDepartment("");
+      setIsOtherSelected(false); // Reset after adding
+    } else {
+      // setErrors({ ...errors, departments: "Please enter a department name." });
+    }
+  };
+  const closeModal = () => {
+    setShowDepartments(false);
+    setErrors({});
+    setNewDepartment("");
+    setIsOtherSelected(false);
+  };
+
+  const handleSaveResourcePersons = () => {
+    const errors = resourcePersonDetails.reduce((acc, person, index) => {
+      if (!person.name || !person.specialization) {
+        acc.push(index);
+      }
+      return acc;
+    }, []);
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+
+    const formattedResourcePersons = resourcePersonDetails.reduce(
+      (acc, person) => {
+        acc[person.name] = person.specialization;
+        return acc;
+      },
+      {}
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      resourcePersons: formattedResourcePersons,
+    }));
+    setResourcePersonModalOpen(false);
+  };
+
+  // const handleRemovePerson = (index) => {
+  //   const updatedPersons = formData.resourcePersons.filter(
+  //     (_, i) => i !== index
+  //   );
+  //   setFormData.resourcePersons(updatedPersons);
+  // };
+  // const handleEditPerson = (index, field, value) => {
+  //   const updatedPersons = [...formData.resourcePersons];
+  //   updatedPersons[index][field] = value;
+  //   setFormData.resourcePersons(updatedPersons);
+  // };
+  const individualDepartments = [
     "CFI",
     "CFRD",
     "Academics",
@@ -83,33 +206,7 @@ const CalendarComponent = () => {
     "YRC",
     "UBA",
   ];
-  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
-  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const toggleEventTypeModal = () => {
-    setIsEventTypeModalOpen(!isEventTypeModalOpen);
-  };
-
-  const handleEventTypeSelection = (type) => {
-    setSelectedEventTypes((prevSelected) =>
-      prevSelected.includes(type)
-        ? prevSelected.filter((t) => t !== type)
-        : [...prevSelected, type]
-    );
-  };
-
-  const filteredEventTypes = eventTypes.filter((type) =>
-    type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const closeResourcePopup = () => {
-    SetDepartmentPopup(false);
-    setIsResourcePopupOpen(false);
-  };
-  const handleViewResourcePersons = () => {
-    setIsResourcePopupOpen(true);
-  };
- 
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
     { fullName: "Computer Science Engineering", shortName: "CSE" },
@@ -129,573 +226,650 @@ const CalendarComponent = () => {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
-  const handleFullYearChange = () => {
-    setIsFullYear(!isFullYear);
-    if (!isFullYear) {
-      setFromDate("");
-      setToDate("");
-    }
-  };
-  const handleGeneratePDF = async () => {
-    console.log("Selected event type", selectedEventTypes);
-    console.log("Consoling the departments", departments);
-    console.log("Consoling the year selected", selectedYears);
-  
-    // Ensure either departments or selectedEventTypes (or both) are selected
-    if ((departments.length === 0 && selectedEventTypes.length === 0) || selectedYears.length === 0) {
-      setErrorMessage(
-        "Please select at least one department or one event type, and one year to generate the PDF."
-      );
-      return;
-    }
-  
-    // Ensure full-year or a date range is provided
-    if (!isFullYear && (!fromDate || !toDate)) {
-      setErrorMessage("Please select a valid date range to generate the PDF.");
-      return;
-    }
-  
-    setErrorMessage("");
-  
-    console.log("Selected year for PDF generation:", selectedYears);
-  
-    const selectedData = {
-      departments: departments,
-      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-      year: selectedYears.includes("All") ? "All" : selectedYears,
-      selectedeventtype: selectedEventTypes,
-    };
-  
-    console.log("Selected data for PDF generation:", selectedData);
-  
-    try {
-      const response = await axios({
-        url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
-        method: "GET",
-        params: selectedData,
-        responseType: "blob",
-      });
-  
-      console.log("PDF generation response:", response);
-  
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-  
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "events-report.pdf";
-      console.log("PDF Downloading:", blob);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(link.href);
-    } catch (error) {
-      console.error("Error fetching PDF:", error);
-    }
-  };
-  
-  const downloadExcelReport = async () => {
-    if ((departments.length === 0 && selectedEventTypes.length === 0) || selectedYears.length === 0) {
-      setErrorMessage(
-        "Please select at least one department or one event type, and one year to generate the PDF."
-      );
-      return;
-    }
-  
-    // Ensure full-year or a date range is provided
-    if (!isFullYear && (!fromDate || !toDate)) {
-      setErrorMessage("Please select a valid date range to generate the PDF.");
-      return;
-    }
-  
-    setErrorMessage("");
-  
-    const selectedData = {
-      departments: departments,
-      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-      year: selectedYears.includes("All") ? "All" : selectedYears,
-      selectedeventtype: selectedEventTypes,
-    };
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/event/generateExcel-sheet`,
-        {
-          params: selectedData,
-          responseType: "blob",
-        }
-      );
+  // Handle checkbox changes
+  const handleChange = (e) => {
+    const { name, value, type,checked  } = e.target;
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "events-report.xlsx");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading Excel report:", error);
-    }
-  };
+    if (type === "radio") {
+      setFormData((prev) => ({ ...prev, eventType: value }));
+    } else if (type === "checkbox" && name === "departments") {
+      const selectedDepartments = [...formData.departments];
 
-  const onClickDay = (value) => {
-    setSelectedDate(value);
-    console.log("Selected date🎉", value); // Log the clicked date
-    setIsEventListOpen(true);
-  };
-
-  const closeEventList = () => {
-    setIsEventListOpen(false); // Close the event list
-  };
-
-  const closeEventModal = () => {
-    setSelectedEvent(null);
-  };
-
-  const onChange = (newDate) => {
-    setSelectedDate(newDate); // Update selected date
-  };
-
-  const updateMonth = (direction) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
-    setCurrentDate(newDate);
-  };
-
-  const nextMonth = () => updateMonth(1);
-  const prevMonth = () => updateMonth(-1);
-
-  const isFutureOrToday = (dateToCheck) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return dateToCheck >= today;
-  };
-
-  const openEventModal = (event) => {
-    setSelectedEvent(event); // Set the selected event
-  };
-
-  const formatDate = (dateString) => {
-    const parts = dateString.split("/");
-    if (parts.length === 3) {
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10) + 2000;
-      return new Date(year, month, day);
-    }
-    return new Date(NaN);
-  };
-
-  const eventsForSelectedDate = events.filter((event) => {
-    const eventDate = new Date(event.date);
-    const eventStartDate = formatDate(event.eventstartdate);
-
-    return (
-      eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
-      eventStartDate.toLocaleDateString() === selectedDate.toLocaleDateString()
-    );
-  });
-  const handleDownloadClick = () => {
-    setShowIcons(!showIcons);
-  };
-  const handleYearChange = (event, year) => {
-    if (year === "All") {
-      if (event.target.checked) {
-        setSelectedYears([1, 2, 3, 4]);
-      } else {
-        // When "All" is deselected, clear the state
-        setSelectedYears([]);
-      }
-    } else {
-      setSelectedYears((prevSelected) => {
-        if (prevSelected.includes(year)) {
-          // If a specific year is deselected
-          return prevSelected.filter((y) => y !== year);
+      if (value === "All") {
+        if (e.target.checked) {
+          setFormData((prev) => ({ ...prev, departments: ["All"] }));
+          setDisableIndividual(true);
         } else {
-          // If a specific year is selected
-          return [...prevSelected, year].filter((y) => y !== "All"); // Remove "All" if selecting individual years
+          setFormData((prev) => ({ ...prev, departments: [] }));
+          setDisableIndividual(false);
         }
-      });
+      } else if (value === "Others") {
+        setIsOtherSelected(e.target.checked);
+        setDisableIndividual(e.target.checked);
+        if (!e.target.checked) {
+          setDisableIndividual(false);
+        }
+      } else {
+        if (e.target.checked) {
+          selectedDepartments.push(value);
+        } else {
+          const index = selectedDepartments.indexOf(value);
+          if (index !== -1) selectedDepartments.splice(index, 1);
+        }
+        setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
+        setDisableAll(selectedDepartments.length > 0);
+      }
+    }
+    else if (["students", "teachers", "alumnis"].includes(name)) {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-  const monthYearString = currentDate.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
-  const convertTo12HourFormat = (time) => {
-    if (!time) return "";
-    let [hours, minutes] = time.split(":");
-    hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
-    return `${hours}:${minutes} ${ampm}`;
-  };
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log("Fetching data...");
-        const response = await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/event/getalldata`
-        );
-        console.log(response);
-        const filteredData = response.data.eventdata;
-        setData(filteredData);
-        console.log("Filtered data:", filteredData);
-        setEvents(filteredData);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-        toast.error("Failed to fetch data.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleDepartmentsChange = (event) => {
+    const { value, checked } = event.target;
 
-    fetchData();
-  }, []);
+    setFormData((prevFormData) => {
+      if (checked) {
+        return {
+          ...prevFormData,
+          departmentspecification: [
+            ...prevFormData.departmentspecification,
+            value,
+          ],
+        };
+      } else {
+        return {
+          ...prevFormData,
+          departmentspecification: prevFormData.departmentspecification.filter(
+            (dept) => dept !== value
+          ),
+        };
+      }
+    });
+  };
+  const handleSubmit = async (e) => {
+    // console.log("form data ", formData);
+    e.preventDefault();
+    const newErrors = {};
+    if (!formData.iqac) newErrors.iqac = "IQAC Number is Required";
+    if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
+    if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
+    if (!formData.year) newErrors.year = "Event year is required";
+    if (!formData.startDate) newErrors.startDate = "Start date is required";
+    if (!formData.endDate) newErrors.endDate = "End date is required";
+    if (!formData.startTime) newErrors.startTime = "Start time is required";
+    if (!formData.endTime) newErrors.endTime = "End time is required";
+    if (!formData.resourcePersons)
+      newErrors.resourcePerson = "Resource person is required";
+
+    if (!formData.eventType)
+      newErrors.eventType = "Please select an event type";
+    // if (!formData.eventDescription)
+    // newErrors.eventDescription = "Event description is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      console.log(Object.keys(newErrors).length);
+      console.log("dfffffff");
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      console.log("posting the form data : ", formData);
+      const response = await axios.post(
+        ` ${process.env.REACT_APP_BASE_URL}/event/create_event`,
+        {
+          iqac: formData.iqac,
+          eventname: formData.eventTitle,
+          resourcePersons: formData.resourcePersons,
+          venue: formData.eventVenue,
+          eventstarttime: formData.startTime,
+          eventendtime: formData.endTime,
+          eventstartdate: formData.startDate.replace(/-/g, "/"),
+          eventenddate: formData.endDate.replace(/-/g, "/"),
+          typeofevent: formData.eventType,
+          departments: formData.departments,
+          status: "pending",
+          year: formData.year,
+          eventDescription: formData.eventDescription,
+          departmentspecification: formData.departmentspecification,
+          students: formData.students,
+          teachers: formData.teachers,
+          alumnis: formData.alumnis, 
+        }
+      );
+console.log("response",response)
+      if (response.status === 201) {
+        console.log("sucessfull response : ", response);
+        console.log("year🤣🤣🤣🤣🤣", response.data.year);
+        setTimeout(() => {
+          toast.success("Event added successfully!");
+          navigate("/Dashboard");
+        }, 2000);
+        
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error adding event. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+    setErrors({});
+  };
+  const yearOptions = [
+    { value: "1", label: "1st Year" },
+    { value: "2", label: "2nd Year" },
+    { value: "3", label: "3rd Year" },
+    { value: "4", label: "4th Year" },
+    { value: "All", label: "All" },
+    { value: "1 and 2", label: "1st Year and 2nd Year" },
+    { value: "1 and 3", label: "1st Year and 3rd Year" },
+    { value: "1 and 4", label: "1st Year and 4th Year" },
+    { value: "2 and 3", label: "2nd Year and 3rd Year" },
+    { value: "2 and 4", label: "2nd Year and 4th Year" },
+    { value: "3 and 4", label: "3rd Year and 4th Year" },
+    { value: "1, 2, and 3", label: "1st Year, 2nd Year, and 3rd Year" },
+    { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
+    { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
+    { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
+    { value: "Others", label: "Others" },
+  ];
 
   return (
-    <div>
-      <ToastContainer />
-      <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
-        <div className="calendar-navigation">
-          <button onClick={prevMonth}>
-            <img src={prevarrow} alt="previous month" />
-          </button>
-          <span className="month-year">{monthYearString}</span>
-          <button onClick={nextMonth}>
-            <img src={forwardarrow} alt="next month" />
-          </button>
-        </div>
-
-        <Calendar
-          onChange={onChange}
-          value={selectedDate}
-          className="react-calendar font-Afacad"
-          minDetail="month"
-          tileClassName={({ date }) => {
-            return isFutureOrToday(date) ? "future-date" : "past-date";
-          }}
-          onClickDay={onClickDay}
-          activeStartDate={currentDate}
-        />
-      </div>
-
-      <div className="flex flex-row items-center justify-between w-[90%] xl:h-16 xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
-        <div className="ml-3 xl:ml-5 py-5">
-          <p className="text-2xl font-bold text-gray-800 font-Afacad">
-            {selectedDate.toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-          <p className="text-[#7848F4] text-xl font-medium font-Afacad">
-            {selectedDate.toLocaleDateString("en-GB", { weekday: "long" })}
-          </p>
-        </div>
-
-        {isFutureOrToday(selectedDate) ? (
-          <Link
-            to="/Form"
-            className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-          >
-            Add Event
-          </Link>
-        ) : (
-          <button
-            className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
-            disabled
-          >
-            Add Event
-          </button>
-        )}
-      </div>
-
-      {/* Event List Modal */}
-      {isEventListOpen && (
-        <div>
-          {/* Other content */}
-          {isEventListOpen && (
-            <Popup1
-              eventsForSelectedDate={eventsForSelectedDate}
-              selectedDate={selectedDate}
-              closeEventList={closeEventList}
-              openEventModal={openEventModal}
-            />
-          )}
-        </div>
-      )}
-
-      {selectedEvent && (
-        <Popup2
-          selectedEvent={selectedEvent}
-          closeEventModal={closeEventModal}
-          convertTo12HourFormat={convertTo12HourFormat}
-          handleViewResourcePersons={handleViewResourcePersons}
-          DepartmentPopup={DepartmentPopup}
-          SetDepartmentPopup={SetDepartmentPopup}
-          closeResourcePopup={closeResourcePopup}
-        />
-      )}
-
-<div className="container absolute bottom-[-80%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
-      <h1 className="text-xl font-bold text-center text-black ">
-        Department Report Generator
-      </h1>
-      {errorMessage && (
-        <p className="text-red-600 text-center mt-1">{errorMessage}</p>
-      )}
-
-      {/* Date range and full-year toggle section */}
-      <div className="flex justify-between items-center space-x-4 mb-2">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-            disabled={isFullYear}
-          />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-            disabled={isFullYear}
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={isFullYear}
-            onChange={handleFullYearChange}
-            className="form-checkbox h-4 w-4 text-green-600"
-          />
-          <label className="text-gray-700 text-xl font-semibold">Full Year</label>
-        </div>
-      </div>
-
-      {/* Departments section */}
-      <div className="mb-2">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Departments</h2>
-        <div className="flex flex-wrap gap-4">
-          {departmentOptions.map((department) => (
-            <div
-              key={department.shortName}
-              className="flex items-center font-bold space-x-2"
-            >
-              <input
-                type="checkbox"
-                value={department.shortName}
-                checked={departments.includes(department.fullName)}
-                onChange={handleDepartmentChange}
-                className="form-checkbox font-bold h-4 w-4 text-green-600"
-                disabled={
-                  departments.includes("All") && department.shortName !== "All"
-                }
-              />
-              <span className="text-gray-700 font-bold text-lg">
-                {department.shortName}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Year section with specify event types button */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <h2 className="text-xl font-semibold text-gray-700 pr-4">Year</h2>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, "All"].map((year) => (
-              <div key={year} className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  value={year}
-                  checked={
-                    year === "All"
-                      ? selectedYears.length === 4
-                      : selectedYears.includes(year)
-                  }
-                  onChange={(e) => handleYearChange(e, year)}
-                  className="form-checkbox h-4 w-4 text-green-600"
-                  disabled={selectedYears.includes("All") && year !== "All"}
-                />
-                <label className="text-gray-700 text-lg">{year}</label>
-              </div>
-            ))}
-          </div>
-        </div>
-        <button
-          onClick={toggleEventTypeModal}
-          className="text-sm text-white bg-purple-600 hover:bg-purple-700 rounded-md px-3 py-1"
+    <div className="p-10">
+      <div className="flex flex-col items-center">
+        <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
+          Create Event
+        </h1>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
         >
-          Specify Event Types
-        </button>
-      </div>
-
-      {/* Modal for selecting event types */}
-      {isEventTypeModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white w-[80%] max-w-lg rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Select Event Types</h2>
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              IQAC Number
+            </label>
             <input
               type="text"
-              placeholder="Search event types"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 border rounded mb-4"
+              name="iqac"
+              value={formData.iqac}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
-            <div className="max-h-64 overflow-y-auto">
-              {filteredEventTypes.map((type) => (
-                <div
-                  key={type}
-                  className="flex items-center p-2 cursor-pointer hover:bg-gray-200 rounded"
-                  onClick={() => handleEventTypeSelection(type)}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedEventTypes.includes(type)}
-                    onChange={() => handleEventTypeSelection(type)}
-                    className="form-checkbox h-4 w-4 text-green-600 mr-2"
-                  />
-                  <span>{type}</span>
+            {errors.iqac && (
+              <span className="text-red-500">{errors.iqac}</span>
+            )}
+          </div>
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+              Select the Department Specification
+            </label>
+            <div className="flex flex-wrap mb-4">
+              {individualDepartments.map((department) => (
+                <div key={department} className="mr-4 mb-2">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="departmentspecification"
+                      value={department}
+                      checked={formData.departmentspecification.includes(
+                        department
+                      )}
+                      onChange={handleDepartmentsChange}
+                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                    />
+                    <span className="ml-2 text-gray-700">{department}</span>
+                  </label>
                 </div>
               ))}
             </div>
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={toggleEventTypeModal}
-                className="text-white bg-purple-600 hover:bg-purple-700 rounded-md px-3 py-1"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Other sections and buttons */}
-      <div className="text-center mb-4 flex items-center space-x-4">
-        {showIcons && (
-          <>
-            <FaFilePdf
-              size={34}
-              color="#7312f1d3"
-              onClick={handleGeneratePDF}
-              className="cursor-pointer hover:scale-105 transition-transform duration-300"
-            />
-            <FaFileExcel
-              size={34}
-              color="#7312f1d3"
-              onClick={downloadExcelReport}
-              className="cursor-pointer hover:scale-105 transition-transform duration-300"
-            />
-          </>
-        )}
-        <button
-          type="button"
-          onClick={handleDownloadClick}
-          className="focus:outline-none text-white bg-[#7312f1d3] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
-        >
-          {showIcons ? "Hide" : "Download"}
-        </button>
-      </div>
-    </div>
-
-      {isResourcePopupOpen && (
-        <div
-          className="resource-popup-overlay"
-          style={{
-            zIndex: 9999,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            className="resource-popup-content"
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "10px",
-              padding: "20px",
-              width: "420px",
-              height: "500px",
-              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
-              position: "relative",
-            }}
-          >
-            <h2
-              className="resource-popup-title"
-              style={{
-                marginBottom: "15px",
-                color: "#333",
-                fontSize: "1.5rem",
-              }}
-            >
-              Resource Persons
-            </h2>
             <button
-              className="custom-close-modal"
-              onClick={closeResourcePopup}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "15px",
-                background: "none",
-                border: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                color: "#999",
-              }}
+              type="button"
+              onClick={handleShowDepartments}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              &times;
+              Show Departments
             </button>
-            <div
-              className="resource-person-list"
-              style={{
-                maxHeight: "400px",
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
-            >
-              {selectedEvent.resourceperson.length > 0 ? (
-                selectedEvent.resourceperson.map((person, index) => {
-                  const [key, value] = Object.entries(person)[0];
-                  return (
-                    <div
-                      key={index}
-                      className="resource-person-row"
-                      style={{
-                        padding: "10px 0",
-                        borderBottom: "1px solid #eee",
+
+            {showDepartments && (
+              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                  <h2 className="text-lg font-bold mb-4 text-gray-800">
+                    Select Departments
+                  </h2>
+                  <div className="flex flex-wrap mb-4">
+                    {departmentOptions.map((department) => (
+                      <div key={department.shortName} className="mr-4 mb-2">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            name="departments"
+                            value={department.fullName}
+                            checked={formData.departments.includes(
+                              department.fullName
+                            )}
+                            onChange={handleChange}
+                            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                            disabled={
+                              department.fullName === "All"
+                                ? disableAll
+                                : disableIndividual
+                            }
+                          />
+                          <span className="ml-2 text-gray-700">
+                            {department.shortName}
+                          </span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <label className="inline-flex items-center mb-4">
+                    <input
+                      type="checkbox"
+                      name="departments"
+                      value="Others"
+                      checked={isOtherSelected}
+                      onChange={(e) => {
+                        setIsOtherSelected(e.target.checked);
+                        handleChange(e);
                       }}
-                    >
-                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
-                      <span style={{ color: "#777" }}>{value}</span>
+                      className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                    />
+                    <span className="ml-2 text-gray-700">Others</span>
+                  </label>
+                  {isOtherSelected && (
+                    <div className="mt-4">
+                      <label className="block text-gray-700 font-semibold mb-1">
+                        Specify Other Department
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter Other Department"
+                        value={newDepartment}
+                        onChange={(e) => setNewDepartment(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button
+                        onClick={handleAddDepartment}
+                        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+                      >
+                        Add Department
+                      </button>
                     </div>
-                  );
-                })
-              ) : (
-                <p style={{ color: "#999", textAlign: "center" }}>
-                  No resource persons available.
-                </p>
+                  )}
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={closeModal}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mb-4">
+  <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+    Year
+  </label>
+  <select
+    name="year"
+    value={formData.year}
+    onChange={handleChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+  >
+    <option value="">Select Year</option>
+    {yearOptions.map((year) => (
+      <option key={year.value} value={year.value}>
+        {year.label}
+      </option>
+    ))}
+  </select>
+  {errors.year && <span className="text-red-500">{errors.year}</span>}
+</div>
+
+<div className="mb-4">
+  <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+    Categories
+  </label>
+  <div className="flex items-center space-x-4">
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="students"
+        checked={formData.students || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Students</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="teachers"
+        checked={formData.teachers || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Teachers</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="alumnis"
+        checked={formData.alumnis || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Alumnis</span>
+    </label>
+  </div>
+  {errors.categories && (
+    <span className="text-red-500">{errors.categories}</span>
+  )}
+</div>
+
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Event Title
+            </label>
+            <input
+              type="text"
+              name="eventTitle"
+              value={formData.eventTitle}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.eventTitle && (
+              <span className="text-red-500">{errors.eventTitle}</span>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Event Venue
+            </label>
+            <input
+              type="text"
+              name="eventVenue"
+              value={formData.eventVenue}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.eventVenue && (
+              <span className="text-red-500">{errors.eventVenue}</span>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Start Date
+            </label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              min={today}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.startDate && (
+              <span className="text-red-500">{errors.startDate}</span>
+            )}
+          </div>
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              End Date
+            </label>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleChange}
+              min={formData.startDate || today}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.endDate && (
+              <span className="text-red-500">{errors.endDate}</span>
+            )}
+          </div>
+
+          {/* Time Selection */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                Start Time
+              </label>
+              <input
+                type="time"
+                name="startTime"
+                value={formData.startTime}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.startTime && (
+                <span className="text-red-500">{errors.startTime}</span>
+              )}
+            </div>
+            <div>
+              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                End Time
+              </label>
+              <input
+                type="time"
+                name="endTime"
+                value={formData.endTime}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+              {errors.endTime && (
+                <span className="text-red-500">{errors.endTime}</span>
               )}
             </div>
           </div>
-        </div>
-      )}
+
+          {/* Resource Person */}
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Number of Resource Persons
+            </label>
+            <input
+              type="number"
+              value={numResourcePersons}
+              onChange={handleNumResourcePersonsChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              min="0"
+            />
+            <button
+              type="button"
+              onClick={handleAddResourcePersons}
+              className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+            >
+              Add Resource Persons
+            </button>
+          </div>
+          {/* Modal for Resource Persons */}
+          {resourcePersonModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+              <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                {/* Close and Refresh Buttons */}
+                <button
+                  type="button"
+                  onClick={() => setResourcePersonModalOpen(false)}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
+                >
+                  &times;
+                </button>
+
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  Enter Resource Persons
+                  <button
+                    type="button"
+                    onClick={handleRefreshResourcePersons}
+                    className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                    title="Refresh"
+                  >
+                    &#8635;
+                  </button>
+                </h2>
+
+                {resourcePersonDetails.map((person, index) => (
+                  <div key={index} className="mb-4 relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-lg font-semibold">
+                        {index + 1}.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteResourcePerson(index)}
+                        className="text-red-500 hover:text-red-700 text-xl font-bold"
+                      >
+                        &times;
+                      </button>
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="Resource Person Name"
+                      value={person.name}
+                      onChange={(e) =>
+                        handleResourcePersonDetailChange(
+                          index,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                    />
+                    {validationErrors.includes(index) && !person.name && (
+                      <p className="text-red-500 text-xl mt-1">
+                        Please enter a name.
+                      </p>
+                    )}
+
+                    <input
+                      type="text"
+                      placeholder="Affilation"
+                      value={person.specialization}
+                      onChange={(e) =>
+                        handleResourcePersonDetailChange(
+                          index,
+                          "specialization",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                    {validationErrors.includes(index) &&
+                      !person.specialization && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a specialization.
+                        </p>
+                      )}
+                  </div>
+                ))}
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSaveResourcePersons}
+                    className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Specialization */}
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Description
+            </label>
+            <input
+              type="text"
+              name="eventDescription"
+              value={formData.eventDescription}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+            {errors.eventDescription && (
+              <span className="text-red-500">{errors.eventDescription}</span>
+            )}
+          </div>
+
+          {/* Event Type Selection */}
+          <div className="mb-4">
+            <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+              Event Type
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowEventTypeModal(true)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+            >
+              {formData.eventType || "Select Event Type"}
+            </button>
+            {errors.eventType && (
+              <span className="text-red-500">{errors.eventType}</span>
+            )}
+          </div>
+
+          {/* Event Type Modal */}
+          {showEventTypeModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Select Event Type</h2>
+                  <button
+                    onClick={() => setShowEventTypeModal(false)}
+                    className="text-gray-500"
+                  >
+                    &times;
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search Event Type"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                />
+                <div className="max-h-64 overflow-y-auto">
+                  {eventTypes
+                    .filter((type) =>
+                      type.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((type) => (
+                      <div
+                        key={type}
+                        onClick={() => handleEventTypeSelection(type)}
+                        className="p-2 cursor-pointer hover:bg-gray-200 rounded"
+                      >
+                        {type}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-8 flex justify-center">
+            <button
+              type="submit"
+              className="bg-[#7848F4] text-white font-bold py-2 px-6 rounded-full hover:bg-[#5929c4] focus:outline-none"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>{" "}
+      <ToastContainer />
     </div>
   );
-};
-
-export default CalendarComponent;
+}
+export default Forms;
