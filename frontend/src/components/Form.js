@@ -586,21 +586,6 @@ function Forms() {
               </div>
 
               {/* Additional Rows */}
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Event Venue
-                </label>
-                <input
-                  type="text"
-                  name="eventVenue"
-                  value={formData.eventVenue}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-                {errors.eventVenue && (
-                  <span className="text-red-500">{errors.eventVenue}</span>
-                )}
-              </div>
 
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
@@ -729,21 +714,7 @@ function Forms() {
                   <span className="text-red-500">{errors.categories}</span>
                 )}
               </div>
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Event Title
-                </label>
-                <input
-                  type="text"
-                  name="eventTitle"
-                  value={formData.eventTitle}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-                {errors.eventTitle && (
-                  <span className="text-red-500">{errors.eventTitle}</span>
-                )}
-              </div>
+
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Event Venue
