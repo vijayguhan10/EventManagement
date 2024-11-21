@@ -36,6 +36,9 @@ function UpdateForm({ selectedEvent }) {
     departments: [],
     departmentspecification: [],
     year: "",
+    students: false, 
+    teachers: false,
+    alumnis: false, 
   });
 // const[setselecteddepartment,department]=useState([]);
 
@@ -150,6 +153,7 @@ function UpdateForm({ selectedEvent }) {
     { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
     { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
     { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
+    { value: "Others", label: "Others" },
   ];
 
   useEffect(() => {
@@ -167,6 +171,9 @@ function UpdateForm({ selectedEvent }) {
         departments: selectedEvent.departments || [],
         departmentspecification: selectedEvent.departmentspecification || [],
         year: selectedEvent.year || "",
+        students:selectedEvent.students,
+        teachers:selectedEvent.teachers,
+        alumnis:selectedEvent.alumnis
       });
 
       // Initialize number of resource persons
@@ -212,6 +219,9 @@ function UpdateForm({ selectedEvent }) {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
+    }
+    else if (["students", "teachers", "alumnis"].includes(name)) {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -383,16 +393,25 @@ function UpdateForm({ selectedEvent }) {
         description: formData.eventDescription,
         year: formData.year,
         departmentspecification: formData.departmentspecification,
+        students:formData.students,
+        teachers:formData.teachers,
+        alumnis:formData.alumnis
       };
       console.log("passing data to the backend : ", formData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/event/modify_event`,
         updatedEvent
       );
+if (response.status === 200 || response.status === 201) {
+  // Show success toast with 2 seconds duration
+  toast.success("Event updated successfully!", { autoClose: 1000 });
 
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Event updated successfully!");
-      }
+  // Reload the page after the toast has been displayed
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000); // Reload after 2 seconds (to match the toast auto-close duration)
+}
+
     } catch (error) {
       toast.error("Error updating event: " + error.message);
       console.error("Error updating event:", error);
@@ -542,6 +561,46 @@ function UpdateForm({ selectedEvent }) {
             </select>
             {errors.year && <span className="text-red-500">{errors.year}</span>}
           </div>
+          <div className="mb-4">
+  <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+    Categories
+  </label>
+  <div className="flex items-center space-x-4">
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="students"
+        checked={formData.students || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Students</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="teachers"
+        checked={formData.teachers || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Teachers</span>
+    </label>
+    <label className="inline-flex items-center">
+      <input
+        type="checkbox"
+        name="alumnis"
+        checked={formData.alumnis || false}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+      />
+      <span className="ml-2 text-gray-700">Alumnis</span>
+    </label>
+  </div>
+  {errors.categories && (
+    <span className="text-red-500">{errors.categories}</span>
+  )}
+</div>
 
           {/* Event Title */}
           <div className="mb-4">

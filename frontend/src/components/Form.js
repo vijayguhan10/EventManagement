@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios, { isCancel } from "axios";
+import axios from "axios";
+import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
@@ -128,7 +129,11 @@ function Forms() {
     departments: [],
 
     departmentspecification: [],
+    students: false,
+    teachers: false,
+    alumnis: false,
   });
+
   const handleRefreshResourcePersons = () => {
     setResourcePersonDetails([]);
   };
@@ -353,7 +358,7 @@ function Forms() {
   ];
   // Handle checkbox changes
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (type === "radio") {
       setFormData((prev) => ({ ...prev, eventType: value }));
@@ -370,10 +375,8 @@ function Forms() {
         }
       } else if (value === "Others") {
         setIsOtherSelected(e.target.checked);
-        // If "Others" is checked, disable other checkboxes
         setDisableIndividual(e.target.checked);
         if (!e.target.checked) {
-          // Enable other checkboxes if "Others" is unchecked
           setDisableIndividual(false);
         }
       } else {
@@ -386,6 +389,8 @@ function Forms() {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
+    } else if (["students", "teachers", "alumnis"].includes(name)) {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -478,16 +483,19 @@ function Forms() {
           year: formData.year,
           eventDescription: formData.eventDescription,
           departmentspecification: formData.departmentspecification,
+          students: formData.students,
+          teachers: formData.teachers,
+          alumnis: formData.alumnis,
         }
       );
-
+      console.log("response", response);
       if (response.status === 201) {
         console.log("sucessfull response : ", response);
         console.log("year🤣🤣🤣🤣🤣", response.data.year);
         setTimeout(() => {
           toast.success("Event added successfully!");
           navigate("/Dashboard");
-        }, 1000);
+        }, 2000);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -512,360 +520,123 @@ function Forms() {
     { value: "1, 2, and 4", label: "1st Year, 2nd Year, and 4th Year" },
     { value: "1, 3, and 4", label: "1st Year, 3rd Year, and 4th Year" },
     { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
+    { value: "Others", label: "Others" },
   ];
 
   return (
-    <div className="p-10">
-      <div className="">
-        <h1 className="text-4xl font-bold text-[#7848F4] mb-8 underline">
-          Create Event
-        </h1>
-        <div className="flex flex-col items-center">
+    <div className="p-10 xl: min-w-full font-Afacad ">
+      <div className="flex flex-row items-center">
+        <div className="flex flex-col  items-center">
           <form
             onSubmit={handleSubmit}
-            className="bg-white p-10 rounded-lg shadow-lg w-full max-w-3xl"
+            className="bg-white p-10 rounded-lg  shadow-lg w-full max-w-full"
           >
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                IQAC Number
-              </label>
-              <input
-                type="text"
-                name="iqac"
-                value={formData.iqac}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.iqac && (
-                <span className="text-red-500">{errors.iqac}</span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Number of Organizers
-              </label>
-              <input
-                type="number"
-                value={numOrganizers}
-                onChange={handleNumOrganizersChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                min="0"
-              />
-              <button
-                type="button"
-                onClick={handleAddOrganizers}
-                className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-              >
-                Add Organizer
-              </button>
-            </div>
-
-            {organizerModalOpen && (
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => setOrganizerModalOpen(false)}
-                    className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
-                  >
-                    <FaTimes />
-                  </button>
-
-                  <h2 className="text-2xl font-bold mb-4 flex items-center">
-                    Enter Organizers
-                    <button
-                      type="button"
-                      onClick={handleRefreshOrganizers}
-                      className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                      title="Refresh"
-                    >
-                      &#8635;
-                    </button>
-                  </h2>
-
-                  {organizerDetails.map((organizer, index) => (
-                    <div key={index} className="mb-4 relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-semibold">
-                          {index + 1}.
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrganizer(index)}
-                          className="text-red-500 hover:text-red-700 text-xl font-bold"
-                        >
-                          &times;
-                        </button>
-                      </div>
-
-                      <input
-                        type="text"
-                        placeholder="Organizer Name"
-                        value={organizer.name}
-                        onChange={(e) =>
-                          handleOrganizerDetailChange(
-                            index,
-                            "name",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                      />
-                      {validationErrors.includes(index) && !organizer.name && (
-                        <p className="text-red-500 text-xl mt-1">
-                          Please enter a name.
-                        </p>
-                      )}
-
-                      <input
-                        type="text"
-                        placeholder="designation"
-                        value={organizer.designation}
-                        onChange={(e) =>
-                          handleOrganizerDetailChange(
-                            index,
-                            "designation",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                      />
-                      {validationErrors.includes(index) && !organizer.role && (
-                        <p className="text-red-500 text-xl mt-1">
-                          Please enter a designation.
-                        </p>
-                      )}
-
-                      <input
-                        type="text"
-                        placeholder="Phone Number"
-                        value={organizer.phone}
-                        onChange={(e) =>
-                          handleOrganizerDetailChange(
-                            index,
-                            "phone",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      />
-                      {validationErrors.includes(index) && !organizer.phone && (
-                        <p className="text-red-500 text-xl mt-1">
-                          Please enter a phone number.
-                        </p>
-                      )}
-                    </div>
-                  ))}
-
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleSaveOrganizers}
-                      className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
-                Select the Department Specification
-              </label>
-              <div className="flex flex-wrap mb-4">
-                {individualDepartments.map((department) => (
-                  <div key={department} className="mr-4 mb-2">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        name="departmentspecification"
-                        value={department}
-                        checked={formData.departmentspecification.includes(
-                          department
-                        )}
-                        onChange={handleDepartmentsChange}
-                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                      />
-                      <span className="ml-2 text-gray-700">{department}</span>
-                    </label>
-                  </div>
-                ))}
+            {/* IQAC Number */}
+            <div className="grid grid-cols-3 gap-6">
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  IQAC Number
+                </label>
+                <input
+                  type="text"
+                  name="iqac"
+                  value={formData.iqac}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.iqac && (
+                  <span className="text-red-500">{errors.iqac}</span>
+                )}
               </div>
 
-              <button
-                type="button"
-                onClick={handleShowDepartments}
-                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-              >
-                Show Departments
-              </button>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Number of Organizers
+                </label>
+                <input
+                  type="number"
+                  value={numOrganizers}
+                  onChange={handleNumOrganizersChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  min="0"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddOrganizers}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Add Organizer
+                </button>
+              </div>
 
-              {showDepartments && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                    <h2 className="text-lg font-bold mb-4 text-gray-800">
-                      Select Departments
-                    </h2>
-                    <div className="flex flex-wrap mb-4">
-                      {departmentOptions.map((department) => (
-                        <div key={department.shortName} className="mr-4 mb-2">
-                          <label className="inline-flex items-center">
-                            <input
-                              type="checkbox"
-                              name="departments"
-                              value={department.fullName}
-                              checked={formData.departments.includes(
-                                department.fullName
-                              )}
-                              onChange={handleChange}
-                              className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                              disabled={
-                                department.fullName === "All"
-                                  ? disableAll
-                                  : disableIndividual
-                              }
-                            />
-                            <span className="ml-2 text-gray-700">
-                              {department.shortName}
-                            </span>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <label className="inline-flex items-center mb-4">
-                      <input
-                        type="checkbox"
-                        name="departments"
-                        value="Others"
-                        checked={isOtherSelected}
-                        onChange={(e) => {
-                          setIsOtherSelected(e.target.checked);
-                          handleChange(e);
-                        }}
-                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                      />
-                      <span className="ml-2 text-gray-700">Others</span>
-                    </label>
-                    {isOtherSelected && (
-                      <div className="mt-4">
-                        <label className="block text-gray-700 font-semibold mb-1">
-                          Specify Other Department
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter Other Department"
-                          value={newDepartment}
-                          onChange={(e) => setNewDepartment(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        <button
-                          onClick={handleAddDepartment}
-                          className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
-                        >
-                          Add Department
-                        </button>
-                      </div>
-                    )}
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        onClick={closeModal}
-                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Year
-              </label>
-              <select
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="">Select Year</option>
-                {yearOptions.map((year) => (
-                  <option key={year.value} value={year.value}>
-                    {year.label}
-                  </option>
-                ))}
-              </select>
-              {errors.year && (
-                <span className="text-red-500">{errors.year}</span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Event Title
-              </label>
-              <input
-                type="text"
-                name="eventTitle"
-                value={formData.eventTitle}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.eventTitle && (
-                <span className="text-red-500">{errors.eventTitle}</span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Event Venue
-              </label>
-              <input
-                type="text"
-                name="eventVenue"
-                value={formData.eventVenue}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.eventVenue && (
-                <span className="text-red-500">{errors.eventVenue}</span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Start Date
-              </label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                min={today}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.startDate && (
-                <span className="text-red-500">{errors.startDate}</span>
-              )}
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                End Date
-              </label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                min={formData.startDate || today}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.endDate && (
-                <span className="text-red-500">{errors.endDate}</span>
-              )}
-            </div>
-            {/* Time Selection */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Title
+                </label>
+                <input
+                  type="text"
+                  name="eventTitle"
+                  value={formData.eventTitle}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventTitle && (
+                  <span className="text-red-500">{errors.eventTitle}</span>
+                )}
+              </div>
+
+              {/* Additional Rows */}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Venue
+                </label>
+                <input
+                  type="text"
+                  name="eventVenue"
+                  value={formData.eventVenue}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventVenue && (
+                  <span className="text-red-500">{errors.eventVenue}</span>
+                )}
+              </div>
+
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  min={today}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.startDate && (
+                  <span className="text-red-500">{errors.startDate}</span>
+                )}
+              </div>
+
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  min={formData.startDate || today}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.endDate && (
+                  <span className="text-red-500">{errors.endDate}</span>
+                )}
+              </div>
+
+              <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Start Time
                 </label>
@@ -880,7 +651,8 @@ function Forms() {
                   <span className="text-red-500">{errors.startTime}</span>
                 )}
               </div>
-              <div>
+
+              <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   End Time
                 </label>
@@ -895,261 +667,355 @@ function Forms() {
                   <span className="text-red-500">{errors.endTime}</span>
                 )}
               </div>
-            </div>
-            {/* Resource Person */}
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Number of Resource Persons
-              </label>
-              <input
-                type="number"
-                value={numResourcePersons}
-                onChange={handleNumResourcePersonsChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                min="0"
-              />
-              <button
-                type="button"
-                onClick={handleAddResourcePersons}
-                className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-              >
-                Add Resource Persons
-              </button>
-            </div>
-            {resourcePersonModalOpen && (
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => setResourcePersonModalOpen(false)}
-                    className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
-                  >
-                    <FaTimes />
-                  </button>
 
-                  <h2 className="text-2xl font-bold mb-4 flex items-center">
-                    Enter Resource Persons
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Year
+                </label>
+                <select
+                  name="year"
+                  value={formData.year}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Year</option>
+                  {yearOptions.map((year) => (
+                    <option key={year.value} value={year.value}>
+                      {year.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.year && (
+                  <span className="text-red-500">{errors.year}</span>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Categories
+                </label>
+                <div className="flex items-center space-x-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="students"
+                      checked={formData.students || false}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-gray-700">Students</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="teachers"
+                      checked={formData.teachers || false}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-gray-700">Teachers</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="alumnis"
+                      checked={formData.alumnis || false}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-gray-700">Alumnis</span>
+                  </label>
+                </div>
+                {errors.categories && (
+                  <span className="text-red-500">{errors.categories}</span>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Title
+                </label>
+                <input
+                  type="text"
+                  name="eventTitle"
+                  value={formData.eventTitle}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventTitle && (
+                  <span className="text-red-500">{errors.eventTitle}</span>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Venue
+                </label>
+                <input
+                  type="text"
+                  name="eventVenue"
+                  value={formData.eventVenue}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventVenue && (
+                  <span className="text-red-500">{errors.eventVenue}</span>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Number of Resource Persons
+                </label>
+                <input
+                  type="number"
+                  value={numResourcePersons}
+                  onChange={handleNumResourcePersonsChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  min="0"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddResourcePersons}
+                  className="mt-2 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                >
+                  Add Resource Persons
+                </button>
+              </div>
+              {resourcePersonModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                  <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
                     <button
                       type="button"
-                      onClick={handleRefreshResourcePersons}
-                      className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                      title="Refresh"
+                      onClick={() => setResourcePersonModalOpen(false)}
+                      className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
                     >
-                      &#8635;
+                      <FaTimes />
                     </button>
-                  </h2>
 
-                  {resourcePersonDetails.map((person, index) => (
-                    <div key={index} className="mb-4 relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-semibold">
-                          {index + 1}.
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteResourcePerson(index)}
-                          className="text-red-500 hover:text-red-700 text-xl font-bold"
-                        >
-                          &times;
-                        </button>
-                      </div>
+                    <h2 className="text-2xl font-bold mb-4 flex items-center">
+                      Enter Resource Persons
+                      <button
+                        type="button"
+                        onClick={handleRefreshResourcePersons}
+                        className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                        title="Refresh"
+                      >
+                        &#8635;
+                      </button>
+                    </h2>
 
-                      <input
-                        type="text"
-                        placeholder="Resource Person Name"
-                        value={person.name}
-                        onChange={(e) =>
-                          handleResourcePersonDetailChange(
-                            index,
-                            "name",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                      />
-                      {validationErrors.includes(index) && !person.name && (
-                        <p className="text-red-500 text-xl mt-1">
-                          Please enter a name.
-                        </p>
-                      )}
+                    {resourcePersonDetails.map((person, index) => (
+                      <div key={index} className="mb-4 relative">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-lg font-semibold">
+                            {index + 1}.
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteResourcePerson(index)}
+                            className="text-red-500 hover:text-red-700 text-xl font-bold"
+                          >
+                            &times;
+                          </button>
+                        </div>
 
-                      <input
-                        type="text"
-                        placeholder="Affilation"
-                        value={person.specialization}
-                        onChange={(e) =>
-                          handleResourcePersonDetailChange(
-                            index,
-                            "specialization",
-                            e.target.value
-                          )
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      />
-                      {validationErrors.includes(index) &&
-                        !person.specialization && (
+                        <input
+                          type="text"
+                          placeholder="Resource Person Name"
+                          value={person.name}
+                          onChange={(e) =>
+                            handleResourcePersonDetailChange(
+                              index,
+                              "name",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                        />
+                        {validationErrors.includes(index) && !person.name && (
                           <p className="text-red-500 text-xl mt-1">
-                            Please enter a specialization.
+                            Please enter a name.
                           </p>
                         )}
+
+                        <input
+                          type="text"
+                          placeholder="Affilation"
+                          value={person.specialization}
+                          onChange={(e) =>
+                            handleResourcePersonDetailChange(
+                              index,
+                              "specialization",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        />
+                        {validationErrors.includes(index) &&
+                          !person.specialization && (
+                            <p className="text-red-500 text-xl mt-1">
+                              Please enter a specialization.
+                            </p>
+                          )}
+                      </div>
+                    ))}
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleSaveResourcePersons}
+                        className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Professional societies and bodies involved
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowProfessionalBodies(true)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+                >
+                  {formData.eventType || "Professional Societies"}
+                </button>
+              </div>
+              {ShowProfessionalBodies && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-2xl font-bold">
+                        Professional societies and bodies involved
+                      </h2>
+                      <button
+                        onClick={() => setShowProfessionalBodies(false)}
+                        className="text-gray-500 text-3xl"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Professional societies and bodies involved"
+                      value={internationalInput}
+                      onChange={(e) => setInternationalInput(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                    />
+                    <div className="max-h-64 overflow-y-auto">
+                      {internationalRelations
+                        .filter((type) =>
+                          type
+                            .toLowerCase()
+                            .includes(internationalInput.toLowerCase())
+                        )
+                        .map((type1) => (
+                          <div
+                            key={type1}
+                            onClick={() => handleEventTypeInternational(type1)}
+                            className="p-2 cursor-pointer hover:bg-gray-200 rounded"
+                          >
+                            {type1}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+                  Choose the Logos
+                </label>
+                <div className="flex flex-wrap mb-4">
+                  {logos.map((logo) => (
+                    <div key={logo} className="mr-4 mb-2">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          name="departmentspecification"
+                          value={logo}
+                          checked={formData.logos.includes(logo)}
+                          onChange={handleLogosChange}
+                          className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                        />
+                        <span className="ml-2 text-gray-700">{logo}</span>
+                      </label>
                     </div>
                   ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  name="eventDescription"
+                  value={formData.eventDescription}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventDescription && (
+                  <span className="text-red-500">
+                    {errors.eventDescription}
+                  </span>
+                )}
+              </div>
+              {/* Event Type Selection */}
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Type
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowEventTypeModal(true)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+                >
+                  {formData.eventType || "Select Event Type"}
+                </button>
+                {errors.eventType && (
+                  <span className="text-red-500">{errors.eventType}</span>
+                )}
+              </div>
+              {showEventTypeModal && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-2xl font-bold">Select Event Type</h2>
+                      <button
+                        onClick={() => setShowEventTypeModal(false)}
+                        className="text-gray-500"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search Event Type"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                    />
+                    <div className="max-h-64 overflow-y-auto">
+                      {eventTypes
+                        .filter((type) =>
+                          type.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((type) => (
+                          <div
+                            key={type}
+                            onClick={() => handleEventTypeSelection(type)}
+                            className="p-2 cursor-pointer hover:bg-gray-200 rounded"
+                          >
+                            {type}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleSaveResourcePersons}
-                      className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Professional societies and bodies involved
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowProfessionalBodies(true)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-              >
-                {formData.eventType || "Professional Societies"}
-              </button>
-            </div>
-            {ShowProfessionalBodies && (
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold">
-                      Professional societies and bodies involved
-                    </h2>
-                    <button
-                      onClick={() => setShowProfessionalBodies(false)}
-                      className="text-gray-500 text-3xl"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Professional societies and bodies involved"
-                    value={internationalInput}
-                    onChange={(e) => setInternationalInput(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                  />
-                  <div className="max-h-64 overflow-y-auto">
-                    {internationalRelations
-                      .filter((type) =>
-                        type
-                          .toLowerCase()
-                          .includes(internationalInput.toLowerCase())
-                      )
-                      .map((type1) => (
-                        <div
-                          key={type1}
-                          onClick={() => handleEventTypeInternational(type1)}
-                          className="p-2 cursor-pointer hover:bg-gray-200 rounded"
-                        >
-                          {type1}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
-                Choose the Logos
-              </label>
-              <div className="flex flex-wrap mb-4">
-                {logos.map((logo) => (
-                  <div key={logo} className="mr-4 mb-2">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        name="departmentspecification"
-                        value={logo}
-                        checked={formData.logos.includes(logo)}
-                        onChange={handleLogosChange}
-                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                      />
-                      <span className="ml-2 text-gray-700">{logo}</span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Description
-              </label>
-              <input
-                type="text"
-                name="eventDescription"
-                value={formData.eventDescription}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {errors.eventDescription && (
-                <span className="text-red-500">{errors.eventDescription}</span>
-              )}
-            </div>
-            {/* Event Type Selection */}
-            <div className="mb-4">
-              <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                Event Type
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowEventTypeModal(true)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-              >
-                {formData.eventType || "Select Event Type"}
-              </button>
-              {errors.eventType && (
-                <span className="text-red-500">{errors.eventType}</span>
-              )}
-            </div>
-            {showEventTypeModal && (
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold">Select Event Type</h2>
-                    <button
-                      onClick={() => setShowEventTypeModal(false)}
-                      className="text-gray-500"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search Event Type"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                  />
-                  <div className="max-h-64 overflow-y-auto">
-                    {eventTypes
-                      .filter((type) =>
-                        type.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((type) => (
-                        <div
-                          key={type}
-                          onClick={() => handleEventTypeSelection(type)}
-                          className="p-2 cursor-pointer hover:bg-gray-200 rounded"
-                        >
-                          {type}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            )}
             <div className="mt-8 flex justify-center">
               <button
                 type="submit"
@@ -1161,8 +1027,21 @@ function Forms() {
           </form>
         </div>
       </div>
+      <CommunicationForm />
+
       <ToastContainer />
     </div>
   );
 }
 export default Forms;
+// import React from "react";
+// import CommunicationForm from "./CommunicationForm";
+// const Form = () => {
+//   return (
+//     <div>
+//       <CommunicationForm />
+//     </div>
+//   );
+// };
+
+// export default Form;

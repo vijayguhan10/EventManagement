@@ -1,11 +1,12 @@
 import React from "react";
-import InitialRouter from "./Router/InitialRouter";
-const App = () => {
-  return (
-    <div className="w-full ">
-      <InitialRouter />
-    </div>
-  );
-};
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import store from "./Store";
+import App from "./App";
 
-export default App;
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);

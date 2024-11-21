@@ -88,147 +88,173 @@ const SideBar = () => {
                 alt="logo"
               />
             </li>
-
             {role === "mediamax" ? (
-              <>
-                <li>
-                  <Link
-                    to="/mediamax"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/mediamax" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaEdit />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      MediaMax
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/History"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/History" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaHistory />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      History
-                    </span>
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link
-                    to="/Dashboard"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Dashboard" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaHome />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Dashboard
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/Addlogins"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Addlogins" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaHome />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Add Login
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/History"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/History" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaHistory />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      History
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/Placement"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/Placement" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaAddressBook />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Events
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/Departments"
-                    className={`flex items-center p-2 gap-7 text-white rounded-lg ${
-                      location.pathname === "/Departments" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaDiscourse />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Departments
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/CanceledEvents"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/CanceledEvents"
-                        ? "bg-gray-300"
-                        : ""
-                    }`}
-                  >
-                    <FaHome />
-                    <span className="flex-1 -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Canceled Events
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/charts"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/charts" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    <FaChartArea />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      Charts
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/mediamax"
-                    className={`flex items-center gap-7 p-2 text-white rounded-lg ${
-                      location.pathname === "/mediamax" ? "bg-gray-300" : ""
-                    }`}
-                  >
-                    {/* <FaEdit />
-                    <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
-                      MediaMax
-                    </span> */}
-                  </Link>
-                </li>
-              </>
-            )}
-
+  <>
+    <li>
+      <Link
+        to="/mediamax"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/mediamax" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaEdit />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          MediaMax
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/History"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/History" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHistory />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          History
+        </span>
+      </Link>
+    </li>
+  </>
+) : role === "iqac" ? (
+  <>
+    <li>
+      <Link
+        to="/Dashboard"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHome />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Dashboard
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/Addlogins"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/Addlogins" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHome />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Add Login
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/History"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/History" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHistory />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          History
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/Placement"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/Placement" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaAddressBook />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Events
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/Departments"
+        className={`flex items-center p-2 gap-7 text-white rounded-lg ${
+          location.pathname === "/Departments" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaDiscourse />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Departments
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/CanceledEvents"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/CanceledEvents" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHome />
+        <span className="flex-1 -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Canceled Events
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/charts"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/charts" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaChartArea />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Charts
+        </span>
+      </Link>
+    </li>
+  </>
+) : (
+  <>
+    <li>
+      <Link
+        to="/Dashboard"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/Dashboard" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHome />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          Dashboard
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/mediamax"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/mediamax" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaEdit />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          MediaCenter
+        </span>
+      </Link>
+    </li>
+    <li>
+      <Link
+        to="/History"
+        className={`flex items-center gap-7 p-2 text-white rounded-lg ${
+          location.pathname === "/History" ? "bg-gray-300" : ""
+        }`}
+      >
+        <FaHistory />
+        <span className="flex-1  -ms-5 whitespace-nowrap font-Afacad text-2xl">
+          History
+        </span>
+      </Link>
+    </li>
+  </>
+)}
+1
             <Link
               to="/"
               onClick={handleLogout}

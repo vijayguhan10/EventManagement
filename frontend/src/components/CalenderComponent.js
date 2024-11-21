@@ -10,8 +10,10 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "../Scroll.css";
-import Popup2 from "../PopupModels/Popup2";
+import CanvasJSReact from "@canvasjs/react-charts";
 
+import Popup2 from "../PopupModels/Popup2";
+import { jwtDecode } from "jwt-decode";
 const CalendarComponent = () => {
   const [SearchQuery, setSearchQuery] = useState("");
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
@@ -55,9 +57,63 @@ const CalendarComponent = () => {
     }
   };
 
-  /*
-  deparment specifcation popup in report geenrator
-  */
+  const today = new Date();
+  const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
+  const filteredData = data.filter((event) => {
+    return event.eventstartdate === formattedToday;
+  });
+
+  const pieChartOptions = {
+    exportEnabled: true,
+    animationEnabled: true,
+    title: {
+      text: `Department Analytics (${formattedToday})`,
+    },
+    data: [
+      {
+        type: "pie",
+        startAngle: 75,
+        toolTipContent: "<b>{label}</b>: {y}%",
+        showInLegend: "true",
+        legendText: "{label}",
+        indexLabelFontSize: 14,
+        indexLabel: "{label} - {y}%",
+        dataPoints: [
+          { y: 10, label: "CSE" },
+          { y: 3, label: "IT" },
+          { y: 6, label: "AIDS" },
+          { y: 5.9, label: "CCE" },
+          { y: 4, label: "CSBS" },
+          { y: 6, label: "CYBER" },
+          { y: 7, label: "ECE" },
+          { y: 2, label: "EEE" },
+          { y: 8, label: "MECH" },
+          { y: 7.09, label: "AIML" },
+        ],
+      },
+    ],
+    height: 300,
+    width: 540,
+  };
+
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token: ", decoded);
+        setName(decoded.name || "Guest");
+        setRole(decoded.role || "User");
+      } catch (error) {
+        console.error("Error decoding token", error);
+      }
+    }
+  }, []);
+
   const eventTypes = [
     "CFI",
     "CFRD",
@@ -293,9 +349,9 @@ const CalendarComponent = () => {
   const eventsForSelectedDate = events.filter((event) => {
     const eventDate = new Date(event.date);
     const eventStartDate = formatDate(event.eventstartdate);
-    const eventenddate=formatDate(event.eventenddate);
-    const selectedDateObj = new Date(selectedDate); 
-    console.log(selectedDateObj,"selected date obj")
+    const eventenddate = formatDate(event.eventenddate);
+    const selectedDateObj = new Date(selectedDate);
+    console.log(selectedDateObj, "selected date obj");
 
     return (
       eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
@@ -303,8 +359,6 @@ const CalendarComponent = () => {
     );
   });
 
-  
-  
   const handleDownloadClick = () => {
     setShowIcons(!showIcons);
   };
@@ -360,6 +414,7 @@ const CalendarComponent = () => {
 
     fetchData();
   }, []);
+  var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
   return (
     <div>
@@ -384,7 +439,6 @@ const CalendarComponent = () => {
             Search
           </button>
         </div>
-
         {/* Calendar Component */}
         <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
           <div className="calendar-navigation">
@@ -396,7 +450,6 @@ const CalendarComponent = () => {
               <img src={forwardarrow} alt="next month" />
             </button>
           </div>
-
           <Calendar
             onChange={onChange}
             value={selectedDate}
@@ -409,8 +462,6 @@ const CalendarComponent = () => {
             activeStartDate={currentDate}
           />
         </div>
-
-        {/* Event Display Component */}
         <div className="flex flex-row items-center justify-between w-[90%] xl:h-16 xl:w-[94%] bg-white border-l-8 border-l-[#7848F4] rounded-md shadow-lg shadow-[#00000029] mt-2 transition-transform transform hover:scale-105">
           <div className="ml-3 xl:ml-5 py-5">
             <p className="text-2xl font-bold text-gray-800 font-Afacad">
@@ -425,203 +476,30 @@ const CalendarComponent = () => {
             </p>
           </div>
 
-          {isFutureOrToday(selectedDate) ? (
-            <Link
-              to="/Form"
-              className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
-            >
-              Add Event
-            </Link>
-          ) : (
-            <button
-              className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
-              disabled
-            >
-              Add Event
-            </button>
-          )}
+          {role !== "ps" &&
+            (isFutureOrToday(selectedDate) ? (
+              <Link
+                to="/Form"
+                className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
+              >
+                Add Event
+              </Link>
+            ) : (
+              <button
+                className="bg-gray-300 text-gray-600 cursor-not-allowed w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-20 flex items-center justify-center shadow-md"
+                disabled
+              >
+                Add Event
+              </button>
+            ))}
         </div>
-
-        {/* Department Section */}
-        <div className="container absolute bottom-[-65%] left-[55%] w-[43%] mx-auto p-4 border-black rounded-xl shadow-lg z-50">
-          <h1 className="text-xl font-bold text-center text-black">
-            Department Report Generator
-          </h1>
-          {errorMessage && (
-            <p className="text-red-600 text-center mt-1">{errorMessage}</p>
-          )}
-
-          {/* Date range and full-year toggle section */}
-          <div className="flex justify-between items-center space-x-4 mb-2">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-700">From Date</h2>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-                disabled={isFullYear}
-              />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-700">To Date</h2>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="p-2 border rounded-lg focus:outline-none w-48 text-xl h-10 focus:ring-2 focus:ring-green-400"
-                disabled={isFullYear}
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={isFullYear}
-                onChange={handleFullYearChange}
-                className="form-checkbox h-4 w-4 text-green-600"
-              />
-              <label className="text-gray-700 text-xl font-semibold">
-                Full Year
-              </label>
-            </div>
-          </div>
-
-          {/* Departments section */}
-          <div className="mb-2">
-            <h2 className="text-lg font-semibold text-gray-700 mb-2">
-              Departments
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              {departmentOptions.map((department) => (
-                <div
-                  key={department.shortName}
-                  className="flex items-center font-bold space-x-2"
-                >
-                  <input
-                    type="checkbox"
-                    value={department.shortName}
-                    checked={departments.includes(department.fullName)}
-                    onChange={handleDepartmentChange}
-                    className="form-checkbox font-bold h-4 w-4 text-green-600"
-                    disabled={
-                      departments.includes("All") &&
-                      department.shortName !== "All"
-                    }
-                  />
-                  <span className="text-gray-700 font-bold text-lg">
-                    {department.shortName}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Year section with specify event types button */}
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <h2 className="text-xl font-semibold text-gray-700 pr-4">Year</h2>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, "All"].map((year) => (
-                  <div key={year} className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      value={year}
-                      checked={
-                        year === "All"
-                          ? selectedYears.length === 4
-                          : selectedYears.includes(year)
-                      }
-                      onChange={(e) => handleYearChange(e, year)}
-                      className="form-checkbox h-4 w-4 text-green-600"
-                      disabled={selectedYears.includes("All") && year !== "All"}
-                    />
-                    <label className="text-gray-700 text-lg">{year}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={toggleEventTypeModal}
-              className="text-sm text-white bg-purple-600 hover:bg-purple-700 rounded-md px-3 py-1"
-            >
-              Specify Event Types
-            </button>
-          </div>
-
-          {/* Modal for selecting event types */}
-          {isEventTypeModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-white w-[80%] max-w-lg rounded-lg p-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Select Event Types
-                </h2>
-                <input
-                  type="text"
-                  placeholder="Search event types"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-2 border rounded mb-4"
-                />
-                <div className="max-h-64 overflow-y-auto">
-                  {filteredEventTypes.map((type) => (
-                    <div
-                      key={type}
-                      className="flex items-center p-2 cursor-pointer hover:bg-gray-200 rounded"
-                      onClick={() => handleEventTypeSelection(type)}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedEventTypes.includes(type)}
-                        onChange={() => handleEventTypeSelection(type)}
-                        className="form-checkbox h-4 w-4 text-green-600 mr-2"
-                      />
-                      <span>{type}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end mt-4">
-                  <button
-                    onClick={toggleEventTypeModal}
-                    className="text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-           <div className="text-center mb-4 flex items-center space-x-4">
-        {showIcons && (
-          <>
-            <FaFilePdf
-              size={34}
-              color="#7312f1d3"
-              onClick={handleGeneratePDF}
-              className="cursor-pointer hover:scale-105 transition-transform duration-300"
-            />
-            <FaFileExcel
-              size={34}
-              color="#7312f1d3"
-              onClick={downloadExcelReport}
-              className="cursor-pointer hover:scale-105 transition-transform duration-300"
-            />
-          </>
-        )}
-        <button
-          type="button"
-          onClick={handleDownloadClick}
-          className="focus:outline-none text-white bg-[#7312f1d3] hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-md text-sm px-3 py-1.5 mb-2 transition-all duration-300"
-        >
-          {showIcons ? "Hide" : "Download"}
-        </button>
-      </div>
+        <div className="w-[80%] mt-5 ml-24 h-[200px]">
+          <CanvasJSChart options={pieChartOptions} />
         </div>
       </div>
 
-      {/* Event List Modal */}
       {isEventListOpen && (
         <div>
-          {/* Other content */}
           {isEventListOpen && (
             <Popup1
               eventsForSelectedDate={eventsForSelectedDate}
