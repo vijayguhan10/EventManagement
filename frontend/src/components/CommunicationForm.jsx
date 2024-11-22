@@ -79,7 +79,7 @@ const CommunicationForm = () => {
         className="bg-white shadow-lg rounded-lg p-8 w-full"
       >
         <h1 className="text-2xl font-bold mb-6 text-start">
-          Event Requirement Form
+          Communication and Media
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {categories.map((category, idx) => (
