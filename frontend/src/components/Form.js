@@ -425,7 +425,7 @@ function Forms() {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
-    } else if (["students", "teachers", "alumnis"].includes(name)) {
+    } else if (["students", "teachers", "alumnis","faculty","schoolstudents","outsideparticipants "].includes(name)) {
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -584,10 +584,120 @@ function Forms() {
   </div>
 </div>
 
+
             {/* IQAC Number */}
             <div className="grid grid-cols-3 gap-6">
           
+            <div className="mb-4">
+              <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
+                Select the Department Specification
+              </label>
+              <div className="flex flex-wrap mb-4">
+                {individualDepartments.map((department) => (
+                  <div key={department} className="mr-4 mb-2">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="departmentspecification"
+                        value={department}
+                        checked={formData.departmentspecification.includes(
+                          department
+                        )}
+                        onChange={handleDepartmentsChange}
+                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                      />
+                      <span className="ml-2 text-gray-700">{department}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
 
+              <button
+                type="button"
+                onClick={handleShowDepartments}
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+              >
+                Show Departments
+              </button>
+
+              {showDepartments && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                    <h2 className="text-lg font-bold mb-4 text-gray-800">
+                      Select Departments
+                    </h2>
+                    <div className="flex flex-wrap mb-4">
+                      {departmentOptions.map((department) => (
+                        <div key={department.shortName} className="mr-4 mb-2">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              name="departments"
+                              value={department.fullName}
+                              checked={formData.departments.includes(
+                                department.fullName
+                              )}
+                              onChange={handleChange}
+                              className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                              disabled={
+                                department.fullName === "All"
+                                  ? disableAll
+                                  : disableIndividual
+                              }
+                            />
+                            <span className="ml-2 text-gray-700">
+                              {department.shortName}
+                            </span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <label className="inline-flex items-center mb-4">
+                      <input
+                        type="checkbox"
+                        name="departments"
+                        value="Others"
+                        checked={isOtherSelected}
+                        onChange={(e) => {
+                          setIsOtherSelected(e.target.checked);
+                          handleChange(e);
+                        }}
+                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                      />
+                      <span className="ml-2 text-gray-700">Others</span>
+                    </label>
+                    {isOtherSelected && (
+                      <div className="mt-4">
+                        <label className="block text-gray-700 font-semibold mb-1">
+                          Specify Other Department
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Enter Other Department"
+                          value={newDepartment}
+                          onChange={(e) => setNewDepartment(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={handleAddDepartment}
+                          className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+                        >
+                          Add Department
+                        </button>
+                      </div>
+                    )}
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={closeModal}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Number of Organizers
@@ -766,7 +876,7 @@ function Forms() {
                     <input
                       type="checkbox"
                       name="staff"
-                      checked={formData.alumnis || false}
+                      checked={formData.staff || false}
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                     />
@@ -775,8 +885,8 @@ function Forms() {
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      name="alumnis"
-                      checked={formData.alumnis || false}
+                      name="schoolstudents"
+                      checked={formData.schoolstudents || false}
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                     />
@@ -785,8 +895,8 @@ function Forms() {
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      name="alumnis"
-                      checked={formData.alumnis || false}
+                      name="outsideparticipants"
+                      checked={formData.outsideparticipants || false}
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                     />
