@@ -749,7 +749,21 @@ function Forms() {
                 )}
               </div>
               {/* Additional Rows */}
-
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Venue
+                </label>
+                <input
+                  type="text"
+                  name="eventVenue"
+                  value={formData.eventVenue}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventVenue && (
+                  <span className="text-red-500">{errors.eventVenue}</span>
+                )}
+              </div>
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Start Date
@@ -908,21 +922,7 @@ function Forms() {
                 )}
               </div>
 
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Event Venue
-                </label>
-                <input
-                  type="text"
-                  name="eventVenue"
-                  value={formData.eventVenue}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-                {errors.eventVenue && (
-                  <span className="text-red-500">{errors.eventVenue}</span>
-                )}
-              </div>
+          
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Number of Resource Persons
@@ -1087,96 +1087,115 @@ function Forms() {
                 </div>
               )}
                {organizerModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                  <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => setOrganizerModalOpen(false)}
+                    className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
+                  >
+                    <FaTimes />
+                  </button>
+
+                  <h2 className="text-2xl font-bold mb-4 flex items-center">
+                    Enter Organizers
                     <button
                       type="button"
-                      onClick={() => setOrganizerModalOpen(false)}
-                      className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
+                      onClick={handleRefreshOrganizers}
+                      className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
+                      title="Refresh"
                     >
-                      <FaTimes />
+                      &#8635;
                     </button>
+                  </h2>
 
-                    <h2 className="text-2xl font-bold mb-4 flex items-center">
-                      Enter Resource Persons
-                      <button
-                        type="button"
-                        onClick={handleRefreshOrganizers}
-                        className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                        title="Refresh"
-                      >
-                        &#8635;
-                      </button>
-                    </h2>
-
-                    {organizerDetails.map((person, index) => (
-                      <div key={index} className="mb-4 relative">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-lg font-semibold">
-                            {index + 1}.
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteResourcePerson(index)}
-                            className="text-red-500 hover:text-red-700 text-xl font-bold"
-                          >
-                            &times;
-                          </button>
-                        </div>
-
-                        <input
-                          type="text"
-                          placeholder="Resource Person Name"
-                          value={person.name}
-                          onChange={(e) =>
-                            handleorganizerDetailChange(
-                              index,
-                              "name",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                        />
-                        {validationErrors.includes(index) && !person.name && (
-                          <p className="text-red-500 text-xl mt-1">
-                            Please enter a name.
-                          </p>
-                        )}
-
-                        <input
-                          type="text"
-                          placeholder="Affilation"
-                          value={person.specialization}
-                          onChange={(e) =>
-                            handleorganizerDetailChange(
-                              index,
-                              "specialization",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                        {validationErrors.includes(index) &&
-                          !person.specialization && (
-                            <p className="text-red-500 text-xl mt-1">
-                              Please enter a specialization.
-                            </p>
-                          )}
+                  {organizerDetails.map((organizer, index) => (
+                    <div key={index} className="mb-4 relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-lg font-semibold">
+                          {index + 1}.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrganizer(index)}
+                          className="text-red-500 hover:text-red-700 text-xl font-bold"
+                        >
+                          &times;
+                        </button>
                       </div>
-                    ))}
 
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleSaveorganizer}
-                        className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                      >
-                        Save
-                      </button>
+                      <input
+                        type="text"
+                        placeholder="Organizer Name"
+                        value={organizer.name}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                      />
+                      {validationErrors.includes(index) && !organizer.name && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a name.
+                        </p>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="designation"
+                        value={organizer.designation}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "designation",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                      />
+                      {validationErrors.includes(index) && !organizer.role && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a designation.
+                        </p>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Phone Number"
+                        value={organizer.phone}
+                        onChange={(e) =>
+                          handleOrganizerDetailChange(
+                            index,
+                            "phone",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                      {validationErrors.includes(index) && !organizer.phone && (
+                        <p className="text-red-500 text-xl mt-1">
+                          Please enter a phone number.
+                        </p>
+                      )}
                     </div>
+                  ))}
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSaveOrganizers}
+                      className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
+                    >
+                      Save
+                    </button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
+
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
                   Choose the Logos
