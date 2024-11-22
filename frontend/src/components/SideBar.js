@@ -254,7 +254,7 @@ const SideBar = () => {
     </li>
   </>
 )}
-1
+
             <Link
               to="/"
               onClick={handleLogout}
