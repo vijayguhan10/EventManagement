@@ -26,7 +26,7 @@
 //   const [departments, setDepartments] = useState([]);
 //   const [isFullYear, setIsFullYear] = useState(false);
 //   const [selectedYears, setSelectedYears] = useState([]);
- 
+
 //   useEffect(() => {
 //     const token = localStorage.getItem("authToken");
 //     if (token) {
@@ -405,8 +405,6 @@
 //   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 19a7 7 0 100-14 7 7 0 000 14z" />
 // </svg>
 
-
-
 //             <h2 className="text-2xl font-semibold text-gray-500">
 //               No Events Scheduled
 //             </h2>
@@ -538,6 +536,8 @@
 import React, { useState, useEffect } from "react";
 import "../Scroll.css";
 import { FaSearch } from "react-icons/fa";
+import Popup2 from "../PopupModels/Popup2";
+
 import CanvasJSReact from "@canvasjs/react-charts";
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
@@ -546,8 +546,9 @@ import cup from "../assets/cup.png";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
+const Dashboard = () => {
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
 
-const AdminDashBoard = () => {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // New state for search
@@ -571,10 +572,13 @@ const AdminDashBoard = () => {
   const [Loading, setLoading] = useState(true);
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-  const closeEventModal = () => {
-    setSelectedEvent(null);
+  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
+  const closeResourcePopup = () => {
+    setIsResourcePopupOpen(false);
   };
+  // const closeEventModal = () => {
+  //   setSelectedEvent(null);
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -657,7 +661,24 @@ const AdminDashBoard = () => {
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
+  // const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+  // const closeResourcePopup = () => {
+  //   setIsResourcePopupOpen(false);
+  // };
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
+  const handleViewResourcePersons = () => {
+    setIsResourcePopupOpen(true);
+  };
+  const convertTo12HourFormat = (time) => {
+    if (!time) return "";
+    let [hours, minutes] = time.split(":");
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
+  };
   if (Loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -699,7 +720,7 @@ const AdminDashBoard = () => {
           <div className="mx-auto p-0 h-full">
             <div
               className="h-full border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth"
-              style={{ height: "100vh" }} 
+              style={{ height: "100vh" }}
             >
               {filteredSearchData.length > 0 ? (
                 filteredSearchData.map((event, index) => (
@@ -732,66 +753,101 @@ const AdminDashBoard = () => {
         </div>
       </div> */}
       {selectedEvent && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content">
-            <button className="custom-close-modal" onClick={closeEventModal}>
+        <Popup2
+          selectedEvent={selectedEvent}
+          closeEventModal={closeEventModal}
+          convertTo12HourFormat={convertTo12HourFormat}
+          handleViewResourcePersons={handleViewResourcePersons}
+          DepartmentPopup={DepartmentPopup}
+          SetDepartmentPopup={SetDepartmentPopup}
+          closeResourcePopup={closeResourcePopup}
+        />
+      )}
+      {isResourcePopupOpen && (
+        <div
+          className="resource-popup-overlay"
+          style={{
+            zIndex: 9999,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="resource-popup-content"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "20px",
+              width: "420px",
+              height: "500px",
+              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <h2
+              className="resource-popup-title"
+              style={{
+                marginBottom: "15px",
+                color: "#333",
+                fontSize: "1.5rem",
+              }}
+            >
+              Resource Persons
+            </h2>
+            <button
+              className="custom-close-modal"
+              onClick={closeResourcePopup}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#999",
+              }}
+            >
               &times;
             </button>
-            <img
-              src={selectedEvent.imageurl}
-              alt="Event"
-              className="custom-modal-image"
-            />
-            <div className="custom-modal-header">
-              <h2 className="custom-modal-title">{selectedEvent.eventname}</h2>
-            </div>
-            <div className="custom-modal-body">
-              <div className="custom-modal-row">
-                <strong>Department:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.departments}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Venue:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.venue}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Resource Person:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.resourceperson}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Year:</strong>
-                <span className="custom-modal-value">{selectedEvent.year}</span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Start Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstartdate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event End Date:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventenddate}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Time:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.eventstarttime} to {selectedEvent.eventendtime}
-                </span>
-              </div>
-              <div className="custom-modal-row">
-                <strong>Event Type:</strong>
-                <span className="custom-modal-value">
-                  {selectedEvent.typeofevent}
-                </span>
-              </div>
+            <div
+              className="resource-person-list"
+              style={{
+                maxHeight: "400px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              {selectedEvent.resourceperson.length > 0 ? (
+                selectedEvent.resourceperson.map((person, index) => {
+                  const [key, value] = Object.entries(person)[0];
+                  return (
+                    <div
+                      key={index}
+                      className="resource-person-row"
+                      style={{
+                        padding: "10px 0",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
+                      <span style={{ color: "#777" }}>{value}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#999", textAlign: "center" }}>
+                  No resource persons available.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -800,4 +856,4 @@ const AdminDashBoard = () => {
   );
 };
 
-export default AdminDashBoard;
+export default Dashboard;

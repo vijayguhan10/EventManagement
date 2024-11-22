@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import UpdateForm from "../components/UpdateForm";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
+import { FaTimes } from "react-icons/fa";
 const DeptPopup = ({
   selectedEvent,
   closeEventModal,
@@ -37,8 +38,8 @@ const DeptPopup = ({
   };
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const[event,setevent]=useState(null)
-const [deleteEventName, setDeleteEventName] = useState("");
+  const [event, setevent] = useState(null);
+  const [deleteEventName, setDeleteEventName] = useState("");
   if (!selectedEvent) return null;
   const handleCloseResourcePopup = () => {
     SetDepartmentPopup(false);
@@ -62,11 +63,10 @@ const [deleteEventName, setDeleteEventName] = useState("");
       alert("Event name does not match. Please try again.");
     }
   };
-   const handleDeleteConfirmation = (event) => {
+  const handleDeleteConfirmation = (event) => {
     console.log("❤️‍🔥❤️‍🔥❤️‍🔥", event);
     setevent(event);
     setShowDeleteModal(true);
-   
   };
   const departmentOptions = [
     { fullName: "Computer and Communication Engineering", shortName: "CCE" },
@@ -88,7 +88,9 @@ const [deleteEventName, setDeleteEventName] = useState("");
     { fullName: "All", shortName: "All" },
   ];
   const getShortName = (fullName) => {
-    const department = departmentOptions.find((dept) => dept.fullName === fullName);
+    const department = departmentOptions.find(
+      (dept) => dept.fullName === fullName
+    );
     return department ? department.shortName : fullName;
   };
   return (
@@ -108,8 +110,9 @@ const [deleteEventName, setDeleteEventName] = useState("");
               <div className="custom-modal-row">
                 <strong>Department:</strong>
                 <span className="custom-modal-value">
-                  {selectedEvent.departments .map((dept) => getShortName(dept))
-                  .join(", ")}
+                  {selectedEvent.departments
+                    .map((dept) => getShortName(dept))
+                    .join(", ")}
                 </span>
               </div>
             )}
@@ -209,38 +212,38 @@ const [deleteEventName, setDeleteEventName] = useState("");
                 </div>
               </div>
             )}
-             {showDeleteModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
-            <h2 className="text-xl font-bold mb-4">Delete Event</h2>
-            <p>
-              Are you sure you want to delete the event{" "}
-              <strong>{selectedEvent.eventname}</strong>? Type the event name to
-              confirm:
-            </p>
-            <input
-              type="text"
-              value={deleteEventName}
-              onChange={(e) => setDeleteEventName(e.target.value)}
-              className="border rounded p-2 w-full mt-2"
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-red-500 text-white rounded px-4 py-2 mr-2"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-              <button
-                className="bg-gray-500 text-white rounded px-4 py-2"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            {showDeleteModal && selectedEvent && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg relative w-80 mx-4">
+                  <h2 className="text-xl font-bold mb-4">Delete Event</h2>
+                  <p>
+                    Are you sure you want to delete the event{" "}
+                    <strong>{selectedEvent.eventname}</strong>? Type the event
+                    name to confirm:
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteEventName}
+                    onChange={(e) => setDeleteEventName(e.target.value)}
+                    className="border rounded p-2 w-full mt-2"
+                  />
+                  <div className="flex justify-end mt-4">
+                    <button
+                      className="bg-red-500 text-white rounded px-4 py-2 mr-2"
+                      onClick={handleDelete}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="bg-gray-500 text-white rounded px-4 py-2"
+                      onClick={() => setShowDeleteModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="custom-modal-row">
@@ -303,14 +306,15 @@ const [deleteEventName, setDeleteEventName] = useState("");
       {/* UpdateForm Popup */}
       {showUpdateForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-white rounded-lg w-full max-w-2xl h-full max-h-[80vh] overflow-y-auto p-6">
+          <div className="relative bg-white rounded-lg xl:w-[85%] h-full max-h-[80vh] overflow-y-auto p-6">
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
               onClick={() => setShowUpdateForm(false)} // Close UpdateForm popup
             >
-              &times;
+              <FaTimes />{" "}
             </button>
-            <UpdateForm selectedEvent={selectedEvent}/> {/* Render the UpdateForm component */}
+            <UpdateForm selectedEvent={selectedEvent} />{" "}
+            {/* Render the UpdateForm component */}
           </div>
         </div>
       )}
