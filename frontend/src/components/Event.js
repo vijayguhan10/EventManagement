@@ -123,8 +123,13 @@ function Placement() {
   };
 
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+  const [isOrganizer, setisOrganizer] = useState(false);
+
   const closeResourcePopup = () => {
     setIsResourcePopupOpen(false);
+  };
+  const closeorganizer = () => {
+    setisOrganizer(false);
   };
   useEffect(() => {
     fetchData();
@@ -291,23 +296,7 @@ function Placement() {
         </div>
       </div>
       <div className="xl:flex xl:flex-row justify-between">
-        <h1 className="xl:text-3xl ml-5 text-xl text-nowrap mt-3 mb-3 font-Afacad font-bold bg-gradient-to-r from-purple-500 to-violet-900 text-transparent bg-clip-text">
-          Explore the {eventType} Events
-        </h1>
-
         {/* Filter UI */}
-        <div className="mt-3 ml-5">
-          <select
-            value={eventType}
-            onChange={(e) => datafetch(e.target.value)}
-            className="p-2 border border-[#7848F4] rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-[#7848F4] transition"
-          >
-            <option value="All">All</option>
-            <option value="Technical">Technical</option>
-            <option value="Nontechnical">Non-Technical</option>
-            <option value="Placement">Placement</option>
-          </select>
-        </div>
 
         <div className="xl:relative xl:w-96 mt-1 mr-16 ml-5">
           <input
@@ -357,9 +346,7 @@ function Placement() {
               <h1 className="font-bold text-3xl font-Afacad">
                 {event.eventname}
               </h1>
-              <h1 className="font-bold text-gray-500 text-xl font-Afacad">
-                {event.organizer}
-              </h1>
+
               <div className="flex flex-row">
                 <FaSearchLocation
                   className="mt-1 mr-1 font-Afacad"
@@ -528,7 +515,6 @@ function Placement() {
       {resourcePersonModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-[1000] bg-black bg-opacity-50">
           <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-            {/* Close and Refresh Buttons */}
             <button
               type="button"
               onClick={() => setResourcePersonModalOpen(false)}

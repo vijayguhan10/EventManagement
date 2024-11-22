@@ -97,7 +97,7 @@ const EventDataSchema = new mongoose.Schema({
     type: [String],
   },
   international: {
-    type: String,
+    type: [String],
   },
 });
 
