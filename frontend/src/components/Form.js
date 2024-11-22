@@ -104,12 +104,6 @@ function Forms() {
     setShowProfessionalBodies(false);
   };
 
-  // const handleInputChange = (e) => {
-  //   setInternationalInput(e.target.value);
-  //   console.log("component triggered");
-  //   console.log("International Inputs : ", internationalInput);
-  // };
-
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [showDepartments, setShowDepartments] = useState(false);
@@ -928,6 +922,18 @@ function Forms() {
                   <span className="text-red-500">{errors.categories}</span>
                 )}
               </div>
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Professional societies and bodies involved
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowProfessionalBodies(true)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+                >
+                  {formData.international || "Professional Societies"}
+                </button>
+              </div>
 
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
@@ -1039,18 +1045,7 @@ function Forms() {
                   </div>
                 </div>
               )}
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Professional societies and bodies involved
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowProfessionalBodies(true)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-                >
-                  {formData.international || "Professional Societies"}
-                </button>
-              </div>
+
               {ShowProfessionalBodies && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                   <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -1130,6 +1125,19 @@ function Forms() {
                           </button>
                         </div>
 
+                        <input
+                          type="text"
+                          placeholder="Employee ID"
+                          value={organizer.employeeid}
+                          onChange={(e) =>
+                            handleOrganizerDetailChange(
+                              index,
+                              "employeeid",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                        />
                         <input
                           type="text"
                           placeholder="Organizer Name"
@@ -1303,14 +1311,3 @@ function Forms() {
   );
 }
 export default Forms;
-// import React from "react";
-// import CommunicationForm from "./CommunicationForm";
-// const Form = () => {
-//   return (
-//     <div>
-//       <CommunicationForm />
-//     </div>
-//   );
-// };
-
-// export default Form;

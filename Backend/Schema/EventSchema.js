@@ -87,9 +87,12 @@ const EventDataSchema = new mongoose.Schema({
     enum: ["Yet to Complete", "In Progress", "Completed"],
     default: "Yet to Complete",
   },
-  students: { type: Boolean, default: false }, // New field for "Students"
-  teachers: { type: Boolean, default: false }, // New field for "Teachers"
+  students: { type: Boolean, default: false }, 
+  teachers: { type: Boolean, default: false }, 
   alumnis: { type: Boolean, default: false },
+  staff:{type:Boolean,default:false},
+  schoolstudents:{type:Boolean,default:false},
+  outsideparticipants:{type:Boolean,default:false},
   organizer: {
     type: [{ type: mongoose.Schema.Types.Mixed }],
   },
