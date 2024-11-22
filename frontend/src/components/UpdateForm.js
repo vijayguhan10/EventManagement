@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
@@ -6,6 +6,24 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
 function UpdateForm({ selectedEvent }) {
+  function formatDate(date) {
+    const parts = date.split("/");
+    if (parts.length !== 3) {
+      console.error("Invalid date format:", date);
+      return "";
+    }
+
+    const year = parts[2].length === 2 ? "20" + parts[2] : parts[2]; // Ensure four-digit year
+    const formattedDate = `${year}-${parts[1]}-${parts[0]}`;
+
+    const dateObj = new Date(formattedDate);
+    if (isNaN(dateObj)) {
+      console.error("Invalid date provided:", formattedDate);
+      return "";
+    }
+
+    return formattedDate;
+  }
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -13,7 +31,35 @@ function UpdateForm({ selectedEvent }) {
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [disableIndividual, setDisableIndividual] = useState(false);
   const [disableAll, setDisableAll] = useState(false);
+  useEffect(() => {
+    if (selectedEvent) {
+      setFormData({
+        eventTitle: selectedEvent.eventname || "",
+        eventVenue: selectedEvent.venue || "",
+        startDate: formatDate(selectedEvent.eventstartdate) || "",
+        endDate: formatDate(selectedEvent.eventenddate) || "",
+        startTime: selectedEvent.eventstarttime || "",
+        endTime: selectedEvent.eventendtime || "",
+        resourcePersons: selectedEvent.resourceperson || [],
+        eventType: selectedEvent.typeofevent || "",
+        eventDescription: selectedEvent.eventDescription || "",
+        departments: selectedEvent.departments || [],
+        departmentspecification: selectedEvent.departmentspecification || [],
+        year: selectedEvent.year || "",
+        students: selectedEvent.students,
+        teachers: selectedEvent.teachers,
+        alumnis: selectedEvent.alumnis,
+      });
 
+      // Initialize number of resource persons
+      setNumResourcePersons(selectedEvent.resourceperson.length || 0);
+      setResourcePersonDetails(selectedEvent.resourceperson || []);
+      console.log(
+        "consoling the selected events for the Resourse Person : ",
+        resourcePersonDetails
+      );
+    }
+  }, [selectedEvent]);
   const [showEventTypeModal, setShowEventTypeModal] = useState(false);
 
   const [ShowProfessionalBodies, setShowProfessionalBodies] = useState(false);
@@ -134,47 +180,9 @@ function UpdateForm({ selectedEvent }) {
     alumnis: false,
   });
 
-  const handleRefreshResourcePersons = () => {
-    setResourcePersonDetails([]);
-  };
-
   const [numResourcePersons, setNumResourcePersons] = useState(0);
   const [resourcePersonModalOpen, setResourcePersonModalOpen] = useState(false);
   const [resourcePersonDetails, setResourcePersonDetails] = useState([]);
-  const handleNumResourcePersonsChange = (e) => {
-    setNumResourcePersons(e.target.value);
-  };
-  const handleDeleteResourcePerson = (index) => {
-    setResourcePersonDetails((prevDetails) =>
-      prevDetails.filter((_, i) => i !== index)
-    );
-  };
-  const handleAddResourcePersons = () => {
-    const additionalPersonsCount =
-      numResourcePersons - resourcePersonDetails.length;
-
-    if (additionalPersonsCount > 0) {
-      const newResourcePersons = Array.from(
-        { length: additionalPersonsCount },
-        () => ({
-          name: "",
-          specialization: "",
-        })
-      );
-      setResourcePersonDetails((prevDetails) => [
-        ...prevDetails,
-        ...newResourcePersons,
-      ]);
-    }
-
-    setResourcePersonModalOpen(true);
-  };
-
-  const handleResourcePersonDetailChange = (index, field, value) => {
-    const updatedDetails = [...resourcePersonDetails];
-    updatedDetails[index][field] = value;
-    setResourcePersonDetails(updatedDetails);
-  };
 
   const [validationErrors, setValidationErrors] = useState([]);
   const handleShowDepartments = () => {
@@ -201,38 +209,7 @@ function UpdateForm({ selectedEvent }) {
     setIsOtherSelected(false);
   };
 
-  const handleSaveResourcePersons = () => {
-    const errors = resourcePersonDetails.reduce((acc, person, index) => {
-      if (!person.name || !person.specialization) {
-        acc.push(index);
-      }
-      return acc;
-    }, []);
-
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
-
-    setValidationErrors([]);
-    const formattedResourcePersons = resourcePersonDetails.reduce(
-      (acc, person) => {
-        acc[person.name] = person.specialization;
-        return acc;
-      },
-      {}
-    );
-
-    setFormData((prev) => ({
-      ...prev,
-      resourcePersons: formattedResourcePersons,
-    }));
-    setResourcePersonModalOpen(false);
-  };
-  const handleRefreshOrganizers = () => {
-    setOrganizerDetails([]);
-  };
-
+  //
   const [numOrganizers, setNumOrganizers] = useState(0);
   const [organizerModalOpen, setOrganizerModalOpen] = useState(false);
   const [organizerDetails, setOrganizerDetails] = useState([]);
@@ -522,7 +499,69 @@ function UpdateForm({ selectedEvent }) {
     { value: "2, 3, and 4", label: "2nd Year, 3rd Year, and 4th Year" },
     { value: "Others", label: "Others" },
   ];
+  const handleNumResourcePersonsChange = (e) => {
+    setNumResourcePersons(e.target.value);
+  };
+  const handleRefreshResourcePersons = () => {
+    setResourcePersonDetails([]);
+  };
+  const handleDeleteResourcePerson = (index) => {
+    setResourcePersonDetails((prevDetails) =>
+      prevDetails.filter((_, i) => i !== index)
+    );
+  };
+  const handleAddResourcePersons = () => {
+    const additionalPersonsCount =
+      numResourcePersons - resourcePersonDetails.length;
 
+    if (additionalPersonsCount > 0) {
+      setResourcePersonDetails((prevDetails) => [...prevDetails, { "": "" }]);
+    }
+
+    setResourcePersonModalOpen(true);
+  };
+  const handleResourcePersonDetailChange = (
+    index,
+    nameKey,
+    specializationValue
+  ) => {
+    setResourcePersonDetails((prevDetails) => {
+      const updatedDetails = [...prevDetails];
+      updatedDetails[index] = { [nameKey]: specializationValue };
+      return updatedDetails;
+    });
+  };
+
+  const handleSaveResourcePersons = () => {
+    const errors = resourcePersonDetails.reduce((acc, person, index) => {
+      if (!Object.keys(person)[0] || !Object.values(person)[0]) {
+        acc.push(index);
+      }
+      return acc;
+    }, []);
+
+    if (errors.length > 0) {
+      console.log("Error in saving: Missing fields : ", errors);
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+
+    const formattedResourcePersons = resourcePersonDetails.map((person) => {
+      const nameKey = Object.keys(person)[0];
+      const specializationValue = person[nameKey];
+      return { [nameKey]: specializationValue };
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      resourcePersons: formattedResourcePersons,
+    }));
+
+    console.log("Resource person saving data:", formData);
+    setResourcePersonModalOpen(false);
+  };
   return (
     <div className="p-10 xl: min-w-full font-Afacad ">
       <div className="flex flex-row items-center">
@@ -749,15 +788,18 @@ function UpdateForm({ selectedEvent }) {
                   Add Resource Persons
                 </button>
               </div>
+
+              {/* Modal for Resource Persons */}
               {resourcePersonModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                   <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                    {/* Close and Refresh Buttons */}
                     <button
                       type="button"
                       onClick={() => setResourcePersonModalOpen(false)}
-                      className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold px-2"
                     >
-                      <FaTimes />
+                      &times;
                     </button>
 
                     <h2 className="text-2xl font-bold mb-4 flex items-center">
@@ -772,61 +814,68 @@ function UpdateForm({ selectedEvent }) {
                       </button>
                     </h2>
 
-                    {resourcePersonDetails.map((person, index) => (
-                      <div key={index} className="mb-4 relative">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-lg font-semibold">
-                            {index + 1}.
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteResourcePerson(index)}
-                            className="text-red-500 hover:text-red-700 text-xl font-bold"
-                          >
-                            &times;
-                          </button>
-                        </div>
+                    {resourcePersonDetails.map((person, index) => {
+                      const nameKey = Object.keys(person)[0] || ""; // default to an empty string if key is missing
+                      const specializationValue = person[nameKey] || ""; // default to an empty string if value is missing
 
-                        <input
-                          type="text"
-                          placeholder="Resource Person Name"
-                          value={person.name}
-                          onChange={(e) =>
-                            handleResourcePersonDetailChange(
-                              index,
-                              "name",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                        />
-                        {validationErrors.includes(index) && !person.name && (
-                          <p className="text-red-500 text-xl mt-1">
-                            Please enter a name.
-                          </p>
-                        )}
+                      return (
+                        <div key={index} className="mb-4 relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-lg font-semibold">
+                              {index + 1}.
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteResourcePerson(index)}
+                              className="text-red-500 hover:text-red-700 text-xl font-bold"
+                            >
+                              &times;
+                            </button>
+                          </div>
 
-                        <input
-                          type="text"
-                          placeholder="Affilation"
-                          value={person.specialization}
-                          onChange={(e) =>
-                            handleResourcePersonDetailChange(
-                              index,
-                              "specialization",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                        {validationErrors.includes(index) &&
-                          !person.specialization && (
+                          {/* Name input */}
+                          <input
+                            type="text"
+                            placeholder="Resource Person Name"
+                            value={nameKey}
+                            onChange={(e) =>
+                              handleResourcePersonDetailChange(
+                                index,
+                                e.target.value,
+                                specializationValue
+                              )
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+                          />
+                          {validationErrors.includes(index) && !nameKey && (
                             <p className="text-red-500 text-xl mt-1">
-                              Please enter a specialization.
+                              Please enter a name.
                             </p>
                           )}
-                      </div>
-                    ))}
+
+                          {/* Specialization input */}
+                          <input
+                            type="text"
+                            placeholder="Specialization"
+                            value={specializationValue}
+                            onChange={(e) =>
+                              handleResourcePersonDetailChange(
+                                index,
+                                nameKey,
+                                e.target.value
+                              )
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          />
+                          {validationErrors.includes(index) &&
+                            !specializationValue && (
+                              <p className="text-red-500 text-xl mt-1">
+                                Please enter a specialization.
+                              </p>
+                            )}
+                        </div>
+                      );
+                    })}
 
                     <div className="flex justify-end">
                       <button
@@ -849,7 +898,7 @@ function UpdateForm({ selectedEvent }) {
                   onClick={() => setShowProfessionalBodies(true)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
                 >
-                  {formData.eventType || "Professional Societies"}
+                  {formData.international || "Professional Societies"}
                 </button>
               </div>
               {ShowProfessionalBodies && (
@@ -873,7 +922,7 @@ function UpdateForm({ selectedEvent }) {
                       onChange={(e) => setInternationalInput(e.target.value)}
                       className="w-full p-2 border border-gray-300 rounded-md mb-4"
                     />
-                    <div className="max-h-64 overflow-y-auto">
+                    {/* <div className="max-h-64 overflow-y-auto">
                       {internationalRelations
                         .filter((type) =>
                           type
@@ -889,7 +938,7 @@ function UpdateForm({ selectedEvent }) {
                             {type1}
                           </div>
                         ))}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               )}
@@ -897,7 +946,7 @@ function UpdateForm({ selectedEvent }) {
                 <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
                   Choose the Logos
                 </label>
-                <div className="flex flex-wrap mb-4">
+                {/* <div className="flex flex-wrap mb-4">
                   {logos.map((logo) => (
                     <div key={logo} className="mr-4 mb-2">
                       <label className="inline-flex items-center">
@@ -913,7 +962,7 @@ function UpdateForm({ selectedEvent }) {
                       </label>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">

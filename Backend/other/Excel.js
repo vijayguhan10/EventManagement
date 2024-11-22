@@ -4,18 +4,26 @@ const moment = require("moment");
 
 const ExcelConversion = async (req, res) => {
   try {
-    const { fromDate, toDate, departments, year, fullYear, selectedeventtype } = req.query;
+    const { fromDate, toDate, departments, year, fullYear, selectedeventtype } =
+      req.query;
     console.log("Required data for the PDF:", req.query);
 
     const events = await Event.find({});
     console.log("events are", events);
 
     const currentDate = moment();
-    const oneYearAgo = currentDate.clone().subtract(1, "year").format("YYYY-MM-DD");
+    const oneYearAgo = currentDate
+      .clone()
+      .subtract(1, "year")
+      .format("YYYY-MM-DD");
 
     const filteredEvents = events.filter((event) => {
-      const eventStartDate = moment(event.eventstartdate, "DD/MM/YY").format("YYYY-MM-DD");
-      const eventEndDate = moment(event.eventenddate, "DD/MM/YY").format("YYYY-MM-DD");
+      const eventStartDate = moment(event.eventstartdate, "DD/MM/YY").format(
+        "YYYY-MM-DD"
+      );
+      const eventEndDate = moment(event.eventenddate, "DD/MM/YY").format(
+        "YYYY-MM-DD"
+      );
 
       const from = moment(fromDate).format("YYYY-MM-DD");
       const to = moment(toDate).format("YYYY-MM-DD");
@@ -24,14 +32,23 @@ const ExcelConversion = async (req, res) => {
         return false;
       }
 
-      if (year && !year.some(y => event.year.includes(y))) {
+      if (year && !year.some((y) => event.year.includes(y))) {
         return false;
       }
 
       const isAllDepartments = departments && departments.includes("All");
-      const departmentMatch = isAllDepartments || (departments && event.departments && event.departments.some(dept => event.departments.includes(dept)));
+      const departmentMatch =
+        isAllDepartments ||
+        (departments &&
+          event.departments &&
+          event.departments.some((dept) => event.departments.includes(dept)));
 
-      const specificationMatch = selectedeventtype && event.departmentspecification && selectedeventtype.some(spec => event.departmentspecification.includes(spec));
+      const specificationMatch =
+        selectedeventtype &&
+        event.departmentspecification &&
+        selectedeventtype.some((spec) =>
+          event.departmentspecification.includes(spec)
+        );
 
       if (departmentMatch || (selectedeventtype && specificationMatch)) {
         return true;
@@ -95,7 +112,6 @@ const ExcelConversion = async (req, res) => {
       { key: "status", width: 15 },
     ];
 
-    
     filteredEvents.sort((a, b) => {
       const deptA =
         Array.isArray(a.departments) && a.departments[0]
@@ -108,17 +124,20 @@ const ExcelConversion = async (req, res) => {
       return deptA.localeCompare(deptB);
     });
     filteredEvents.forEach((event) => {
-      const formattedResourcePersons = event.resourceperson && Array.isArray(event.resourceperson)
-        ? event.resourceperson
-            .map(rp => {
-              const [name, specialization] = Object.entries(rp)[0];
-              return `${name || 'Unknown'} (${specialization || 'Unknown'})`;
-            })
-            .join(", ")
-        : "Not Available";
-    
+      const formattedResourcePersons =
+        event.resourceperson && Array.isArray(event.resourceperson)
+          ? event.resourceperson
+              .map((rp) => {
+                const [name, specialization] = Object.entries(rp)[0];
+                return `${name || "Unknown"} (${specialization || "Unknown"})`;
+              })
+              .join(", ")
+          : "Not Available";
+
       worksheet.addRow({
-        departments: event.departments ? event.departments.join(", ") : "Not Available",
+        departments: event.departments
+          ? event.departments.join(", ")
+          : "Not Available",
         eventname: event.eventname || "Not Available",
         organizer: event.organizer || "Not Available",
         resourceperson: formattedResourcePersons,
@@ -131,7 +150,7 @@ const ExcelConversion = async (req, res) => {
         status: event.status || "Not Available",
       });
     });
-    
+
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
