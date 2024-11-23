@@ -535,88 +535,90 @@
 // export default Dashboard;
 import React, { useState, useEffect } from "react";
 import "../Scroll.css";
-import { FaSearch } from "react-icons/fa";
-import Popup2 from "../PopupModels/Popup2";
-
-import CanvasJSReact from "@canvasjs/react-charts";
+import MainPopup from "./MainPopup";
 import SideBar from "./SideBar";
 import CalendarComponent from "./CalenderComponent";
+import CanvasJSReact from "@canvasjs/react-charts";
 import { toast } from "react-toastify";
-import cup from "../assets/cup.png";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-const Dashboard = () => {
-  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+import cup from "../assets/cup.png";
 
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // New state for search
+const Dashboard = () => {
+  const handleOpenPopup = () => {
+    setIsOpen(true); // Open the popup when an event is selected
+  };
+
+  const handleClosePopup = () => {
+    setIsOpen(false); // Close the popup when needed
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
+  const [popupPDF, setPopupPDF] = useState(false);
+  const [data, setData] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [name, setName] = useState("Guest");
+  const [role, setRole] = useState("User");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const token = localStorage.getItem("authToken");
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    // Decode token and set user details
     if (token) {
       try {
         const decoded = jwtDecode(token);
         setName(decoded.name || "Guest");
         setRole(decoded.role || "User");
       } catch (error) {
-        console.error("Error decoding token", error);
+        console.error("Error decoding token:", error);
       }
     }
-  }, []);
-
-  const [data, setData] = useState([]);
-  const [popupPDF, SetPopupPdf] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [Loading, setLoading] = useState(true);
-  const token = localStorage.getItem("authToken");
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const [DepartmentPopup, SetDepartmentPopup] = useState(false);
-  const closeResourcePopup = () => {
-    setIsResourcePopupOpen(false);
-  };
-  // const closeEventModal = () => {
-  //   setSelectedEvent(null);
-  // };
+  }, [token]);
 
   useEffect(() => {
+    // Fetch data on component load
     const fetchData = async () => {
       try {
         const response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/event/getalldata`
         );
-        const filteredData = response.data.eventdata.filter(
-          (elem) => elem.status === "pending"
-        );
-        setData(filteredData);
+        setData(response.data.eventdata);
       } catch (error) {
         console.error("Failed to fetch data:", error);
-        toast.error("Failed to fetch data.");
+        toast.warning("No events today.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  const openEventModal = (event) => {
-    setSelectedEvent(event);
-  };
-
   const today = new Date();
-  const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(
-    today.getMonth() + 1
-  ).padStart(2, "0")}/${String(today.getFullYear()).slice(-2)}`;
+  today.setHours(0, 0, 0, 0);
+
+  // Filter events happening today
   const filteredData = data.filter((event) => {
-    return event.eventstartdate === formattedToday;
+    const [dayStart, monthStart, yearStart] = event.eventstartdate.split("/");
+    const [dayEnd, monthEnd, yearEnd] = event.eventenddate.split("/");
+
+    const eventStartDate = new Date(`20${yearStart}-${monthStart}-${dayStart}`);
+    const eventEndDate = new Date(`20${yearEnd}-${monthEnd}-${dayEnd}`);
+
+    eventStartDate.setHours(0, 0, 0, 0);
+    eventEndDate.setHours(0, 0, 0, 0);
+
+    return eventStartDate <= today && eventEndDate >= today;
   });
 
+  // Filter based on search query
   const filteredSearchData = filteredData.filter((event) => {
     const department = Array.isArray(event.departments)
       ? event.departments.join(", ")
-      : event.departments || ""; // Handle cases where departments might be null or undefined
+      : event.departments || "";
 
     return (
       (event.eventname &&
@@ -625,61 +627,27 @@ const Dashboard = () => {
         department.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   });
-  const pieChartOptions = {
-    exportEnabled: true,
-    animationEnabled: true,
-    title: {
-      text: `Department Analytics (${formattedToday})`,
-    },
-    data: [
-      {
-        type: "pie",
-        startAngle: 75,
-        toolTipContent: "<b>{label}</b>: {y}%",
-        showInLegend: "true",
-        legendText: "{label}",
-        indexLabelFontSize: 14,
-        indexLabel: "{label} - {y}%",
-        dataPoints: [
-          { y: 10, label: "CSE" },
-          { y: 3, label: "IT" },
-          { y: 6, label: "AIDS" },
-          { y: 5.9, label: "CCE" },
-          { y: 4, label: "CSBS" },
-          { y: 6, label: "CYBER" },
-          { y: 7, label: "ECE" },
-          { y: 2, label: "EEE" },
-          { y: 8, label: "MECH" },
-          { y: 7.09, label: "AIML" },
-        ],
-      },
-    ],
-    height: 360,
-    width: 600,
-  };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-  // const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
-  // const closeResourcePopup = () => {
-  //   setIsResourcePopupOpen(false);
-  // };
-  const closeEventModal = () => {
-    setSelectedEvent(null);
-  };
-  const handleViewResourcePersons = () => {
-    setIsResourcePopupOpen(true);
-  };
+  // Handle search input
+
+  // Open event modal
+  const openEventModal = (event) => setSelectedEvent(event);
+
+  // Close modals
+
+  // Convert time to 12-hour format
   const convertTo12HourFormat = (time) => {
     if (!time) return "";
     let [hours, minutes] = time.split(":");
     hours = parseInt(hours, 10);
     const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert hour "0" to "12" for 12-hour format
+    hours = hours % 12 || 12;
     return `${hours}:${minutes} ${ampm}`;
   };
-  if (Loading) {
+
+  // Pie chart options
+
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
@@ -693,40 +661,22 @@ const Dashboard = () => {
     >
       <SideBar />
       <div className="flex flex-col xl:flex-row w-full pt-10 xl:pt-20 relative">
+        {/* Welcome Banner */}
         <div className="absolute top-4 flex left-[18%] items-center">
-          <div className="text-nowrap flex mb-5">
-            <h1 className="text-3xl font-bold mb-28 text-white-800">
-              Welcome, <span>{name}</span>
-            </h1>
-          </div>
-          {/* <div className="relative ml-[90%] mb-32">
-            <input
-              type="text"
-              placeholder="Search events..."
-              className="xl:w-96 xl:h-14 pl-12 pr-20 border-2 border-purple-600 rounded-lg shadow-lg transition-all duration-300 focus:border-purple-800 focus:ring-2 focus:ring-purple-300 focus:outline-none"
-              value={searchQuery} 
-              onChange={handleSearchChange} 
-            />
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-600">
-              <FaSearch size={20} />
-            </div>
-            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-md">
-              Search
-            </button>
-          </div> */}
+          <h1 className="text-3xl font-bold text-white-800">
+            Welcome, <span>{name}</span>
+          </h1>
         </div>
 
-        <div className="xl:ml-72 h-full mt-5 relative xl:w-[80%] w-full bg-white">
+        {/* Events Section */}
+        <div className="xl:ml-72 h-full mt-5 xl:w-[80%] w-full bg-white">
           <div className="mx-auto p-0 h-full">
-            <div
-              className="h-full border-black rounded-xl xl:w-[130%] overflow-y-auto bg-white animated-scrollbar overflow-x-hidden scroll-smooth"
-              style={{ height: "100vh" }}
-            >
+            <div className="h-full rounded-xl xl:w-[130%] bg-white overflow-y-auto">
               {filteredSearchData.length > 0 ? (
                 filteredSearchData.map((event, index) => (
                   <div
                     key={index}
-                    className="relative border-black bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+                    className="relative bg-gradient-to-bl from-[#7d3cf4b5] to-[#7312f1d3] text-white rounded-2xl flex justify-between items-center p-6 mb-6 shadow-2xl cursor-pointer"
                     onClick={() => openEventModal(event)}
                   >
                     <div>
@@ -743,114 +693,15 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Calendar */}
         <div className="flex justify-center ml-60 mb-4 w-full">
           <CalendarComponent />
         </div>
       </div>
-      {/* <div className="w-64 ml-[57.3%]">
-        <div className="h-auto ml-28 absolute bottom-12 bg-transparent">
-          <CanvasJSChart options={pieChartOptions} />
-        </div>
-      </div> */}
-      {selectedEvent && (
-        <Popup2
-          selectedEvent={selectedEvent}
-          closeEventModal={closeEventModal}
-          convertTo12HourFormat={convertTo12HourFormat}
-          handleViewResourcePersons={handleViewResourcePersons}
-          DepartmentPopup={DepartmentPopup}
-          SetDepartmentPopup={SetDepartmentPopup}
-          closeResourcePopup={closeResourcePopup}
-        />
-      )}
+      {selectedEvent && <MainPopup />}
+      {/* Resource Persons Popup */}
       {isResourcePopupOpen && (
-        <div
-          className="resource-popup-overlay"
-          style={{
-            zIndex: 9999,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            className="resource-popup-content"
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "10px",
-              padding: "20px",
-              width: "420px",
-              height: "500px",
-              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
-              position: "relative",
-            }}
-          >
-            <h2
-              className="resource-popup-title"
-              style={{
-                marginBottom: "15px",
-                color: "#333",
-                fontSize: "1.5rem",
-              }}
-            >
-              Resource Persons
-            </h2>
-            <button
-              className="custom-close-modal"
-              onClick={closeResourcePopup}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "15px",
-                background: "none",
-                border: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                color: "#999",
-              }}
-            >
-              &times;
-            </button>
-            <div
-              className="resource-person-list"
-              style={{
-                maxHeight: "400px",
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
-            >
-              {selectedEvent.resourceperson.length > 0 ? (
-                selectedEvent.resourceperson.map((person, index) => {
-                  const [key, value] = Object.entries(person)[0];
-                  return (
-                    <div
-                      key={index}
-                      className="resource-person-row"
-                      style={{
-                        padding: "10px 0",
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
-                      <span style={{ color: "#777" }}>{value}</span>
-                    </div>
-                  );
-                })
-              ) : (
-                <p style={{ color: "#999", textAlign: "center" }}>
-                  No resource persons available.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        <div className="resource-popup-overlay">{/* Popup Content */}</div>
       )}
     </div>
   );

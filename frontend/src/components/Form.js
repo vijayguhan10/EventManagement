@@ -31,8 +31,8 @@ function Forms() {
   const logos = [
     "AICTE",
     "IAC",
-    "VIKSHITH bHARATH",
-    "SKILL INDIA",
+    "VIKASH bHARATH",
+    "sKILL INDIA",
     "IEEE",
     "SDG",
     "OTHERS",
@@ -104,6 +104,12 @@ function Forms() {
     setShowProfessionalBodies(false);
   };
 
+  // const handleInputChange = (e) => {
+  //   setInternationalInput(e.target.value);
+  //   console.log("component triggered");
+  //   console.log("International Inputs : ", internationalInput);
+  // };
+
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [showDepartments, setShowDepartments] = useState(false);
@@ -116,19 +122,16 @@ function Forms() {
     startTime: "",
     endTime: "",
     resourcePersons: [],
-    organizer: [],
     international: "",
     eventType: "",
     logos: [],
     eventDescription: "",
     departments: [],
+
     departmentspecification: [],
     students: false,
     teachers: false,
     alumnis: false,
-    staff: false,
-    schoolstudents: false,
-    outsideparticipants: false,
   });
 
   const handleRefreshResourcePersons = () => {
@@ -171,11 +174,6 @@ function Forms() {
     const updatedDetails = [...resourcePersonDetails];
     updatedDetails[index][field] = value;
     setResourcePersonDetails(updatedDetails);
-  };
-  const handleorganizerDetailChange = (index, field, value) => {
-    const updatedDetails = [...organizerDetails];
-    updatedDetails[index][field] = value;
-    setOrganizerDetails(updatedDetails);
   };
 
   const [validationErrors, setValidationErrors] = useState([]);
@@ -230,31 +228,6 @@ function Forms() {
       resourcePersons: formattedResourcePersons,
     }));
     setResourcePersonModalOpen(false);
-  };
-  const handleSaveorganizer = () => {
-    const errors = organizerDetails.reduce((acc, person, index) => {
-      if (!person.name || !person.specialization) {
-        acc.push(index);
-      }
-      return acc;
-    }, []);
-
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
-
-    setValidationErrors([]);
-    const formattedorganizer = organizerDetails.reduce((acc, person) => {
-      acc[person.name] = person.specialization;
-      return acc;
-    }, {});
-
-    setFormData((prev) => ({
-      ...prev,
-      organizer: formattedorganizer,
-    }));
-    setOrganizerModalOpen(false);
   };
   const handleRefreshOrganizers = () => {
     setOrganizerDetails([]);
@@ -416,16 +389,7 @@ function Forms() {
         setFormData((prev) => ({ ...prev, departments: selectedDepartments }));
         setDisableAll(selectedDepartments.length > 0);
       }
-    } else if (
-      [
-        "students",
-        "teachers",
-        "alumnis",
-        "faculty",
-        "schoolstudents",
-        "outsideparticipants ",
-      ].includes(name)
-    ) {
+    } else if (["students", "teachers", "alumnis"].includes(name)) {
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -488,6 +452,8 @@ function Forms() {
 
     if (!formData.eventType)
       newErrors.eventType = "Please select an event type";
+    // if (!formData.eventDescription)
+    // newErrors.eventDescription = "Event description is required";
 
     if (Object.keys(newErrors).length > 0) {
       console.log(Object.keys(newErrors).length);
@@ -565,9 +531,10 @@ function Forms() {
             onSubmit={handleSubmit}
             className="bg-white p-10 rounded-lg  shadow-lg w-full max-w-full"
           >
-            <div className="mb-4 flex justify-center">
-              <div className="w-1/3">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2 text-center">
+            {/* IQAC Number */}
+            <div className="grid grid-cols-3 gap-6">
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   IQAC Number
                 </label>
                 <input
@@ -578,125 +545,10 @@ function Forms() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
                 {errors.iqac && (
-                  <span className="text-red-500 block text-center">
-                    {errors.iqac}
-                  </span>
+                  <span className="text-red-500">{errors.iqac}</span>
                 )}
               </div>
-            </div>
 
-            {/* IQAC Number */}
-            <div className="grid grid-cols-3 gap-6">
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
-                  Select the Department Specification
-                </label>
-                <div className="flex flex-wrap mb-4">
-                  {individualDepartments.map((department) => (
-                    <div key={department} className="mr-4 mb-2">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          name="departmentspecification"
-                          value={department}
-                          checked={formData.departmentspecification.includes(
-                            department
-                          )}
-                          onChange={handleDepartmentsChange}
-                          className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span className="ml-2 text-gray-700">{department}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleShowDepartments}
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-                >
-                  Show Departments
-                </button>
-
-                {showDepartments && (
-                  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                      <h2 className="text-lg font-bold mb-4 text-gray-800">
-                        Select Departments
-                      </h2>
-                      <div className="flex flex-wrap mb-4">
-                        {departmentOptions.map((department) => (
-                          <div key={department.shortName} className="mr-4 mb-2">
-                            <label className="inline-flex items-center">
-                              <input
-                                type="checkbox"
-                                name="departments"
-                                value={department.fullName}
-                                checked={formData.departments.includes(
-                                  department.fullName
-                                )}
-                                onChange={handleChange}
-                                className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                                disabled={
-                                  department.fullName === "All"
-                                    ? disableAll
-                                    : disableIndividual
-                                }
-                              />
-                              <span className="ml-2 text-gray-700">
-                                {department.shortName}
-                              </span>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <label className="inline-flex items-center mb-4">
-                        <input
-                          type="checkbox"
-                          name="departments"
-                          value="Others"
-                          checked={isOtherSelected}
-                          onChange={(e) => {
-                            setIsOtherSelected(e.target.checked);
-                            handleChange(e);
-                          }}
-                          className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <span className="ml-2 text-gray-700">Others</span>
-                      </label>
-                      {isOtherSelected && (
-                        <div className="mt-4">
-                          <label className="block text-gray-700 font-semibold mb-1">
-                            Specify Other Department
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Enter Other Department"
-                            value={newDepartment}
-                            onChange={(e) => setNewDepartment(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <button
-                            onClick={handleAddDepartment}
-                            className="mt-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
-                          >
-                            Add Department
-                          </button>
-                        </div>
-                      )}
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          onClick={closeModal}
-                          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
-                        >
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Number of Organizers
@@ -719,7 +571,7 @@ function Forms() {
 
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Name of the Event
+                  Event Title
                 </label>
                 <input
                   type="text"
@@ -732,37 +584,9 @@ function Forms() {
                   <span className="text-red-500">{errors.eventTitle}</span>
                 )}
               </div>
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Event Type
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowEventTypeModal(true)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-                >
-                  {formData.eventType || "Select Event Type"}
-                </button>
-                {errors.eventType && (
-                  <span className="text-red-500">{errors.eventType}</span>
-                )}
-              </div>
+
               {/* Additional Rows */}
-              <div className="mb-4">
-                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Event Venue
-                </label>
-                <input
-                  type="text"
-                  name="eventVenue"
-                  value={formData.eventVenue}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-                {errors.eventVenue && (
-                  <span className="text-red-500">{errors.eventVenue}</span>
-                )}
-              </div>
+
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Start Date
@@ -873,7 +697,7 @@ function Forms() {
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-gray-700">Faculty</span>
+                    <span className="ml-2 text-gray-700">Teachers</span>
                   </label>
                   <label className="inline-flex items-center">
                     <input
@@ -883,58 +707,29 @@ function Forms() {
                       onChange={handleChange}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                     />
-                    <span className="ml-2 text-gray-700">Alumni</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      name="staff"
-                      checked={formData.staff || false}
-                      onChange={handleChange}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-gray-700">Staff</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      name="schoolstudents"
-                      checked={formData.schoolstudents || false}
-                      onChange={handleChange}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-gray-700">School Students</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      name="outsideparticipants"
-                      checked={formData.outsideparticipants || false}
-                      onChange={handleChange}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-gray-700">
-                      Outside Participants
-                    </span>
+                    <span className="ml-2 text-gray-700">Alumnis</span>
                   </label>
                 </div>
                 {errors.categories && (
                   <span className="text-red-500">{errors.categories}</span>
                 )}
               </div>
+
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
-                  Professional societies and bodies involved
+                  Event Venue
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setShowProfessionalBodies(true)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
-                >
-                  {formData.international || "Professional Societies"}
-                </button>
+                <input
+                  type="text"
+                  name="eventVenue"
+                  value={formData.eventVenue}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {errors.eventVenue && (
+                  <span className="text-red-500">{errors.eventVenue}</span>
+                )}
               </div>
-
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Number of Resource Persons
@@ -1045,7 +840,18 @@ function Forms() {
                   </div>
                 </div>
               )}
-
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Professional societies and bodies involved
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowProfessionalBodies(true)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+                >
+                  {formData.eventType || "Professional Societies"}
+                </button>
+              </div>
               {ShowProfessionalBodies && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                   <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -1087,132 +893,6 @@ function Forms() {
                   </div>
                 </div>
               )}
-              {organizerModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                  <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                    <button
-                      type="button"
-                      onClick={() => setOrganizerModalOpen(false)}
-                      className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
-                    >
-                      <FaTimes />
-                    </button>
-
-                    <h2 className="text-2xl font-bold mb-4 flex items-center">
-                      Enter Organizers
-                      <button
-                        type="button"
-                        onClick={handleRefreshOrganizers}
-                        className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                        title="Refresh"
-                      >
-                        &#8635;
-                      </button>
-                    </h2>
-
-                    {organizerDetails.map((organizer, index) => (
-                      <div key={index} className="mb-4 relative">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-lg font-semibold">
-                            {index + 1}.
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteOrganizer(index)}
-                            className="text-red-500 hover:text-red-700 text-xl font-bold"
-                          >
-                            &times;
-                          </button>
-                        </div>
-
-                        <input
-                          type="text"
-                          placeholder="Employee ID"
-                          value={organizer.employeeid}
-                          onChange={(e) =>
-                            handleOrganizerDetailChange(
-                              index,
-                              "employeeid",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Organizer Name"
-                          value={organizer.name}
-                          onChange={(e) =>
-                            handleOrganizerDetailChange(
-                              index,
-                              "name",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                        />
-                        {validationErrors.includes(index) &&
-                          !organizer.name && (
-                            <p className="text-red-500 text-xl mt-1">
-                              Please enter a name.
-                            </p>
-                          )}
-
-                        <input
-                          type="text"
-                          placeholder="designation"
-                          value={organizer.designation}
-                          onChange={(e) =>
-                            handleOrganizerDetailChange(
-                              index,
-                              "designation",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                        />
-                        {validationErrors.includes(index) &&
-                          !organizer.role && (
-                            <p className="text-red-500 text-xl mt-1">
-                              Please enter a designation.
-                            </p>
-                          )}
-
-                        <input
-                          type="text"
-                          placeholder="Phone Number"
-                          value={organizer.phone}
-                          onChange={(e) =>
-                            handleOrganizerDetailChange(
-                              index,
-                              "phone",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                        {validationErrors.includes(index) &&
-                          !organizer.phone && (
-                            <p className="text-red-500 text-xl mt-1">
-                              Please enter a phone number.
-                            </p>
-                          )}
-                      </div>
-                    ))}
-
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleSaveOrganizers}
-                        className="bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
                   Choose the Logos
@@ -1253,7 +933,21 @@ function Forms() {
                 )}
               </div>
               {/* Event Type Selection */}
-
+              <div className="mb-4">
+                <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
+                  Event Type
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowEventTypeModal(true)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-left"
+                >
+                  {formData.eventType || "Select Event Type"}
+                </button>
+                {errors.eventType && (
+                  <span className="text-red-500">{errors.eventType}</span>
+                )}
+              </div>
               {showEventTypeModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                   <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -1311,3 +1005,14 @@ function Forms() {
   );
 }
 export default Forms;
+// import React from "react";
+// import CommunicationForm from "./CommunicationForm";
+// const Form = () => {
+//   return (
+//     <div>
+//       <CommunicationForm />
+//     </div>
+//   );
+// };
+
+// export default Form;
