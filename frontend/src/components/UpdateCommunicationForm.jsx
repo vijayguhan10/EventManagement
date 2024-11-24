@@ -4,11 +4,26 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const CommunicationForm = () => {
-  const [selectedOptions, setSelectedOptions] = useState({});
+const UpdateCommunicationForm = ({
+  communicationdata,
+  photography,
+  videography,
+}) => {
+  console.log(
+    "data is passsed for the communication editing : ",
+    communicationdata
+  );
+  const [selectedOptions, setSelectedOptions] = useState(() => {
+    const optionsMap = {};
+    Object.keys(communicationdata || {}).forEach((key) => {
+      optionsMap[key] = communicationdata[key] || [];
+    });
+    return optionsMap;
+  });
+
   const [formData, setFormData] = useState({
-    photography: false,
-    videography: false,
+    photography: photography || false,
+    videography: videography || false,
   });
   const form1Data = useSelector((state) => state.events);
 
@@ -100,7 +115,7 @@ const CommunicationForm = () => {
 
     try {
       const response = await axios.post(
-        ` ${process.env.REACT_APP_BASE_URL}/event/create_event`,
+        `${process.env.REACT_APP_BASE_URL}/event/create_event`,
         combinedData
       );
       console.log("Server Response:", response.data);
@@ -121,7 +136,7 @@ const CommunicationForm = () => {
         <h1 className="text-2xl font-bold mb-6 text-start">
           Communication and Media
         </h1>
-        <div className=" flex flex-col gap-4 font-bold text-xl text-gray-700">
+        <div className="flex flex-col gap-4 font-bold text-xl text-gray-700">
           <label className="inline-flex ml-4 items-center">
             <input
               type="checkbox"
@@ -191,4 +206,4 @@ const CommunicationForm = () => {
   );
 };
 
-export default CommunicationForm;
+export default UpdateCommunicationForm;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
+import UpdateCommunicationForm from "./UpdateCommunicationForm";
 function UpdateForm({ selectedEvent }) {
   function formatDate(date) {
     const parts = date.split("/");
@@ -68,7 +68,6 @@ function UpdateForm({ selectedEvent }) {
     }
   }, [selectedEvent]);
   const [showEventTypeModal, setShowEventTypeModal] = useState(false);
-
   const [ShowProfessionalBodies, setShowProfessionalBodies] = useState(false);
   const [internationalInput, setInternationalInput] = useState("");
   const internationalRelations = [
@@ -204,9 +203,8 @@ function UpdateForm({ selectedEvent }) {
         departments: [...prev.departments, newDepartment],
       }));
       setNewDepartment("");
-      setIsOtherSelected(false); // Reset after adding
+      setIsOtherSelected(false);
     } else {
-      // setErrors({ ...errors, departments: "Please enter a department name." });
     }
   };
   const closeModal = () => {
@@ -420,73 +418,74 @@ function UpdateForm({ selectedEvent }) {
   };
 
   const handleSubmit = async (e) => {
+    toast.success("Event sucessfully modified")
     // console.log("form data ", formData);
-    e.preventDefault();
-    const newErrors = {};
-    if (!formData.iqac) newErrors.iqac = "IQAC Number is Required";
-    if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
-    if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
-    if (!formData.year) newErrors.year = "Event year is required";
-    if (!formData.startDate) newErrors.startDate = "Start date is required";
-    if (!formData.endDate) newErrors.endDate = "End date is required";
-    if (!formData.startTime) newErrors.startTime = "Start time is required";
-    if (!formData.endTime) newErrors.endTime = "End time is required";
-    if (!formData.resourcePersons)
-      newErrors.resourcePerson = "Resource person is required";
+    // e.preventDefault();
+    // const newErrors = {};
+    // if (!formData.iqac) newErrors.iqac = "IQAC Number is Required";
+    // if (!formData.eventTitle) newErrors.eventTitle = "Event title is required";
+    // if (!formData.eventVenue) newErrors.eventVenue = "Event venue is required";
+    // if (!formData.year) newErrors.year = "Event year is required";
+    // if (!formData.startDate) newErrors.startDate = "Start date is required";
+    // if (!formData.endDate) newErrors.endDate = "End date is required";
+    // if (!formData.startTime) newErrors.startTime = "Start time is required";
+    // if (!formData.endTime) newErrors.endTime = "End time is required";
+    // if (!formData.resourcePersons)
+    //   newErrors.resourcePerson = "Resource person is required";
 
-    if (!formData.eventType)
-      newErrors.eventType = "Please select an event type";
-    // if (!formData.eventDescription)
-    // newErrors.eventDescription = "Event description is required";
+    // if (!formData.eventType)
+    //   newErrors.eventType = "Please select an event type";
+    // // if (!formData.eventDescription)
+    // // newErrors.eventDescription = "Event description is required";
 
-    if (Object.keys(newErrors).length > 0) {
-      console.log(Object.keys(newErrors).length);
-      setErrors(newErrors);
-      return;
-    }
+    // if (Object.keys(newErrors).length > 0) {
+    //   console.log(Object.keys(newErrors).length);
+    //   setErrors(newErrors);
+    //   return;
+    // }
 
-    try {
-      console.log("posting the form data : ", formData);
-      const response = await axios.post(
-        ` ${process.env.REACT_APP_BASE_URL}/event/create_event`,
-        {
-          iqac: formData.iqac,
-          eventname: formData.eventTitle,
-          resourcePersons: formData.resourcePersons,
-          venue: formData.eventVenue,
-          eventstarttime: formData.startTime,
-          eventendtime: formData.endTime,
-          eventstartdate: formData.startDate.replace(/-/g, "/"),
-          eventenddate: formData.endDate.replace(/-/g, "/"),
-          typeofevent: formData.eventType[0].toString(),
-          departments: formData.departments,
-          status: "pending",
-          organizer: organizerDetails,
-          logos: formData.logos,
-          international: formData.international,
-          year: formData.year,
-          eventDescription: formData.eventDescription,
-          departmentspecification: formData.departmentspecification,
-          students: formData.students,
-          teachers: formData.teachers,
-          alumnis: formData.alumnis,
-        }
-      );
-      console.log("response", response);
-      if (response.status === 201) {
-        console.log("sucessfull response : ", response);
-        console.log("year🤣🤣🤣🤣🤣", response.data.year);
-        setTimeout(() => {
-          toast.success("Event added successfully!");
-          navigate("/Dashboard");
-        }, 2000);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Error adding event. Please try again.");
-    } finally {
-    }
-    setErrors({});
+    // try {
+    //   console.log("posting the form data : ", formData);
+    //   const response = await axios.post(
+    //     ` ${process.env.REACT_APP_BASE_URL}/event/modify_event`,
+    //     {
+    //       iqac: formData.iqac,
+    //       eventname: formData.eventTitle,
+    //       resourcePersons: formData.resourcePersons,
+    //       venue: formData.eventVenue,
+    //       eventstarttime: formData.startTime,
+    //       eventendtime: formData.endTime,
+    //       eventstartdate: formData.startDate.replace(/-/g, "/"),
+    //       eventenddate: formData.endDate.replace(/-/g, "/"),
+    //       typeofevent: formData.eventType[0].toString(),
+    //       departments: formData.departments,
+    //       status: "pending",
+    //       organizer: organizerDetails,
+    //       logos: formData.logos,
+    //       international: formData.international,
+    //       year: formData.year,
+    //       eventDescription: formData.eventDescription,
+    //       departmentspecification: formData.departmentspecification,
+    //       students: formData.students,
+    //       teachers: formData.teachers,
+    //       alumnis: formData.alumnis,
+    //     }
+    //   );
+    //   console.log("response", response);
+    //   if (response.status === 201) {
+    //     console.log("sucessfull response : ", response);
+    //     console.log("year🤣🤣🤣🤣🤣", response.data.year);
+    //     setTimeout(() => {
+    //       toast.success("Event added successfully!");
+    //       navigate("/Dashboard");
+    //     }, 2000);
+    //   }
+    // } catch (error) {
+    //   console.error("Error:", error);
+    //   toast.error("Error adding event. Please try again.");
+    // } finally {
+    // }
+    // setErrors({});
   };
   const yearOptions = [
     { value: "1", label: "1st Year" },
@@ -571,13 +570,14 @@ function UpdateForm({ selectedEvent }) {
   };
   return (
     <div className="p-10 xl: min-w-full font-Afacad ">
+      <h1 className="flex justify-center text-4xl">Update the Events</h1>
       <div className="flex flex-row items-center">
         <div className="flex flex-col  items-center">
           <form
             onSubmit={handleSubmit}
             className="bg-white p-10 rounded-lg  shadow-lg w-full max-w-full"
           >
-            <div className="mb-4 flex justify-center">
+            <div className="mb-4">
               <div className="w-1/3">
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2 text-center">
                   IQAC Number
@@ -866,8 +866,8 @@ function UpdateForm({ selectedEvent }) {
                 <label className="block font-Afacad text-gray-700 text-xl font-bold mb-2">
                   Categories
                 </label>
-                <div className="flex items-center space-x-4">
-                  <label className="inline-flex items-center">
+                <div className="grid grid-cols-3 items-center space-x-4">
+                  <label className="inline-flex ml-4 items-center">
                     <input
                       type="checkbox"
                       name="students"
@@ -928,6 +928,16 @@ function UpdateForm({ selectedEvent }) {
                     <span className="ml-2 text-gray-700">
                       Outside Participants
                     </span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      name="Industry"
+                      checked={formData.Industry || false}
+                      onChange={handleChange}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-gray-700">Industry</span>
                   </label>
                 </div>
                 {errors.categories && (
@@ -1105,101 +1115,6 @@ function UpdateForm({ selectedEvent }) {
                   </div>
                 </div>
               )}
-              {organizerModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                  <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                    <button
-                      type="button"
-                      onClick={() => setOrganizerModalOpen(false)}
-                      className="absolute top-2 right-2 text-black 700 text-3xl font-bold px-2"
-                    >
-                      <FaTimes />
-                    </button>
-
-                    <h2 className="text-2xl font-bold mb-4 flex items-center">
-                      Enter Organizers
-                      <button
-                        type="button"
-                        onClick={handleRefreshOrganizers}
-                        className="ml-3 bg-gray-200 p-1 rounded text-gray-600 hover:text-gray-800"
-                        title="Refresh"
-                      >
-                        &#8635;
-                      </button>
-                    </h2>
-
-                    <div>
-                      <h2 className="text-2xl font-bold mb-4">Organizers</h2>
-                      {organizerDetails.map((organizer, index) => (
-                        <div key={index} className="mb-4">
-                          <label className="block font-semibold">
-                            Organizer {index + 1}
-                          </label>
-
-                          {/* Organizer Name */}
-                          <input
-                            type="text"
-                            placeholder="Organizer Name"
-                            value={organizer.name || ""}
-                            onChange={(e) =>
-                              handleOrganizerDetailChange(
-                                index,
-                                "name",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                          />
-
-                          {/* Organizer Designation */}
-                          <input
-                            type="text"
-                            placeholder="Designation"
-                            value={organizer.designation || ""}
-                            onChange={(e) =>
-                              handleOrganizerDetailChange(
-                                index,
-                                "designation",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                          />
-
-                          {/* Organizer Phone */}
-                          <input
-                            type="text"
-                            placeholder="Phone Number"
-                            value={organizer.phone || ""}
-                            onChange={(e) =>
-                              handleOrganizerDetailChange(
-                                index,
-                                "phone",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-                          />
-                        </div>
-                      ))}
-
-                      {/* Button to Add Empty Organizer */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setOrganizerDetails([
-                            ...organizerDetails,
-                            { name: "", phone: "", designation: "" },
-                          ])
-                        }
-                        className="mt-4 bg-[#7848F4] text-white font-bold py-2 px-4 rounded hover:bg-[#5929c4]"
-                      >
-                        Add Organizer
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <div className="mb-4">
                 <label className="block font-Afacad text-gray-800 text-lg font-bold mb-3">
@@ -1240,7 +1155,6 @@ function UpdateForm({ selectedEvent }) {
                   </span>
                 )}
               </div>
-              {/* Event Type Selection */}
 
               {showEventTypeModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -1292,7 +1206,11 @@ function UpdateForm({ selectedEvent }) {
           </form>
         </div>
       </div>
-      <CommunicationForm />
+      <UpdateCommunicationForm
+        communicationdata={selectedEvent.selectedOptions}
+        photography={selectedEvent.photography}
+        videography={selectedEvent.videography}
+      />
 
       <ToastContainer />
     </div>

@@ -2,11 +2,11 @@ import React from "react";
 
 const OrganizerTable = ({ organizersData }) => {
   return (
-    <div className="p-6  flex justify-center">
-      <div className="w-full max-w-6xl  shadow-md rounded-lg p-8">
-        <table className="min-w-full  border border-gray-200">
+    <div className="p-6 flex justify-center">
+      <div className="w-full max-w-6xl shadow-md rounded-lg p-8">
+        <table className="min-w-full border border-gray-200">
           <thead>
-            <tr className=" border-b">
+            <tr className="border-b">
               <th className="text-left py-3 px-4 font-semibold text-gray-600">
                 Name
               </th>
@@ -14,7 +14,7 @@ const OrganizerTable = ({ organizersData }) => {
                 Emp ID
               </th>
               <th className="text-left py-3 px-4 font-semibold text-gray-600">
-                Designation & Department
+                Designation
               </th>
               <th className="text-left py-3 px-4 font-semibold text-gray-600">
                 Mobile Number
@@ -37,16 +37,16 @@ const OrganizerTable = ({ organizersData }) => {
                     {organizer.name || "N/A"}
                   </td>
                   <td className="py-3 px-4 text-gray-800">
-                    {organizer.empId || "N/A"}
+                    {organizer.employeeid || "N/A"}
                   </td>
                   <td className="py-3 px-4 text-gray-800">
                     {organizer.designation || "N/A"}
                   </td>
                   <td className="py-3 px-4 text-gray-800">
-                    {organizer.mobile || "N/A"}
+                    {organizer.phone || "N/A"}
                   </td>
                   <td className="py-3 px-4 text-gray-800">
-                    {organizer.requisitionDate || "N/A"}
+                    {"Requisition Date Not Provided"}
                   </td>
                 </tr>
               ))

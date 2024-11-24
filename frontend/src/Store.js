@@ -1,9 +1,9 @@
+import eventReducer from "./redux/reducers/eventReducers";
 import { configureStore } from "@reduxjs/toolkit";
-import formReducer from "./formSlice";
 
 const store = configureStore({
   reducer: {
-    form: formReducer,
+    events: eventReducer,
   },
 });
 

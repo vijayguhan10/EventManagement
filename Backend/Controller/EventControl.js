@@ -79,18 +79,15 @@ const decrementDepartmentCount = async (departments) => {
     );
   } else {
     for (const department of departments) {
-      // Decrement the count for each department
       await TotalCount.updateOne(
         {},
         { $inc: { [`totalCounts.${department}`]: -1 } }
       );
 
-      // Ensure the count doesn't go below zero
       const updatedCount = await TotalCount.findOne({});
       const currentCount = updatedCount.totalCounts[department];
 
       if (currentCount < 0) {
-        // If the count is below zero, set it to zero
         await TotalCount.updateOne(
           {},
           { $set: { [`totalCounts.${department}`]: 0 } }
@@ -153,8 +150,6 @@ const updateDepartmentCount = async (oldDepartment, newDepartment) => {
   }
 };
 exports.CreateEvent = async (req, res) => {
-  console.log("REQUEST ACESSED");
-  console.log("Request body:", req.body);
   try {
     const {
       iqac,
@@ -171,16 +166,21 @@ exports.CreateEvent = async (req, res) => {
       status,
       departments,
       year,
-      students, // New field
-      teachers, // New field
+      students,
+      teachers,
       alumnis,
+      schoolstudents,
+      outsideparticipants,
+      photography,
+      videography,
+      staff,
       organizer,
       logos,
       international,
+      selectedOptions,
     } = req.body;
+
     const userId = req.userId;
-    console.log("Consoling the form data", req.body);
-    console.log("resource persons", resourcePersons);
 
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
@@ -216,11 +216,11 @@ exports.CreateEvent = async (req, res) => {
 
     let departmentsToProcess = [];
     let imageUrl =
-      "https://digicult.it/wp-content/uploads/2022/03/earlylife.png"; // Initialize imageUrl here
+      "https://digicult.it/wp-content/uploads/2022/03/earlylife.png";
 
     if (departments.includes("All")) {
       departmentsToProcess = ["All"];
-      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png"; // Change imageUrl when "All" is included
+      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";
     } else if (!departments.length && formattedDepartmentspecification.length) {
       departmentsToProcess = ["otherspecification"];
     } else {
@@ -231,7 +231,7 @@ exports.CreateEvent = async (req, res) => {
       departments.includes("All") ||
       departmentsToProcess.includes("otherspecification")
     ) {
-      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png"; // Update imageUrl for "All" or "otherspecification"
+      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";
     } else if (departments.length && departmentsToProcess.length) {
       const departmentData = images_dept.find((item) =>
         departments.includes(item.name)
@@ -260,19 +260,21 @@ exports.CreateEvent = async (req, res) => {
       eventDescription,
       departmentspecification: formattedDepartmentspecification,
       year,
-      students, 
-      teachers, 
+      students,
+      teachers,
       alumnis,
       schoolstudents,
       outsideparticipants,
+      photography,
+      videography,
       staff,
-      organizer, 
-      logos, 
-      international, 
+      organizer,
+      logos,
+      international,
+      selectedOptions,
     });
 
     const savedEvent = await newEvent.save();
-    console.log("Saved event:", savedEvent);
 
     const count = await TotalCount.findOne({});
     if (!count) {
@@ -306,7 +308,6 @@ exports.CreateEvent = async (req, res) => {
     }
 
     const updatedCounts = await TotalCount.find({});
-    console.log("Incremented model data:", updatedCounts);
 
     return res.status(201).json({
       message: "Event created successfully",
@@ -323,11 +324,11 @@ exports.CreateEvent = async (req, res) => {
 };
 
 exports.updateevent = async (req, res) => {
-  console.log("rrrrrrrrrrrrrrrr : ", req.body);
   try {
     const {
       eventId,
       eventname,
+      selectedOptions,
       resourcePersons,
       departmentspecification,
       venue,
@@ -339,12 +340,14 @@ exports.updateevent = async (req, res) => {
       departments,
       year,
       description,
-      students, // New field
-      teachers, // New field
-      alumnis
+      students,
+      teachers,
+      alumnis,
+      logos,
+      international,
+      organizer,
     } = req.body;
-    console.log("resour5ce persopnm", resourcePersons);
-    console.log("consoling the updaegt", req.body);
+
     const st_date = formatDate(eventstartdate);
     const end_date = formatDate(eventenddate);
     const userId = req.userId;
@@ -358,11 +361,10 @@ exports.updateevent = async (req, res) => {
     if (!eventToUpdate) {
       return res.status(404).json({ message: "Event not found" });
     }
-    console.log(eventToUpdate);
-    console.log();
+
     const oldDepartment = eventToUpdate.departments;
     const oldspecification = eventToUpdate.departmentspecification;
-    console.log("😎😎", departments, oldspecification);
+
     if (oldDepartment.includes("All")) {
       const allDepartments = [
         "Computer and Communication Engineering",
@@ -377,35 +379,29 @@ exports.updateevent = async (req, res) => {
         "Cybersecurity",
       ];
       if (oldspecification.length) {
-        console.log("consoled");
-        console.log("😤😤😤😤", oldspecification);
         await decrementDepartmentCount(["otherspecification"]);
       }
       for (const dept of allDepartments) {
         await decrementDepartmentCount([dept]);
       }
-    } else if (oldspecification || oldDepartment.length) {
+    } else {
       if (oldspecification.length) {
-        console.log("consoled");
-        console.log("😒😒", oldDepartment);
         await decrementDepartmentCount(["otherspecification"]);
       }
       if (oldDepartment.length) {
         await decrementDepartmentCount(oldDepartment);
       }
     }
+
     const resourceperson = Object.entries(resourcePersons || {}).map(
       ([key, value]) => ({ [key]: value })
     );
+
     let formattedDepartmentspecification;
     if (typeof departmentspecification === "string") {
       try {
         formattedDepartmentspecification = JSON.parse(departmentspecification);
       } catch (error) {
-        console.error(
-          "Failed to parse departmentspecification as JSON:",
-          error
-        );
         return res
           .status(400)
           .json({ message: "Invalid departmentspecification format." });
@@ -420,47 +416,18 @@ exports.updateevent = async (req, res) => {
         .json({ message: "departmentspecification must be an array." });
     }
 
-    const createdEvents = [];
     let departmentsToProcess = [];
-
     if (departments.includes("All")) {
       departmentsToProcess = ["All"];
-      imageUrl = "https://i.ibb.co/s3MbZv2/eee.png";
     } else if (!departments.length && formattedDepartmentspecification.length) {
       departmentsToProcess = ["otherspecification"];
     } else {
       departmentsToProcess = departments;
     }
 
-    for (const department of departmentsToProcess) {
-      if (departments.includes("All") && department === "otherspecification") {
-        continue;
-      }
-
-      const departmentData =
-        department !== "otherspecification"
-          ? images_dept.find((item) => item.name === department)
-          : null;
-
-      let imageUrl =
-        department === "otherspecification"
-          ? "https://digicult.it/wp-content/uploads/2022/03/earlylife.png"
-          : departmentData
-          ? departmentData[
-              Object.keys(departmentData).find((key) => key !== "name")
-            ]
-          : null;
-      console.log("image url******", imageUrl);
-      if (!imageUrl) {
-        imageUrl =
-          "https://digicult.it/wp-content/uploads/2022/03/earlylife.png";
-      }
-    }
-
-    let updatedfield = {
+    let updatedFields = {
       eventname,
       resourceperson,
-      departmentspecification,
       venue,
       eventstarttime,
       eventendtime,
@@ -470,12 +437,17 @@ exports.updateevent = async (req, res) => {
       departments,
       year,
       description,
-      students, // Added field
-      teachers, // Added field
-      alumnis
+      students,
+      teachers,
+      alumnis,
+      organizer,
+      logos,
+      international,
+      selectedOptions,
+      departmentspecification: formattedDepartmentspecification,
     };
 
-    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedfield, {
+    const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedFields, {
       new: true,
     });
     if (!updatedEvent) {
@@ -496,16 +468,13 @@ exports.updateevent = async (req, res) => {
         "Cybersecurity",
       ];
       if (departmentspecification.length) {
-        console.log("consoled");
-        console.log(departmentspecification);
         await incrementDepartmentCount(["otherspecification"]);
       }
       for (const dept of allDepartments) {
         await incrementDepartmentCount([dept]);
       }
-    } else if (departmentspecification || departments.length) {
+    } else {
       if (departmentspecification.length) {
-        console.log("consoled");
         await incrementDepartmentCount(["otherspecification"]);
       }
       if (departments.length) {
@@ -516,10 +485,9 @@ exports.updateevent = async (req, res) => {
     const updatedCounts = await TotalCount.find({});
     console.log("Incremented model data:", updatedCounts);
 
-    return res.status(201).json({
-      message: "Events updated successfully",
-      events: createdEvents,
-      year: year,
+    return res.status(200).json({
+      message: "Event updated successfully",
+      updatedEvent,
     });
   } catch (error) {
     console.error("Error in updateevent:", error.message);

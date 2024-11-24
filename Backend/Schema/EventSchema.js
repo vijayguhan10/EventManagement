@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const EventDataSchema = new mongoose.Schema({
   userid: {
     required: true,
@@ -87,12 +86,15 @@ const EventDataSchema = new mongoose.Schema({
     enum: ["Yet to Complete", "In Progress", "Completed"],
     default: "Yet to Complete",
   },
-  students: { type: Boolean, default: false }, 
-  teachers: { type: Boolean, default: false }, 
+  students: { type: Boolean, default: false },
+  teachers: { type: Boolean, default: false },
   alumnis: { type: Boolean, default: false },
-  staff:{type:Boolean,default:false},
-  schoolstudents:{type:Boolean,default:false},
-  outsideparticipants:{type:Boolean,default:false},
+  staff: { type: Boolean, default: false },
+  schoolstudents: { type: Boolean, default: false },
+  outsideparticipants: { type: Boolean, default: false },
+  Industry: { type: Boolean, default: false },
+  photography: { type: Boolean, default: false },
+  videography: { type: Boolean, default: false },
   organizer: {
     type: [{ type: mongoose.Schema.Types.Mixed }],
   },
@@ -101,6 +103,12 @@ const EventDataSchema = new mongoose.Schema({
   },
   international: {
     type: [String],
+  },
+
+  selectedOptions: {
+    type: Map,
+    of: [String],
+    default: {},
   },
 });
 

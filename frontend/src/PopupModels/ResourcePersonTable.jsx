@@ -1,6 +1,14 @@
+import React from "react";
+
 const ResourcePersonTable = ({ resourcePersons }) => {
+  // Convert the dynamic structure to a more consistent array for rendering
+  const formattedResourcePersons = Object.keys(resourcePersons).map((key) => ({
+    name: key,
+    ...resourcePersons[key].a, // Extract the details under "a"
+  }));
+
   return (
-    <div className="p-6  flex justify-center">
+    <div className="p-6 flex justify-center">
       <div className="w-full max-w-6xl bg-white shadow-md rounded-lg p-8 space-y-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
           Resource Person Details
@@ -31,8 +39,8 @@ const ResourcePersonTable = ({ resourcePersons }) => {
               </tr>
             </thead>
             <tbody>
-              {resourcePersons.length > 0 ? (
-                resourcePersons.map((person, index) => (
+              {formattedResourcePersons.length > 0 ? (
+                formattedResourcePersons.map((person, index) => (
                   <tr
                     key={index}
                     className={`border-b ${
@@ -87,4 +95,5 @@ const ResourcePersonTable = ({ resourcePersons }) => {
     </div>
   );
 };
+
 export default ResourcePersonTable;

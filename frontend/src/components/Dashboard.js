@@ -545,15 +545,6 @@ import { jwtDecode } from "jwt-decode";
 import cup from "../assets/cup.png";
 
 const Dashboard = () => {
-  const handleOpenPopup = () => {
-    setIsOpen(true); // Open the popup when an event is selected
-  };
-
-  const handleClosePopup = () => {
-    setIsOpen(false); // Close the popup when needed
-  };
-
-  const [isOpen, setIsOpen] = useState(false);
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
   const [popupPDF, setPopupPDF] = useState(false);
   const [data, setData] = useState([]);
@@ -567,7 +558,6 @@ const Dashboard = () => {
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
   useEffect(() => {
-    // Decode token and set user details
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -580,7 +570,6 @@ const Dashboard = () => {
   }, [token]);
 
   useEffect(() => {
-    // Fetch data on component load
     const fetchData = async () => {
       try {
         const response = await axios.post(
@@ -599,8 +588,6 @@ const Dashboard = () => {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  // Filter events happening today
   const filteredData = data.filter((event) => {
     const [dayStart, monthStart, yearStart] = event.eventstartdate.split("/");
     const [dayEnd, monthEnd, yearEnd] = event.eventenddate.split("/");
@@ -613,8 +600,6 @@ const Dashboard = () => {
 
     return eventStartDate <= today && eventEndDate >= today;
   });
-
-  // Filter based on search query
   const filteredSearchData = filteredData.filter((event) => {
     const department = Array.isArray(event.departments)
       ? event.departments.join(", ")
@@ -628,14 +613,6 @@ const Dashboard = () => {
     );
   });
 
-  // Handle search input
-
-  // Open event modal
-  const openEventModal = (event) => setSelectedEvent(event);
-
-  // Close modals
-
-  // Convert time to 12-hour format
   const convertTo12HourFormat = (time) => {
     if (!time) return "";
     let [hours, minutes] = time.split(":");
@@ -645,7 +622,10 @@ const Dashboard = () => {
     return `${hours}:${minutes} ${ampm}`;
   };
 
-  // Pie chart options
+  const openEventModal = (event) => setSelectedEvent(event);
+
+  // Close the popup
+  const closeEventModal = () => setSelectedEvent(null);
 
   if (loading) {
     return (
@@ -698,8 +678,13 @@ const Dashboard = () => {
           <CalendarComponent />
         </div>
       </div>
-      {selectedEvent && <MainPopup />}
-      {/* Resource Persons Popup */}
+      {selectedEvent && (
+        <MainPopup
+          isOpen={!!selectedEvent}
+          eventData={selectedEvent}
+          onClose={closeEventModal}
+        />
+      )}{" "}
       {isResourcePopupOpen && (
         <div className="resource-popup-overlay">{/* Popup Content */}</div>
       )}

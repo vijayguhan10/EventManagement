@@ -3,87 +3,79 @@ import ResourcePersonTable from "../PopupModels/ResourcePersonTable";
 import MediaRequirementsTable from "../PopupModels/MediaRequirmentsTable";
 import EventsTable from "../PopupModels/EventsTable";
 import OrganizerTable from "../PopupModels/OrganizerData";
+const MainPopup = ({ eventData, isOpen, onClose }) => {
+  const popupRef = useRef(null);
 
-const MainPopup = () => {
-  const [isOpen, setIsOpen] = useState(true); // State to control popup visibility
-  const popupRef = useRef(null); // Ref for the popup container
-
-  const handleClose = () => {
-    setIsOpen(false); // Close the popup
-  };
-
-  // Close the popup when pressing the ESC key
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
-      handleClose();
+      onClose();
     }
   };
 
-  // Close the popup when clicking outside of it
   const handleOutsideClick = (e) => {
     if (popupRef.current && !popupRef.current.contains(e.target)) {
-      handleClose();
+      onClose();
     }
   };
 
   useEffect(() => {
     if (isOpen) {
-      // Add event listeners and disable background scroll
       document.body.classList.add("overflow-hidden");
       document.addEventListener("keydown", handleKeyDown);
       document.addEventListener("mousedown", handleOutsideClick);
-    } else {
-      // Remove event listeners and re-enable background scroll
-      document.body.classList.remove("overflow-hidden");
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleOutsideClick);
     }
 
-    // Cleanup listeners on unmount
     return () => {
       document.body.classList.remove("overflow-hidden");
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [isOpen]);
+  const {
+    alumnis,
+    departments,
+    departmentspecification,
+    eventDescription,
+    eventenddate,
+    eventendtime,
+    eventname,
+    eventstartdate,
+    eventstarttime,
+    international,
+    iqac,
+    logos,
+    organizer,
+    photography,
+    resourcePersons,
+    selectedOptions,
+    students,
+    teachers,
+    typeofevent,
+    venue,
+    videography,
+    year,
+  } = eventData;
+  if (!isOpen) return null;
 
-  const resourcePersonsData = [
-    {
-      name: "Dr. John Doe",
-      designation: "Professor",
-      department: "Computer Science",
-      mobile: "9876543210",
-      email: "john.doe@example.com",
-      twitter: "https://twitter.com/johndoe",
-    },
-    {
-      name: "Dr. Jane Smith",
-      designation: "Senior Lecturer",
-      department: "Information Technology",
-      mobile: "8765432109",
-      email: "jane.smith@example.com",
-      twitter: "https://twitter.com/janesmith",
-    },
+  const eventdata = [
+    typeofevent,
+    venue,
+    alumnis,
+    year,
+    students,
+    teachers,
+    departments,
+    departmentspecification,
+    eventDescription,
+    eventenddate,
+    eventendtime,
+    eventname,
+    eventstartdate,
+    eventstarttime,
+    international,
+    iqac,
   ];
-  const organizersData = [
-    {
-      name: "John Doe",
-      empId: "EMP12345",
-      designation: "Assistant Professor, CSE",
-      mobile: "9876543210",
-      requisitionDate: "2024-11-22",
-    },
-    {
-      name: "Jane Smith",
-      empId: "EMP67890",
-      designation: "Senior Lecturer, IT",
-      mobile: "8765432109",
-      requisitionDate: "2024-11-23",
-    },
-  ];
-
-  if (!isOpen) return null; // Don't render the popup if it's closed
-
+  const mediamax = [photography, videography, selectedOptions, logos];
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center">
       <div
@@ -94,7 +86,7 @@ const MainPopup = () => {
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-          onClick={handleClose}
+          onClick={onClose}
         >
           <i className="fa fa-times text-xl"></i>
         </button>
@@ -106,11 +98,11 @@ const MainPopup = () => {
           <h2 className="text-xl font-semibold text-gray-700">
             Organizer Details
           </h2>
-          <OrganizerTable organizersData={organizersData} />
+          <OrganizerTable organizersData={organizer} />
           <h2 className="text-xl font-semibold text-gray-700">Event Details</h2>
-          <EventsTable />
-          <ResourcePersonTable resourcePersons={resourcePersonsData} />
-          <MediaRequirementsTable />
+          <EventsTable eventdata={eventdata} />
+          {/* <ResourcePersonTable resourcePersons={resourcePersons} /> */}
+          <MediaRequirementsTable mediamax={mediamax} />
         </div>
       </div>
     </div>
