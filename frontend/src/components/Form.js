@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaTimes } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { saveEventData } from "./../redux/actions/eventActions";
+import EventFormNavigation from "./EventFormNavigation";
 function Forms() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("authToken");
@@ -1251,8 +1252,6 @@ function Forms() {
                   </span>
                 )}
               </div>
-              {/* Event Type Selection */}
-
               {showEventTypeModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                   <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -1304,7 +1303,7 @@ function Forms() {
         </div>
       </div>
       <CommunicationForm />
-
+      <EventFormNavigation/>
       <ToastContainer />
     </div>
   );

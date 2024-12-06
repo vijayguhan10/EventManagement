@@ -5,6 +5,9 @@ const router = require("./Router/Signups");
 const Event = require("./Router/eventHandeler");
 const updateevents = require("./other/Node-Corn");
 const messages = require("./Router/Whatsapp");
+const guestroom = require("./Router/guestroom/route");
+const foodform = require("./Router/foodform/main");
+const transportform = require("./Router/transportform/main");
 const cors = require("cors");
 dotenv.config();
 
@@ -27,7 +30,9 @@ mongoose
 app.use("/api/sece", router);
 app.use("/api/event", Event);
 app.use("/api/messages", messages);
-
+app.use("/api/guestroom", guestroom);
+app.use("/api/transportform", transportform);
+app.use("/api/foodform", foodform);
 updateevents;
 const PORT = 8000;
 app.listen(PORT, () => {

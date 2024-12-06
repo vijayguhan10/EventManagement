@@ -12,6 +12,9 @@ import Chart from "../components/Chart";
 import Mediamax from "../components/MediaMax";
 import { jwtDecode } from "jwt-decode";
 import SignupAdmin from "../components/SignupAdmin";
+import { TransportForm } from "./../TransportForm/TransportForm";
+import FoodForm from './../FoodForm/FoodForm';
+import GuestRoom from "./../guestroom/index"
 const InitialRouter = () => {
   const [token, setToken] = useState(localStorage.getItem("authToken"));
 
@@ -71,7 +74,7 @@ const InitialRouter = () => {
       )}
       {isAuthenticated && role === "ps" && (
         <>
-        <Route path="/Dashboard" element={<Dashboard />}/>
+          <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/mediamax" element={<Mediamax />} />
           <Route path="/History" element={<History />} />
           <Route path="*" element={<Navigate to="/mediamax" />} />
@@ -88,6 +91,9 @@ const InitialRouter = () => {
           <Route path="/Departments" element={<Departments />} />
           <Route path="/CanceledEvents" element={<Canceled />} />
           <Route path="/charts" element={<Chart />} />
+          <Route path="/transportation-form" element={<TransportForm />} />
+          <Route path="/amenities-form" element={<FoodForm />} />
+          <Route path="/guest-room-form" element={<GuestRoom />} />
         </>
       )}
 

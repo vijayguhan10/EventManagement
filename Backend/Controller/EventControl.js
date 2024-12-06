@@ -249,7 +249,7 @@ exports.CreateEvent = async (req, res) => {
       eventname,
       resourceperson,
       venue,
-      eventstarttime,
+      e2ventstarttime,
       eventendtime,
       eventstartdate: formatDate(eventstartdate),
       eventenddate: formatDate(eventenddate),
