@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import Header from "./Header";
 import BasicInfo from "./BasicInfo";
 import EventDetails from "./EventDetails";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import FoodTable from "./FoodTable";
 import Signatures from "./Signatures";
 function FoodForm() {
@@ -25,13 +28,35 @@ function FoodForm() {
     deanClearance: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+
+    try {
+      const response = await axios.post(
+        ` ${process.env.REACT_APP_BASE_URL}/foodform/events`,
+
+        formData
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Event created successfully!", {
+          // position: toast.POSITION.TOP_RIGHT,
+        });
+
+        console.log("Form Data Submitted:", formData);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+
+      toast.error("Failed to create the event. Please try again.", {
+        // position: toast.POSITION.TOP_RIGHT,
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="max-w-7xl mx-auto">
         <form
           onSubmit={handleSubmit}

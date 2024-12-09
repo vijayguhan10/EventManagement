@@ -1,12 +1,48 @@
 const Event = require("../../Schema/foodform/main");
 const createEvent = async (req, res) => {
   try {
+    console.log("Incoming data:", JSON.stringify(req.body, null, 2));
+
+    const datesArray = Object.entries(req.body.dates).map(
+      ([key, dateValue]) => ({
+        date: dateValue,
+        foodDetails: req.body.foodDetails[key],
+      })
+    );
+
+    req.body.dates = datesArray;
+
+    const {
+      eventName,
+      eventType,
+      iqacNumber,
+      empId,
+      requestorName,
+      requisitionDate,
+      mobileNumber,
+    } = req.body;
+
+    if (
+      !eventName ||
+      !eventType ||
+      !iqacNumber ||
+      !empId ||
+      !requestorName ||
+      !requisitionDate ||
+      !mobileNumber
+    ) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    // Create and save the event
     const newEvent = new Event(req.body);
     const savedEvent = await newEvent.save();
+
     res
       .status(201)
       .json({ message: "Event created successfully", data: savedEvent });
   } catch (error) {
+    console.error("Error creating event:", error.message);
     res
       .status(400)
       .json({ error: "Failed to create event", details: error.message });

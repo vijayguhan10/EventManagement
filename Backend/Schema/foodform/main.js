@@ -46,29 +46,30 @@ const FoodDetailsSchema = new mongoose.Schema({
   },
 });
 
+const DateDetailsSchema = new mongoose.Schema({
+  date: { type: Date },
+  foodDetails: { type: FoodDetailsSchema },
+});
+
 const EventSchema = new mongoose.Schema(
   {
-    eventName: { type: String, required: true },
-    eventType: { type: String, required: true },
+    eventName: { type: String },
+    eventType: { type: String },
     otherEventType: { type: String, default: "" },
-    iqacNumber: { type: String, required: true },
-    empId: { type: String, required: true },
-    requestorName: { type: String, required: true },
-    requisitionDate: { type: Date, required: true },
-    mobileNumber: { type: String, required: true },
-    department: { type: String, required: true },
-    designationDepartment: { type: String, required: true },
-    amenitiesIncharge: { type: String, required: true },
+    iqacNumber: { type: String },
+    empId: { type: String },
+    requestorName: { type: String },
+    requisitionDate: { type: Date },
+    mobileNumber: { type: String },
+    department: { type: String },
+    designationDepartment: { type: String },
+    amenitiesIncharge: { type: String },
     deanClearance: { type: String, default: "" },
     recommendedBy: { type: String, default: "" },
     facultySignature: { type: String, default: "" },
-    dates: {
-      type: Map,
-      of: FoodDetailsSchema,
-      required: true,
-    },
+    dates: [DateDetailsSchema],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Event", EventSchema);
+module.exports = mongoose.model("foodforms", EventSchema);

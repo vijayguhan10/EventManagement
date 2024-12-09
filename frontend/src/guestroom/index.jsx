@@ -1,48 +1,78 @@
-import React, { useState } from 'react';
-import { Building2, Users, CalendarDays, Phone, BookOpen, MapPin } from 'lucide-react';
-import RoomSelection from './RoomSelection';
-import FormInput from './FormInput';
-import EventTypeSelection from './EventTypeSelection';
-
+import React, { useState } from "react";
+import {
+  Building2,
+  Users,
+  CalendarDays,
+  Phone,
+  BookOpen,
+  MapPin,
+} from "lucide-react";
+import axios from "axios";
+import RoomSelection from "./RoomSelection";
+import FormInput from "./FormInput";
+import EventTypeSelection from "./EventTypeSelection";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const BookingForm = () => {
   const [formData, setFormData] = useState({
-    department: '',
-    requestorName: '',
-    empId: '',
-    mobile: '',
-    designation: '',
-    purpose: '',
-    date: '',
-    guestCount: '',
-    eventType: '',
-    selectedRooms: []
+    department: "",
+    requestorName: "",
+    empId: "",
+    mobile: "",
+    designation: "",
+    purpose: "",
+    date: "",
+    guestCount: "",
+    eventType: "",
+    selectedRooms: [],
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleRoomChange = (roomId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       selectedRooms: prev.selectedRooms.includes(roomId)
-        ? prev.selectedRooms.filter(id => id !== roomId)
-        : [...prev.selectedRooms, roomId]
+        ? prev.selectedRooms.filter((id) => id !== roomId)
+        : [...prev.selectedRooms, roomId],
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+
+    try {
+      const response = await axios.post(
+        ` ${process.env.REACT_APP_BASE_URL}/guestroom/bookings`,
+
+        formData
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Event created successfully!", {
+          // position: toast.POSITION.TOP_RIGHT,
+        });
+
+        console.log("Form Data Submitted:", formData);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+
+      toast.error("Failed to create the event. Please try again.", {
+        // position: toast.POSITION.TOP_RIGHT,
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-indigo-600 py-6 px-8">
@@ -51,7 +81,7 @@ const BookingForm = () => {
               Guest House Booking Form
             </h1>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInput
@@ -62,7 +92,7 @@ const BookingForm = () => {
                 onChange={handleInputChange}
                 placeholder="Enter department name"
               />
-              
+
               <FormInput
                 icon={<Users />}
                 label="Requestor Name"
@@ -101,7 +131,9 @@ const BookingForm = () => {
               />
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Purpose
+                </label>
                 <textarea
                   name="purpose"
                   value={formData.purpose}
@@ -135,7 +167,9 @@ const BookingForm = () => {
 
             <EventTypeSelection
               selectedType={formData.eventType}
-              onTypeChange={(type) => setFormData(prev => ({ ...prev, eventType: type }))}
+              onTypeChange={(type) =>
+                setFormData((prev) => ({ ...prev, eventType: type }))
+              }
             />
 
             <RoomSelection

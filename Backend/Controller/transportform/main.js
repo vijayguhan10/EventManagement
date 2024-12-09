@@ -1,13 +1,27 @@
 const TransportRequest = require("../../Schema/transportform/main");
 const createTransportRequest = async (req, res) => {
+  var newRequest = new TransportRequest({
+    ...req.body,
+    basicDetails: {
+      ...req.body.basicDetails,
+      requisitionDate: new Date(req.body.basicDetails.requisitionDate),
+    },
+    travelDetails: {
+      ...req.body.travelDetails,
+      pickUpDateTime: new Date(req.body.travelDetails.pickUpDateTime),
+      dropDateTime: new Date(req.body.travelDetails.dropDateTime),
+    },
+  });
+  console.log("consoling the teansport form : ", newRequest);
   try {
-    const newRequest = new TransportRequest(req.body);
     await newRequest.save();
+
     res.status(201).json({
       message: "Transport request created successfully",
       data: newRequest,
     });
   } catch (error) {
+    console.error("Error:", error);
     res.status(400).json({
       message: "Error creating transport request",
       error: error.message,
@@ -27,7 +41,6 @@ const getAllTransportRequests = async (req, res) => {
   }
 };
 
-// Fetch a single transport request by ID
 const getTransportRequestById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -44,7 +57,6 @@ const getTransportRequestById = async (req, res) => {
   }
 };
 
-// Update a transport request
 const updateTransportRequest = async (req, res) => {
   try {
     const { id } = req.params;
