@@ -181,7 +181,11 @@ exports.CreateEvent = async (req, res) => {
     } = req.body;
 
     const userId = req.userId;
-
+    console.log("consoling the whole event : ", req.body);
+    console.log(
+      "consoling the communication form part : ",
+      req.body.selectedOptions
+    );
     const isValidUser = await validateUser(userId);
     if (!isValidUser) {
       return res.status(401).json({ message: "Oops, Invalid User" });
@@ -249,7 +253,7 @@ exports.CreateEvent = async (req, res) => {
       eventname,
       resourceperson,
       venue,
-      e2ventstarttime,
+      eventstarttime,
       eventendtime,
       eventstartdate: formatDate(eventstartdate),
       eventenddate: formatDate(eventenddate),

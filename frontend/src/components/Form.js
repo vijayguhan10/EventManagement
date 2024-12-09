@@ -4,10 +4,12 @@ import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTimes } from "react-icons/fa";
+
 import { useDispatch } from "react-redux";
 import { saveEventData } from "./../redux/actions/eventActions";
 import EventFormNavigation from "./EventFormNavigation";
 function Forms() {
+  const [toggle, setToggle] = useState(false);
   const dispatch = useDispatch();
   const token = localStorage.getItem("authToken");
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -521,7 +523,6 @@ function Forms() {
       console.log("Storing the form data in Redux:", eventData);
       dispatch(saveEventData(eventData));
       toast.success("Event data saved locally!");
-      // navigate("/Dashboard");
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error saving event data. Please try again.");
@@ -548,6 +549,8 @@ function Forms() {
 
   return (
     <div className="p-10 xl: min-w-full font-Afacad ">
+      <ToastContainer />
+
       <h1 className="font-bold text-4xl flex text-center justify-center">
         Request to Organize Event
       </h1>
@@ -1303,8 +1306,7 @@ function Forms() {
         </div>
       </div>
       <CommunicationForm />
-      <EventFormNavigation/>
-      <ToastContainer />
+      <EventFormNavigation />
     </div>
   );
 }
