@@ -150,6 +150,7 @@ const updateDepartmentCount = async (oldDepartment, newDepartment) => {
   }
 };
 exports.CreateEvent = async (req, res) => {
+  console.log("consoling the request : ", req.body);
   try {
     const {
       iqac,
