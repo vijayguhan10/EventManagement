@@ -1,5 +1,5 @@
 const initialState = {
-  events: [],
+  event: {}, 
 };
 
 const eventReducer = (state = initialState, action) => {
@@ -7,7 +7,10 @@ const eventReducer = (state = initialState, action) => {
     case "SAVE_EVENT_DATA":
       return {
         ...state,
-        events: [...state.events, action.payload],
+        event: {
+          ...state.event,
+          ...action.payload, 
+        },
       };
     default:
       return state;

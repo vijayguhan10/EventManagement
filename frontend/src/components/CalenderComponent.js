@@ -351,7 +351,7 @@ const CalendarComponent = () => {
     const eventStartDate = formatDate(event.eventstartdate);
     const eventenddate = formatDate(event.eventenddate);
     const selectedDateObj = new Date(selectedDate);
-    console.log(selectedDateObj, "selected date obj");
+    // console.log(selectedDateObj, "selected date obj");
 
     return (
       eventDate.toLocaleDateString() === selectedDate.toLocaleDateString() ||
