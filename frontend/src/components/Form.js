@@ -368,6 +368,8 @@ function Forms() {
     "UBA",
     "SLC",
     "IR",
+    "Women cell",
+    "ICC/POSH",
   ];
 
   const departmentOptions = [
