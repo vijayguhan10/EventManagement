@@ -391,7 +391,6 @@ function Forms() {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
-  // Handle checkbox changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -526,6 +525,7 @@ function Forms() {
       console.log("Storing the form data in Redux:", eventData);
       dispatch(saveEventData(eventData));
       toast.success("Event data saved locally!");
+      localStorage.setItem("Eventdata", JSON.stringify(eventData));
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error saving event data. Please try again.");

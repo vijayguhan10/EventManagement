@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import BasicInfo from "./BasicInfo";
 import EventDetails from "./EventDetails";
@@ -27,30 +27,51 @@ function FoodForm() {
     recommendedBy: "",
     deanClearance: "",
   });
+  useEffect(() => {
+    const savedEventData = localStorage.getItem("Eventdata");
+    if (savedEventData) {
+      try {
+        const parsedEventData = JSON.parse(savedEventData);
+        console.log("Retrieved event data:", parsedEventData);
+        setFormData((prev) => ({
+          ...prev,
+          requestorName: parsedEventData.organizer[0].name || "",
+          empId: parsedEventData.organizer[0].employeeid || "",
+          designation: parsedEventData.organizer[0].designation || "",
+          mobileNumber: parsedEventData.organizer[0].phone || "",
+          iqacNumber: parsedEventData.iqac || "",
+          requisitionDate: parsedEventData.eventstartdate
+            ? new Date(parsedEventData.eventstartdate.replace(/\//g, "-"))
+                .toISOString()
+                .split("T")[0]
+            : "",
+          eventName: parsedEventData.eventname || "",
+          eventType: parsedEventData.typeofevent || "",
+        }));
+      } catch (error) {
+        console.error("Error parsing event data:", error);
+      }
+    } else {
+      console.log("No event data found in localStorage.");
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const response = await axios.post(
-        ` ${process.env.REACT_APP_BASE_URL}/foodform/events`,
-
+        `${process.env.REACT_APP_BASE_URL}/foodform/events`,
         formData
       );
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Event created successfully!", {
-          // position: toast.POSITION.TOP_RIGHT,
-        });
-
+        toast.success("Event created successfully!");
         console.log("Form Data Submitted:", formData);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-
-      toast.error("Failed to create the event. Please try again.", {
-        // position: toast.POSITION.TOP_RIGHT,
-      });
+      toast.error("Failed to create the event. Please try again.");
     }
   };
 
@@ -80,4 +101,5 @@ function FoodForm() {
     </div>
   );
 }
+
 export default FoodForm;

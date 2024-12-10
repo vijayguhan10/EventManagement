@@ -92,10 +92,11 @@ const CommunicationForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true); // Set loading state to true
-    const eventDataFromRedux = form1Data.events[0];
+    const { event } = form1Data;
+    console.log("Destructured event:", event);
 
     const combinedData = {
-      ...eventDataFromRedux,
+      ...event,
       selectedOptions,
       photography: formData.photography,
       videography: formData.videography,

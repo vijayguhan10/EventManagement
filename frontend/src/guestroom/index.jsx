@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   Users,
@@ -26,7 +26,34 @@ const BookingForm = () => {
     eventType: "",
     selectedRooms: [],
   });
-
+  useEffect(() => {
+    const savedEventData = localStorage.getItem("Eventdata");
+    if (savedEventData) {
+      try {
+        const parsedEventData = JSON.parse(savedEventData);
+        console.log("Retrieved event data:", parsedEventData);
+        setFormData((prev) => ({
+          ...prev,
+          requestorName: parsedEventData.organizer[0].name || "",
+          empId: parsedEventData.organizer[0].employeeid || "",
+          designation: parsedEventData.organizer[0].designation || "",
+          mobile: parsedEventData.organizer[0].phone || "",
+          iqacNumber: parsedEventData.iqac || "",
+          date: parsedEventData.eventstartdate
+            ? new Date(parsedEventData.eventstartdate.replace(/\//g, "-"))
+                .toISOString()
+                .split("T")[0]
+            : "",
+          eventName: parsedEventData.eventname || "",
+          eventType: parsedEventData.typeofevent || "",
+        }));
+      } catch (error) {
+        console.error("Error parsing event data:", error);
+      }
+    } else {
+      console.log("No event data found in localStorage.");
+    }
+  }, []);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,7 +61,7 @@ const BookingForm = () => {
       [name]: value,
     }));
   };
-
+  //Changing the input field dynamically by passing the data  were we are getting from the localstorage
   const handleRoomChange = (roomId) => {
     setFormData((prev) => ({
       ...prev,
