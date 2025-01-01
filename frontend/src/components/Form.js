@@ -4,10 +4,11 @@ import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTimes } from "react-icons/fa";
-import EndForm from "../EndForm";
+
 import { useDispatch } from "react-redux";
 import { saveEventData } from "./../redux/actions/eventActions";
 import EventFormNavigation from "./EventFormNavigation";
+import EndForm from "../EndForm";
 function Forms() {
   const [toggle, setToggle] = useState(false);
   const dispatch = useDispatch();
@@ -352,7 +353,7 @@ function Forms() {
     "IQAC",
     "EDC",
     "Placement",
-    "Mediacenter",
+    "Mediamax",
     "HR",
     "Training",
     "Maintenance",
@@ -361,7 +362,7 @@ function Forms() {
     "Hostel",
     "Medical",
     "Higher Education Cell",
-    "Sports",
+    "PET",
     "NCC",
     "NSS",
     "YRC",
@@ -391,6 +392,7 @@ function Forms() {
     { fullName: "Cybersecurity", shortName: "Cyber" },
     { fullName: "All", shortName: "All" },
   ];
+  // Handle checkbox changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -525,7 +527,6 @@ function Forms() {
       console.log("Storing the form data in Redux:", eventData);
       dispatch(saveEventData(eventData));
       toast.success("Event data saved locally!");
-      localStorage.setItem("Eventdata", JSON.stringify(eventData));
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error saving event data. Please try again.");
@@ -1309,10 +1310,8 @@ function Forms() {
         </div>
       </div>
       <CommunicationForm />
-        <EventFormNavigation />
-        <div className="mt-10">
-          <EndForm />
-        </div>
+      <EventFormNavigation />
+      <EndForm/>
     </div>
   );
 }
