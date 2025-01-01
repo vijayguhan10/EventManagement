@@ -17,7 +17,8 @@ const transportSchema = new mongoose.Schema(
       travellerDetails: { type: String, required: true },
     },
     travelDetails: {
-      pickUpDateTime: { type: Date, required: true },
+      pickUpDateTime: { type: Date },
+      dropDateTime: { type: Date, required: true },
       pickUpLocation: { type: String, required: true },
       dropDateTime: { type: Date, required: true },
       dropLocation: { type: String, required: true },

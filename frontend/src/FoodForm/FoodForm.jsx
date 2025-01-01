@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FoodTable from "./FoodTable";
+import EndForm from "../EndForm";
 import Signatures from "./Signatures";
 function FoodForm() {
   const [formData, setFormData] = useState({
@@ -60,6 +61,7 @@ function FoodForm() {
     e.preventDefault();
 
     try {
+      console.log("consoling the fodd form : ", formData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/foodform/events`,
         formData
@@ -98,6 +100,7 @@ function FoodForm() {
           </div>
         </form>
       </div>
+      <EndForm />
     </div>
   );
 }

@@ -63,7 +63,6 @@ const MediaRequirementsTable = ({ mediamax, photography, videography }) => {
                   </td>
                 </tr>
               )}
-              {/* Add rows for photography and videography if true */}
               {photography && (
                 <tr className="border-b bg-gray-50">
                   <td

@@ -3,7 +3,7 @@ import React from 'react';
 export function FormFooter() {
   return (
     <div className="mt-8 border-t pt-6">
-      <div className="grid grid-cols-4 gap-4 text-center">
+      {/* <div className="grid grid-cols-4 gap-4 text-center">
         <div>
           <p className="text-sm font-medium text-gray-700">Signature of Faculty Member/Staff</p>
           <div className="mt-2 h-20 border rounded"></div>
@@ -20,7 +20,7 @@ export function FormFooter() {
           <p className="text-sm font-medium text-gray-700">Clearance from Dean IQAC</p>
           <div className="mt-2 h-20 border rounded"></div>
         </div>
-      </div>
+      </div> */}
       <div className="mt-6 flex justify-end space-x-4">
         <button
           type="button"

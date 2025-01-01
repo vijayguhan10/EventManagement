@@ -37,7 +37,7 @@ const createEvent = async (req, res) => {
     // Create and save the event
     const newEvent = new Event(req.body);
     const savedEvent = await newEvent.save();
-
+    console.log("event comming into the backend : ",newEvent);
     res
       .status(201)
       .json({ message: "Event created successfully", data: savedEvent });

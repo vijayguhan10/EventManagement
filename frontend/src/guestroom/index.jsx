@@ -13,6 +13,7 @@ import FormInput from "./FormInput";
 import EventTypeSelection from "./EventTypeSelection";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import EndForm from "../EndForm";
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     department: "",
@@ -61,7 +62,6 @@ const BookingForm = () => {
       [name]: value,
     }));
   };
-  //Changing the input field dynamically by passing the data  were we are getting from the localstorage
   const handleRoomChange = (roomId) => {
     setFormData((prev) => ({
       ...prev,
@@ -215,6 +215,7 @@ const BookingForm = () => {
           </form>
         </div>
       </div>
+      <EndForm />
     </div>
   );
 };

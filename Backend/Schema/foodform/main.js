@@ -45,9 +45,11 @@ const FoodDetailsSchema = new mongoose.Schema({
     },
   },
 });
-
 const DateDetailsSchema = new mongoose.Schema({
-  date: { type: Date },
+  date: {
+    start: { type: Date },
+    end: { type: Date },
+  },
   foodDetails: { type: FoodDetailsSchema },
 });
 

@@ -1,39 +1,73 @@
 const TransportRequest = require("../../Schema/transportform/main");
 const createTransportRequest = async (req, res) => {
-  var newRequest = new TransportRequest({
-    ...req.body,
-    basicDetails: {
-      ...req.body.basicDetails,
-      requisitionDate: new Date(req.body.basicDetails.requisitionDate),
-    },
-    travelDetails: {
-      ...req.body.travelDetails,
-      pickUpDateTime: new Date(req.body.travelDetails.pickUpDateTime),
-      dropDateTime: new Date(req.body.travelDetails.dropDateTime),
-    },
-  });
-  console.log("consoling the teansport form : ", newRequest);
   try {
-    await newRequest.save();
+    const transportRequests = req.body.events;
+    // console.log("checking the data  : ", transportRequests);
 
-    res.status(201).json({
-      message: "Transport request created successfully",
-      data: newRequest,
+    if (!Array.isArray(transportRequests) || transportRequests.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty data array" });
+    }
+
+    const formattedRequests = transportRequests.map((request) => {
+      const { basicDetails, travelDetails, eventDetails, driverDetails } =
+        request;
+
+      if (!basicDetails || !travelDetails || !eventDetails || !driverDetails) {
+        throw new Error("Missing required nested data in one of the requests.");
+      }
+
+      // Ensure pickUpDateTime is defined
+      if (!travelDetails.pickUpDateTime) {
+        throw new Error("Pick-up Date and Time is required.");
+      }
+
+      return {
+        basicDetails: {
+          departmentName: basicDetails.departmentName,
+          designation: basicDetails.designation || "Not Provided",
+          empId: basicDetails.empId,
+          iqacNumber: basicDetails.iqacNumber,
+          mobileNumber: basicDetails.mobileNumber || "Not Provided",
+          requestorName: basicDetails.requestorName,
+          requisitionDate: new Date(basicDetails.requisitionDate),
+        },
+        driverDetails: {
+          mobileNumber: driverDetails.mobileNumber,
+          name: driverDetails.name,
+        },
+        travelDetails: {
+          pickUpDateTime: new Date(travelDetails.pickUpDateTime),
+          dropDateTime: new Date(travelDetails.dropDateTime),
+          numberOfPassengers: Number(travelDetails.numberOfPassengers) || 1,
+          vehicleType: travelDetails.vehicleType,
+          pickUpLocation: travelDetails.pickUpLocation,
+          dropLocation: travelDetails.dropLocation,
+          specialRequirements: travelDetails.specialRequirements,
+        },
+        eventDetails: {
+          eventName: eventDetails.eventName,
+          eventType: eventDetails.eventType || "General",
+          travellerDetails: eventDetails.travellerDetails || "Not Provided",
+        },
+      };
     });
+
+    console.log("formattedRequests : ", formattedRequests);
+    const savedRequests = await TransportRequest.insertMany(formattedRequests);
+    console.log("savedRequests: ,", savedRequests);
+    res.status(201).json(savedRequests);
   } catch (error) {
-    console.error("Error:", error);
-    res.status(400).json({
-      message: "Error creating transport request",
-      error: error.message,
-    });
+    console.log("error : ", error);
+
+    res.status(400).json({ error: error.message });
   }
 };
-
 const getAllTransportRequests = async (req, res) => {
   try {
     const requests = await TransportRequest.find();
     res.status(200).json(requests);
   } catch (error) {
+    console.log("error : ", error);
     res.status(500).json({
       message: "Error fetching transport requests",
       error: error.message,

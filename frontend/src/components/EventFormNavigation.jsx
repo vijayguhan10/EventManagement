@@ -5,7 +5,7 @@ const EventFormNavigation = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col  min-h-screen">
+    <div className="flex flex-col ">
       <h1 className="text-3xl font-bold text-indigo-800 mb-6">
         Navigate to Forms
       </h1>

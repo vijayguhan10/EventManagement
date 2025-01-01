@@ -4,7 +4,7 @@ import CommunicationForm from "./CommunicationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTimes } from "react-icons/fa";
-
+import EndForm from "../EndForm";
 import { useDispatch } from "react-redux";
 import { saveEventData } from "./../redux/actions/eventActions";
 import EventFormNavigation from "./EventFormNavigation";
@@ -1309,7 +1309,10 @@ function Forms() {
         </div>
       </div>
       <CommunicationForm />
-      <EventFormNavigation />
+        <EventFormNavigation />
+        <div className="mt-10">
+          <EndForm />
+        </div>
     </div>
   );
 }

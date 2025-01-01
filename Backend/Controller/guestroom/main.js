@@ -1,10 +1,12 @@
 const Booking = require("../../Schema/guestroom/main");
 exports.createBooking = async (req, res) => {
+  console.log("req.body of the bookings : ",req.body)
   try {
     const booking = new Booking(req.body);
     const savedBooking = await booking.save();
     res.status(201).json(savedBooking);
   } catch (error) {
+    console.log("error : ",error)
     res
       .status(500)
       .json({ error: "Failed to create booking", details: error.message });
