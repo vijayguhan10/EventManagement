@@ -1,0 +1,35 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+th,
+td {
+  border: 2px solid black;
+  padding: 11px;
+  text-align: left;
+}
+th {
+  background-color: #e4e8eb;
+}
+.main-heading {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+.nested-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.nested-table th,
+.nested-table td {
+  border: 1px solid #999393;
+  padding: 8px;
+  text-align: left;
+}

@@ -14,6 +14,7 @@ import CanvasJSReact from "@canvasjs/react-charts";
 
 import Popup2 from "../PopupModels/Popup2";
 import { jwtDecode } from "jwt-decode";
+import EndPopup from "../PopupModels/EndPopup";
 const CalendarComponent = () => {
   const [SearchQuery, setSearchQuery] = useState("");
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
@@ -498,18 +499,7 @@ const CalendarComponent = () => {
         </div>
       </div>
 
-      {isEventListOpen && (
-        <div>
-          {isEventListOpen && (
-            <Popup1
-              eventsForSelectedDate={eventsForSelectedDate}
-              selectedDate={selectedDate}
-              closeEventList={closeEventList}
-              openEventModal={openEventModal}
-            />
-          )}
-        </div>
-      )}
+      {isEventListOpen && <div>{isEventListOpen && <EndPopup />}</div>}
 
       {selectedEvent && (
         <Popup2
