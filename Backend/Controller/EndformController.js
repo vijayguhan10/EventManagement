@@ -1,14 +1,17 @@
 const Endform = require('../Schema/EndForm');
 exports.createEndform = async (req, res) => {
   try {
-    const { eventdata, transportform, amenityform, guestform } = req.body;
+    const { iqacno, eventdata, transportform, amenityform, guestform } = req.body.events;
+    console.log("req.body of the end form :",req.body)
     const newEndform = new Endform({
+      iqacno,
       eventdata,
       transportform,
       amenityform,
       guestform
-    });
+    })
     const savedEndform = await newEndform.save();
+    console.log("endform data : ",savedEndform)
     res.status(201).json({
       message: 'Endform created successfully!',
       data: savedEndform

@@ -2,7 +2,7 @@ import React from 'react';
 
 const CommunicationMedia = () => {
   return (
-    <div>
+    <div className='w-full overflow-auto'>
       <h1 className="main-heading">Communication and Media</h1>
       <table>
         <thead>

@@ -1,6 +1,9 @@
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
+  overflow: auto;
+  width: auto;
+  height: auto;
 }
 table {
   width: 100%;

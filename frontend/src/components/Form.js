@@ -526,6 +526,12 @@ function Forms() {
     try {
       console.log("Storing the form data in Redux:", eventData);
       dispatch(saveEventData(eventData));
+      const formsData = JSON.parse(localStorage.getItem("forms")) 
+                                    formsData.iqacno = { 1: formData.iqac };
+              
+                      localStorage.setItem("forms", JSON.stringify(formsData));
+                      toast.success("Iqac no. saved");
+                    
       toast.success("Event data saved locally!");
     } catch (error) {
       console.error("Error:", error);

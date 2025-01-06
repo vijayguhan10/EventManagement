@@ -4,6 +4,9 @@ const EndformSchema = new mongoose.Schema({
   eventdata: {
     type: String,
   },
+  iqacno: {
+    type: String,
+  },
   transportform: {
     type: [String],
   },

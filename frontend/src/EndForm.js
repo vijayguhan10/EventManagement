@@ -17,17 +17,20 @@ const EndForm = () => {
       const storedForms = JSON.parse(localStorage.getItem("forms")) || {};
   
       const events = {
+        iqacno: storedForms.iqacno ? storedForms.iqacno[1] : "", 
         eventdata: storedForms.Eventform ? storedForms.Eventform[1] : "", 
         transportform: storedForms.transportform ? Object.values(storedForms.transportform) : [], 
         amenityform: storedForms.amenityform ? storedForms.amenityform[1] : "", 
         guestform: storedForms.guestroomform ? storedForms.guestroomform[1] : "", 
       };
-      if (!events.eventdata || !events.transportform.length || !events.amenityform || !events.guestform) {
-        console.log("events : ",events)
-        setError("Some form IDs are missing. Please make sure all forms are filled out.");
+      console.log("events : ", events);
+
+      if (!(events.eventdata || events.transportform.length || events.amenityform || events.guestform)) {
+        setError("Some form IDs are missing. Please make sure at least one form is filled out.");
         setLoading(false);
         return;
       }
+      
   
       const endpoint = `${process.env.REACT_APP_BASE_URL}/endform`;
       const response = await axios.post(endpoint, { events });
@@ -36,8 +39,10 @@ const EndForm = () => {
       if (response.status === 201) {
         setSuccess(true);
         toast.success("Final event submitted successfully!");
-        localStorage.removeItem("forms");
-        navigate("/Dashboard");
+       setTimeout(() => {
+          localStorage.removeItem("forms");
+         navigate("/Dashboard");
+       }, 1000);
       }
     } catch (err) {
       console.error("Error posting data:", err);

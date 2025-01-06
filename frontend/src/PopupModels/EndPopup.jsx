@@ -7,7 +7,7 @@ import TransportRequisition from "./TransportRequisition";
 import "./index.css";
 const EndPopup = () => {
   return (
-    <div>
+    <div className="overflow-auto w-full h-full">
       <EventBasic />
       <EventBasic2 />
       <CommunicationMedia />

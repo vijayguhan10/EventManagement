@@ -4,7 +4,8 @@ import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import "../resourceperson.css";
 import Popup1 from "../PopupModels/Popup1";
-import { FaFilePdf, FaSearch, FaFileExcel } from "react-icons/fa";
+import EndPopup from "../PopupModels/EndPopup"
+import {  FaSearch } from "react-icons/fa";
 import prevarrow from "../assets/Forward Arrow (1).png";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -14,7 +15,6 @@ import CanvasJSReact from "@canvasjs/react-charts";
 
 import Popup2 from "../PopupModels/Popup2";
 import { jwtDecode } from "jwt-decode";
-import EndPopup from "../PopupModels/EndPopup";
 const CalendarComponent = () => {
   const [SearchQuery, setSearchQuery] = useState("");
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
@@ -296,7 +296,20 @@ const CalendarComponent = () => {
       console.error("Error downloading Excel report:", error);
     }
   };
-
+  const initializeForms = () => {
+    const forms = {
+      iqacno: {},
+      Eventform: {},
+      transportform: {},
+      amenityform: {},
+      guestroomform: {},
+    };
+  
+    if (!localStorage.getItem("forms")) {
+      localStorage.setItem("forms", JSON.stringify(forms));
+      console.log("LocalStorage initialized with forms object.");
+    }
+  };
   const onClickDay = (value) => {
     setSelectedDate(value);
     console.log("Selected date🎉", value); // Log the clicked date
@@ -480,6 +493,7 @@ const CalendarComponent = () => {
           {role !== "ps" &&
             (isFutureOrToday(selectedDate) ? (
               <Link
+              onClick={initializeForms}
                 to="/Form"
                 className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
               >
@@ -499,18 +513,32 @@ const CalendarComponent = () => {
         </div>
       </div>
 
-      {isEventListOpen && <div>{isEventListOpen && <EndPopup />}</div>}
+      {isEventListOpen && (
+        <div>
+          {isEventListOpen && (
+            <Popup1
+              eventsForSelectedDate={eventsForSelectedDate}
+              selectedDate={selectedDate}
+              closeEventList={closeEventList}
+              openEventModal={openEventModal}
+            />
+          )}
+        </div>
+      )}
 
       {selectedEvent && (
-        <Popup2
-          selectedEvent={selectedEvent}
-          closeEventModal={closeEventModal}
-          convertTo12HourFormat={convertTo12HourFormat}
-          handleViewResourcePersons={handleViewResourcePersons}
-          DepartmentPopup={DepartmentPopup}
-          SetDepartmentPopup={SetDepartmentPopup}
-          closeResourcePopup={closeResourcePopup}
-        />
+        // <Popup2
+        //   selectedEvent={selectedEvent}
+        //   closeEventModal={closeEventModal}
+        //   convertTo12HourFormat={convertTo12HourFormat}
+        //   handleViewResourcePersons={handleViewResourcePersons}
+        //   DepartmentPopup={DepartmentPopup}
+        //   SetDepartmentPopup={SetDepartmentPopup}
+        //   closeResourcePopup={closeResourcePopup}
+        // />
+        <div className=" absolute top-3 bottom-3 left-64 h-[100%]  overflow-auto bg-white">
+           <EndPopup/>
+        </div>
       )}
 
       {isResourcePopupOpen && (
