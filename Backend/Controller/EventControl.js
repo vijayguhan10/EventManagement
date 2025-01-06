@@ -124,7 +124,6 @@ const updateDepartmentCount = async (oldDepartment, newDepartment) => {
   }
 
   if (newDepartment === "All") {
-    // Increment for all departments if the new value is "All"
     await TotalCount.updateOne(
       {},
       {
@@ -278,7 +277,7 @@ exports.CreateEvent = async (req, res) => {
       international,
       selectedOptions,
     });
-
+    console.log("the dta from the log : ",req.body);
     const savedEvent = await newEvent.save();
 
     const count = await TotalCount.findOne({});
@@ -311,7 +310,6 @@ exports.CreateEvent = async (req, res) => {
         await incrementDepartmentCount(["otherspecification"]);
       }
     }
-
     const updatedCounts = await TotalCount.find({});
 
     return res.status(201).json({
@@ -350,7 +348,7 @@ exports.updateevent = async (req, res) => {
       alumnis,
       logos,
       international,
-      organizer,
+          organizer,
     } = req.body;
 
     const st_date = formatDate(eventstartdate);
@@ -421,7 +419,7 @@ exports.updateevent = async (req, res) => {
         .json({ message: "departmentspecification must be an array." });
     }
 
-    let departmentsToProcess = [];
+   
     if (departments.includes("All")) {
       departmentsToProcess = ["All"];
     } else if (!departments.length && formattedDepartmentspecification.length) {

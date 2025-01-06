@@ -1,23 +1,43 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import {  useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 const EndForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
-
+  
     try {
-      const allevents = JSON.parse(localStorage.getItem("allevents")) || [];
-      const endpoint = "https://your-endpoint-url.com/api/events";
-      const response = await axios.post(endpoint, { events: allevents });
-
-      if (response.status === 200) {
+      const storedForms = JSON.parse(localStorage.getItem("forms")) || {};
+  
+      const events = {
+        eventdata: storedForms.Eventform ? storedForms.Eventform[1] : "", 
+        transportform: storedForms.transportform ? Object.values(storedForms.transportform) : [], 
+        amenityform: storedForms.amenityform ? storedForms.amenityform[1] : "", 
+        guestform: storedForms.guestroomform ? storedForms.guestroomform[1] : "", 
+      };
+      if (!events.eventdata || !events.transportform.length || !events.amenityform || !events.guestform) {
+        console.log("events : ",events)
+        setError("Some form IDs are missing. Please make sure all forms are filled out.");
+        setLoading(false);
+        return;
+      }
+  
+      const endpoint = `${process.env.REACT_APP_BASE_URL}/endform`;
+      const response = await axios.post(endpoint, { events });
+       console.log("response from end form data : ",response)
+  
+      if (response.status === 201) {
         setSuccess(true);
+        toast.success("Final event submitted successfully!");
+        localStorage.removeItem("forms");
+        navigate("/Dashboard");
       }
     } catch (err) {
       console.error("Error posting data:", err);
@@ -26,6 +46,8 @@ const EndForm = () => {
       setLoading(false);
     }
   };
+  
+  
   return (
     <div className="p-4 bg-gray-50 min-h-screen flex flex-col">
       <h1 className="text-2xl font-bold mb-4">EndForm</h1>

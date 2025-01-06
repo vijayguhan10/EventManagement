@@ -73,29 +73,41 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post(
-        ` ${process.env.REACT_APP_BASE_URL}/guestroom/bookings`,
-
+        `${process.env.REACT_APP_BASE_URL}/guestroom/bookings`,
         formData
       );
-
+  
+      console.log("API Response:", response.data);
+  
       if (response.status === 200 || response.status === 201) {
-        toast.success("Event created successfully!", {
-          // position: toast.POSITION.TOP_RIGHT,
-        });
-
-        console.log("Form Data Submitted:", formData);
+        const formsData = JSON.parse(localStorage.getItem("forms")) || {
+          Eventform: {},
+          transportform: {},
+          amenityform: {},
+          guestroomform: {}
+        };
+  
+        if (response && response.data._id) {
+          console.log("GUEST Room form data id: ", response.data._id);
+          formsData.guestroomform = { 1: response.data._id };
+  
+          localStorage.setItem("forms", JSON.stringify(formsData));
+          toast.success("Event created successfully!");
+          console.log("Form Data Submitted:", formData);
+        } else {
+          console.error("No data found in the response");
+          toast.error("Failed to create the event. Invalid response.");
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-
-      toast.error("Failed to create the event. Please try again.", {
-        // position: toast.POSITION.TOP_RIGHT,
-      });
+      toast.error("Failed to create the event. Please try again.");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">

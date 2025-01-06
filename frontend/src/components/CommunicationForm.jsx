@@ -107,14 +107,30 @@ const CommunicationForm = () => {
         `${process.env.REACT_APP_BASE_URL}/event/create_event`,
         combinedData
       );
+
       console.log("Server Response:", response.data);
-      toast.success("Data submitted successfully!");
-      setIsLoading(false); // Stop loading
-      navigation("/Dashboard");
+      if (response.status === 200 || response.status === 201) {
+              const formsData = JSON.parse(localStorage.getItem("forms")) || {
+                Eventform: {},
+                transportform: {},
+                amenityform: {},
+                guestroomform: {}
+              };
+        
+              if (response && response.data) {
+                console.log("Event Data form data id: ", response.data.event._id);
+                formsData.Eventform = { 1: response.data.event._id };
+        
+                localStorage.setItem("forms", JSON.stringify(formsData));
+                toast.success("Event created successfully!");
+                console.log("Form Data Submitted:", formData);
+              }
+            }
+      setIsLoading(false); 
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("There was an error submitting the form. Please try again.");
-      setIsLoading(false); // Stop loading
+      setIsLoading(false); 
     }
   };
 

@@ -37,29 +37,56 @@ export function TransportForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (events.length === 0) {
       toast.warn("No events to submit.");
       return;
     }
-
+  
     try {
-      console.log("events going to be submitted : ", events);
+      console.log("Events going to be submitted: ", events);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/transportform/`,
         { events: events }
       );
-
+  
       if (response.status === 200 || response.status === 201) {
         toast.success("All events submitted successfully!");
         console.log("Submitted Events:", response);
-        setEvents([]);
+  
+        const formsData = JSON.parse(localStorage.getItem("forms")) || {
+          Eventform: {},
+          transportform: {},
+          amenityform: {},
+          guestroomform: {}
+        };
+          if (!formsData.transportform || typeof formsData.transportform !== "object") {
+          formsData.transportform = {};
+        }
+          if (Array.isArray(response.data)) {
+          response.data.forEach((elem, index) => {
+            if (elem._id) {
+              formsData.transportform[index + 1] = elem._id; 
+            }
+          });
+        } else if (response.data._id) {
+          const nextIndex = Object.keys(formsData.transportform).length + 1;
+          formsData.transportform[nextIndex] = response.data._id;
+        }
+  
+        localStorage.setItem("forms", JSON.stringify(formsData));
+          setEvents([]);
       }
     } catch (error) {
       console.error("Error submitting events:", error);
       toast.error("Failed to submit events. Please try again.");
     }
   };
+  
+  
+  
+  
+  
 
   // useEffect(() => {
   //   console.log("Updated Current Event:", currentEvent);

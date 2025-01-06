@@ -8,6 +8,8 @@ const messages = require("./Router/Whatsapp");
 const guestroom = require("./Router/guestroom/route");
 const foodform = require("./Router/foodform/main");
 const transportform = require("./Router/transportform/main");
+const endform = require("./Router/endform");
+
 const cors = require("cors");
 dotenv.config();
 
@@ -18,8 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 const mongoURI = process.env.MONGODB_URI;
 console.log("MongoDB URI:", mongoURI);
 
-mongoose
-  .connect(mongoURI)
+mongoose.connect(mongoURI)
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -32,6 +33,8 @@ app.use("/api/event", Event);
 app.use("/api/messages", messages);
 app.use("/api/guestroom", guestroom);
 app.use("/api/transportform", transportform);
+app.use("/api", endform);
+
 app.use("/api/foodform", foodform);
 updateevents;
 const PORT = 8000;

@@ -59,23 +59,33 @@ function FoodForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      console.log("consoling the fodd form : ", formData);
+      console.log("Consoling the food form:", formData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/foodform/events`,
         formData
       );
-
+  
       if (response.status === 200 || response.status === 201) {
         toast.success("Event created successfully!");
-        console.log("Form Data Submitted:", formData);
+        console.log("Form Data Submitted:", response.data);
+          const formsData = JSON.parse(localStorage.getItem("forms")) || {
+          Eventform: {},
+          transportform: {},
+          amenityform: {},
+          guestroomform: {}
+        };
+        console.log("food form data id : ", response.data.data._id)
+          formsData.amenityform = { 1: response.data.data._id };
+          localStorage.setItem("forms", JSON.stringify(formsData));
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to create the event. Please try again.");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
