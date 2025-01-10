@@ -6,14 +6,12 @@ const Popup1 = ({
   closeEventList,
   openEventModal,
 }) => {
-  // Function to close modal when Escape key is pressed
   const handleCloseOnEscape = (e) => {
     if (e.key === "Escape") {
       closeEventList();
     }
   };
 
-  // Function to close modal when clicking outside the modal
   const handleCloseOnClickOutside = (e) => {
     if (e.target.classList.contains("modal-overlay")) {
       closeEventList();

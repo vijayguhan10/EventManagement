@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransportRequisition = () => {
+const TransportRequisition = ({transportData}) => {
   return (
     <div>
       <h1 className="main-heading">Transport Requisition Form</h1>

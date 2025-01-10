@@ -277,7 +277,7 @@ exports.CreateEvent = async (req, res) => {
       international,
       selectedOptions,
     });
-    console.log("the dta from the log : ",req.body);
+    console.log("the dta from the log : ", req.body);
     const savedEvent = await newEvent.save();
 
     const count = await TotalCount.findOne({});
@@ -348,7 +348,7 @@ exports.updateevent = async (req, res) => {
       alumnis,
       logos,
       international,
-          organizer,
+      organizer,
     } = req.body;
 
     const st_date = formatDate(eventstartdate);
@@ -419,7 +419,6 @@ exports.updateevent = async (req, res) => {
         .json({ message: "departmentspecification must be an array." });
     }
 
-   
     if (departments.includes("All")) {
       departmentsToProcess = ["All"];
     } else if (!departments.length && formattedDepartmentspecification.length) {

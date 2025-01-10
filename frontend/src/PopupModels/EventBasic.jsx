@@ -1,6 +1,6 @@
 import React from "react";
 
-const EventBasic = () => {
+const EventBasic = ({eventData}) => {
   return (
     <div>
       <img

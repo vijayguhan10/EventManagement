@@ -20,7 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 const mongoURI = process.env.MONGODB_URI;
 console.log("MongoDB URI:", mongoURI);
 
-mongoose.connect(mongoURI)
+mongoose
+  .connect(mongoURI)
   .then(() => {
     console.log("Connected to MongoDB");
   })

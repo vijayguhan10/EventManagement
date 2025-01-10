@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EventBasic2 = () => {
+const EventBasic2 = ({eventData}) => {
   return (
     <div>
       <h1 className="main-heading">Event Basic 2</h1>

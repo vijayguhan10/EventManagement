@@ -4,8 +4,8 @@ import "../Calender.css";
 import forwardarrow from "../assets/Forward Arrow.png";
 import "../resourceperson.css";
 import Popup1 from "../PopupModels/Popup1";
-import EndPopup from "../PopupModels/EndPopup"
-import {  FaSearch } from "react-icons/fa";
+import EndPopup from "../PopupModels/EndPopup";
+import { FaSearch } from "react-icons/fa";
 import prevarrow from "../assets/Forward Arrow (1).png";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -16,6 +16,7 @@ import CanvasJSReact from "@canvasjs/react-charts";
 import Popup2 from "../PopupModels/Popup2";
 import { jwtDecode } from "jwt-decode";
 const CalendarComponent = () => {
+  const [Iqac, setIqac] = useState("");
   const [SearchQuery, setSearchQuery] = useState("");
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -25,38 +26,13 @@ const CalendarComponent = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [isFullYear, setIsFullYear] = useState(false);
-  const [selectedYears, setSelectedYears] = useState([]);
-  const [showIcons, setShowIcons] = useState(false);
-  const [departments, setDepartments] = useState([]);
+
   const [isResourcePopupOpen, setIsResourcePopupOpen] = useState(false);
-  const handleDepartmentChange = (event) => {
-    const selectedDeptShortName = event.target.value;
-    if (selectedDeptShortName === "All") {
-      if (event.target.checked) {
-        setDepartments(["All"]);
-      } else {
-        setDepartments([]);
-      }
-    } else {
-      const selectedDeptFullName = departmentOptions.find(
-        (dept) => dept.shortName === selectedDeptShortName
-      ).fullName;
-
-      setDepartments((prevDepartments) => {
-        if (prevDepartments.includes("All")) {
-          return [selectedDeptFullName];
-        }
-
-        return prevDepartments.includes(selectedDeptFullName)
-          ? prevDepartments.filter((dept) => dept !== selectedDeptFullName)
-          : [...prevDepartments, selectedDeptFullName];
-      });
+  useEffect(() => {
+    if (isEventListOpen) {
+      setIsEventListOpen(false);
     }
-  };
+  }, [selectedEvent]);
 
   const today = new Date();
   const formattedToday = `${String(today.getDate()).padStart(2, "0")}/${String(
@@ -115,187 +91,6 @@ const CalendarComponent = () => {
     }
   }, []);
 
-  const eventTypes = [
-    "CFI",
-    "CFRD",
-    "Academics",
-    "Alumni",
-    "IQAC",
-    "EDC",
-    "Placement",
-    "Mediamax",
-    "HR",
-    "Training",
-    "Maintenance",
-    "COE",
-    "Library",
-    "Hostel",
-    "Medical",
-    "Higher Education Cell",
-    "PET",
-    "NCC",
-    "NSS",
-    "YRC",
-    "UBA",
-  ];
-  const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
-  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const toggleEventTypeModal = () => {
-    setIsEventTypeModalOpen(!isEventTypeModalOpen);
-  };
-
-  const handleEventTypeSelection = (type) => {
-    setSelectedEventTypes((prevSelected) =>
-      prevSelected.includes(type)
-        ? prevSelected.filter((t) => t !== type)
-        : [...prevSelected, type]
-    );
-  };
-
-  const filteredEventTypes = eventTypes.filter((type) =>
-    type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const closeResourcePopup = () => {
-    SetDepartmentPopup(false);
-    setIsResourcePopupOpen(false);
-  };
-  const handleViewResourcePersons = () => {
-    setIsResourcePopupOpen(true);
-  };
-
-  const departmentOptions = [
-    { fullName: "Computer and Communication Engineering", shortName: "CCE" },
-    { fullName: "Computer Science Engineering", shortName: "CSE" },
-    {
-      fullName: "Artificial Intelligence and Data Science",
-      shortName: "AI & DS",
-    },
-    { fullName: "Electronics and Communication Engineering", shortName: "ECE" },
-    { fullName: "Information Technology", shortName: "IT" },
-    { fullName: "Mechanical Engineering", shortName: "MECH" },
-    {
-      fullName: "Artificial Intelligence and Machine Learning",
-      shortName: "AI & ML",
-    },
-    { fullName: "Computer Science and Business Systems", shortName: "CSBS" },
-    { fullName: "Electrical and Electronics Engineering", shortName: "EEE" },
-    { fullName: "Cybersecurity", shortName: "Cyber" },
-    { fullName: "All", shortName: "All" },
-  ];
-  const handleFullYearChange = () => {
-    setIsFullYear(!isFullYear);
-    if (!isFullYear) {
-      setFromDate("");
-      setToDate("");
-    }
-  };
-  const handleGeneratePDF = async () => {
-    console.log("Selected event type", selectedEventTypes);
-    console.log("Consoling the departments", departments);
-    console.log("Consoling the year selected", selectedYears);
-
-    // Ensure either departments or selectedEventTypes (or both) are selected
-    if (
-      (departments.length === 0 && selectedEventTypes.length === 0) ||
-      selectedYears.length === 0
-    ) {
-      setErrorMessage(
-        "Please select at least one department or one event type, and one year to generate the PDF."
-      );
-      return;
-    }
-
-    // Ensure full-year or a date range is provided
-    if (!isFullYear && (!fromDate || !toDate)) {
-      setErrorMessage("Please select a valid date range to generate the PDF.");
-      return;
-    }
-
-    setErrorMessage("");
-
-    console.log("Selected year for PDF generation:", selectedYears);
-
-    const selectedData = {
-      departments: departments,
-      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-      year: selectedYears.includes("All") ? "All" : selectedYears,
-      selectedeventtype: selectedEventTypes,
-    };
-
-    console.log("Selected data for PDF generation:", selectedData);
-
-    try {
-      const response = await axios({
-        url: `${process.env.REACT_APP_BASE_URL}/event/generatedpdf-doc`,
-        method: "GET",
-        params: selectedData,
-        responseType: "blob",
-      });
-
-      console.log("PDF generation response:", response);
-
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "events-report.pdf";
-      console.log("PDF Downloading:", blob);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(link.href);
-    } catch (error) {
-      console.error("Error fetching PDF:", error);
-    }
-  };
-
-  const downloadExcelReport = async () => {
-    if (
-      (departments.length === 0 && selectedEventTypes.length === 0) ||
-      selectedYears.length === 0
-    ) {
-      setErrorMessage(
-        "Please select at least one department or one event type, and one year to generate the PDF."
-      );
-      return;
-    }
-
-    // Ensure full-year or a date range is provided
-    if (!isFullYear && (!fromDate || !toDate)) {
-      setErrorMessage("Please select a valid date range to generate the PDF.");
-      return;
-    }
-
-    setErrorMessage("");
-
-    const selectedData = {
-      departments: departments,
-      ...(isFullYear ? { fullYear: true } : { fromDate, toDate }),
-      year: selectedYears.includes("All") ? "All" : selectedYears,
-      selectedeventtype: selectedEventTypes,
-    };
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/event/generateExcel-sheet`,
-        {
-          params: selectedData,
-          responseType: "blob",
-        }
-      );
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "events-report.xlsx");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading Excel report:", error);
-    }
-  };
   const initializeForms = () => {
     const forms = {
       iqacno: {},
@@ -304,7 +99,7 @@ const CalendarComponent = () => {
       amenityform: {},
       guestroomform: {},
     };
-  
+
     if (!localStorage.getItem("forms")) {
       localStorage.setItem("forms", JSON.stringify(forms));
       console.log("LocalStorage initialized with forms object.");
@@ -312,16 +107,12 @@ const CalendarComponent = () => {
   };
   const onClickDay = (value) => {
     setSelectedDate(value);
-    console.log("Selected date🎉", value); // Log the clicked date
+    console.log("Selected date🎉", value);
     setIsEventListOpen(true);
   };
 
   const closeEventList = () => {
     setIsEventListOpen(false); // Close the event list
-  };
-
-  const closeEventModal = () => {
-    setSelectedEvent(null);
   };
 
   const onChange = (newDate) => {
@@ -344,7 +135,9 @@ const CalendarComponent = () => {
   };
 
   const openEventModal = (event) => {
-    setSelectedEvent(event); // Set the selected event
+    setSelectedEvent(event);
+    console.log("clicking on the selected event : ", event.iqac);
+    setIqac(event.iqac);
   };
 
   const formatDate = (dateString) => {
@@ -361,6 +154,7 @@ const CalendarComponent = () => {
     setSearchQuery(e.target.value);
   };
   const eventsForSelectedDate = events.filter((event) => {
+    // console.log("EVENTS in the first popup : ", event);
     const eventDate = new Date(event.date);
     const eventStartDate = formatDate(event.eventstartdate);
     const eventenddate = formatDate(event.eventenddate);
@@ -372,40 +166,13 @@ const CalendarComponent = () => {
       (selectedDateObj >= eventStartDate && selectedDateObj <= eventenddate)
     );
   });
+  console.log("EVENTS in the first popup : ", eventsForSelectedDate);
 
-  const handleDownloadClick = () => {
-    setShowIcons(!showIcons);
-  };
-  const handleYearChange = (event, year) => {
-    if (year === "All") {
-      if (event.target.checked) {
-        setSelectedYears([1, 2, 3, 4]);
-      } else {
-        // When "All" is deselected, clear the state
-        setSelectedYears([]);
-      }
-    } else {
-      setSelectedYears((prevSelected) => {
-        if (prevSelected.includes(year)) {
-          return prevSelected.filter((y) => y !== year);
-        } else {
-          return [...prevSelected, year].filter((y) => y !== "All"); // Remove "All" if selecting individual years
-        }
-      });
-    }
-  };
   const monthYearString = currentDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
-  const convertTo12HourFormat = (time) => {
-    if (!time) return "";
-    let [hours, minutes] = time.split(":");
-    hours = parseInt(hours, 10);
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes} ${ampm}`;
-  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -438,7 +205,6 @@ const CalendarComponent = () => {
           className="relative w-full xl:w-96 mb-4 flex items-center space-x-4 ml-auto"
           style={{ left: "-70px" }}
         >
-          {/* Adjust left to move the entire container slightly to the left */}
           <input
             type="text"
             placeholder="Search events..."
@@ -453,7 +219,6 @@ const CalendarComponent = () => {
             Search
           </button>
         </div>
-        {/* Calendar Component */}
         <div className="custom-calendar shadow-xl w-[50%] xl:overflow-y-hidden xl:mr-14 shadow-[#0000001f] xl:w-fit">
           <div className="calendar-navigation">
             <button onClick={prevMonth}>
@@ -493,7 +258,7 @@ const CalendarComponent = () => {
           {role !== "ps" &&
             (isFutureOrToday(selectedDate) ? (
               <Link
-              onClick={initializeForms}
+                onClick={initializeForms}
                 to="/Form"
                 className="bg-gradient-to-r from-[#7848F4] to-[#9C5BFA] text-white text-center w-28 h-10 xl:w-36 xl:h-12 rounded-md font-Afacad text-lg xl:mr-1 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105"
               >
@@ -513,121 +278,20 @@ const CalendarComponent = () => {
         </div>
       </div>
 
-      {isEventListOpen && (
-        <div>
-          {isEventListOpen && (
-            <Popup1
-              eventsForSelectedDate={eventsForSelectedDate}
-              selectedDate={selectedDate}
-              closeEventList={closeEventList}
-              openEventModal={openEventModal}
-            />
-          )}
-        </div>
-      )}
+      <div>
+        {isEventListOpen && (
+          <Popup1
+            eventsForSelectedDate={eventsForSelectedDate}
+            selectedDate={selectedDate}
+            closeEventList={closeEventList}
+            openEventModal={openEventModal}
+          />
+        )}
+      </div>
 
       {selectedEvent && (
-        // <Popup2
-        //   selectedEvent={selectedEvent}
-        //   closeEventModal={closeEventModal}
-        //   convertTo12HourFormat={convertTo12HourFormat}
-        //   handleViewResourcePersons={handleViewResourcePersons}
-        //   DepartmentPopup={DepartmentPopup}
-        //   SetDepartmentPopup={SetDepartmentPopup}
-        //   closeResourcePopup={closeResourcePopup}
-        // />
-        <div className=" absolute top-3 bottom-3 left-64 h-[100%]  overflow-auto bg-white">
-           <EndPopup/>
-        </div>
-      )}
-
-      {isResourcePopupOpen && (
-        <div
-          className="resource-popup-overlay"
-          style={{
-            zIndex: 9999,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            className="resource-popup-content"
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "10px",
-              padding: "20px",
-              width: "420px",
-              height: "500px",
-              boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
-              position: "relative",
-            }}
-          >
-            <h2
-              className="resource-popup-title"
-              style={{
-                marginBottom: "15px",
-                color: "#333",
-                fontSize: "1.5rem",
-              }}
-            >
-              Resource Persons
-            </h2>
-            <button
-              className="custom-close-modal"
-              onClick={closeResourcePopup}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "15px",
-                background: "none",
-                border: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                color: "#999",
-              }}
-            >
-              &times;
-            </button>
-            <div
-              className="resource-person-list"
-              style={{
-                maxHeight: "400px",
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
-            >
-              {selectedEvent.resourceperson.length > 0 ? (
-                selectedEvent.resourceperson.map((person, index) => {
-                  const [key, value] = Object.entries(person)[0];
-                  return (
-                    <div
-                      key={index}
-                      className="resource-person-row"
-                      style={{
-                        padding: "10px 0",
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      <strong style={{ color: "#555" }}>{key}</strong>:{" "}
-                      <span style={{ color: "#777" }}>{value}</span>
-                    </div>
-                  );
-                })
-              ) : (
-                <p style={{ color: "#999", textAlign: "center" }}>
-                  No resource persons available.
-                </p>
-              )}
-            </div>
-          </div>
+        <div className="absolute top-3 bottom-3 left-64 h-[100%] overflow-auto bg-white">
+          <EndPopup iqac={Iqac} />
         </div>
       )}
     </div>
