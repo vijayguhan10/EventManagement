@@ -1,6 +1,9 @@
 import React from "react";
 
-const EventBasic = ({eventData}) => {
+const EventBasic = ({ eventData }) => {
+  const eventsArray = Array.isArray(eventData) ? eventData : [eventData];
+  console.log("events data inside the particular popup : ", eventsArray);
+
   return (
     <div>
       <img
@@ -24,26 +27,30 @@ const EventBasic = ({eventData}) => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Placement</td>
-            <td>Date</td>
-            <td>Name</td>
-            <td>9D4F3</td>
-            <td>Dept</td>
-            <td>9252837383</td>
-            <td>Name of Event</td>
-            <td>Type of Event</td>
-          </tr>
-          <tr>
-            <td>Placement</td>
-            <td>Date</td>
-            <td>Name</td>
-            <td>9D4F3</td>
-            <td>Dept</td>
-            <td>9252837383</td>
-            <td>Name Of Event</td>
-            <td>Type of Event</td>
-          </tr>
+          {eventsArray.length > 0 ? (
+            eventsArray.map((event, index) => (
+              <tr key={index}>
+                <td>
+                  {event.departmentspecification
+                    ? event.departmentspecification.join(", ")
+                    : "N/A"}
+                </td>
+                <td>{event.venue || "N/A"}</td>
+                <td>{event.eventstartdate || "N/A"}</td>
+                <td>{event.eventenddate || "N/A"}</td>
+                <td>{event.eventstarttime || "N/A"}</td>
+                <td>{event.eventendtime || "N/A"}</td>
+                <td>{event.eventname || "N/A"}</td>
+                <td>{event.typeofevent || "N/A"}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" style={{ textAlign: "center" }}>
+                No events available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
