@@ -96,11 +96,11 @@ export function TransportForm() {
   //   console.log("Updated Events Array:", events);
   // }, [events]);
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="xl:w-full bg-gray-50 py-8 px-4">
       <ToastContainer />
       <form
         onSubmit={handleSubmit}
-        className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
+        className="max-w-full mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
       >
         <FormHeader />
         <div className="p-6 space-y-6">
@@ -240,7 +240,7 @@ export function TransportForm() {
         </div>
 
         <FormFooter />
-        <EndForm />
+        {/* <EndForm /> */}
       </form>
     </div>
   );

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const transportController = require("../../Controller/transportform/main");
+const transportController = require("../Controller/transportform/main");
 router.post("/", transportController.createTransportRequest);
 router.get("/", transportController.getAllTransportRequests);
 router.get("/:id", transportController.getTransportRequestById);

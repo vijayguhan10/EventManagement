@@ -10,12 +10,6 @@ import Popup2 from "../PopupModels/Popup2";
 import DeptPopup from "../PopupModels/DeptPopup";
 
 function MediaMax() {
-
-
-
-
-
-
   const [dropdownOpen, setDropdownOpen] = useState({});
   const [DepartmentPopup, SetDepartmentPopup] = useState(false);
   const [iseditOpen, setiseditOpen] = useState(false);

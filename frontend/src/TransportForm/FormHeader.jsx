@@ -2,7 +2,7 @@ import React from "react";
 
 export function FormHeader() {
   return (
-    <div className="bg-gray-100 p-6 border-b">
+    <div className="bg-gray-100 xl:w-full p-6 border-b">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <img

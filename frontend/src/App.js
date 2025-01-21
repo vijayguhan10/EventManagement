@@ -9,7 +9,7 @@ const App = () => {
   
 
   return (
-    <div className="w-full">
+    <div className="w-full font-Afacad">
       <Provider store={Store}>
         <InitialRouter />
       </Provider>

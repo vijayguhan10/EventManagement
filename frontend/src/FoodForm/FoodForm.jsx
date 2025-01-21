@@ -29,75 +29,72 @@ function FoodForm() {
     deanClearance: "",
   });
   useEffect(() => {
-    const savedEventData = localStorage.getItem("Eventdata");
-    if (savedEventData) {
-      try {
-        const parsedEventData = JSON.parse(savedEventData);
-        console.log("Retrieved event data:", parsedEventData);
-        setFormData((prev) => ({
-          ...prev,
-          requestorName: parsedEventData.organizer[0].name || "",
-          empId: parsedEventData.organizer[0].employeeid || "",
-          designation: parsedEventData.organizer[0].designation || "",
-          mobileNumber: parsedEventData.organizer[0].phone || "",
-          iqacNumber: parsedEventData.iqac || "",
-          requisitionDate: parsedEventData.eventstartdate
-            ? new Date(parsedEventData.eventstartdate.replace(/\//g, "-"))
-                .toISOString()
-                .split("T")[0]
-            : "",
-          eventName: parsedEventData.eventname || "",
-          eventType: parsedEventData.typeofevent || "",
-        }));
-      } catch (error) {
-        console.error("Error parsing event data:", error);
-      }
-    } else {
-      console.log("No event data found in localStorage.");
+    const local = JSON.parse(localStorage.getItem("common_data"));
+
+    if (local) {
+      const eventData = local;
+
+      setFormData((prevData) => ({
+        ...prevData,
+        iqacNumber: eventData.iqacNumber || "",
+        eventName: eventData.eventName || "",
+        eventType: eventData.eventType || "",
+        requisitionDate: eventData.startDate || "",
+        
+        department: eventData.departments
+          ? eventData.departments.join(", ")
+          : "",
+        requestorName: eventData.organizers[0].name || "",
+        empId: eventData.organizers[0].employeeId || "",
+        designationDepartment: eventData.organizers[0].designation || "",
+        mobileNumber: eventData.organizers[0].phone || "",
+       
+      }));
     }
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       console.log("Consoling the food form:", formData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/foodform/events`,
         formData
       );
-  
+
       if (response.status === 200 || response.status === 201) {
         toast.success("Event created successfully!");
         console.log("Form Data Submitted:", response.data);
-          const formsData = JSON.parse(localStorage.getItem("forms")) || {
+        const formsData = JSON.parse(localStorage.getItem("forms")) || {
           Eventform: {},
           transportform: {},
           amenityform: {},
-          guestroomform: {}
+          guestroomform: {},
         };
-        console.log("food form data id : ", response.data.data._id)
-          formsData.amenityform = { 1: response.data.data._id };
-          localStorage.setItem("forms", JSON.stringify(formsData));
+        console.log("food form data id : ", response.data.data._id);
+        formsData.amenityform = { 1: response.data.data._id };
+        localStorage.setItem("forms", JSON.stringify(formsData));
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to create the event. Please try again.");
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="xl:w-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-md rounded-lg px-8 py-6"
         >
           <Header />
-          <BasicInfo formData={formData} setFormData={setFormData} />
-          <EventDetails formData={formData} setFormData={setFormData} />
+          <div className="">
+            <BasicInfo formData={formData} setFormData={setFormData} />
+            <EventDetails formData={formData} setFormData={setFormData} />
+          </div>
           <FoodTable formData={formData} setFormData={setFormData} />
           <Signatures formData={formData} setFormData={setFormData} />
           <div className="mt-6 flex justify-end">
@@ -110,7 +107,7 @@ function FoodForm() {
           </div>
         </form>
       </div>
-      <EndForm />
+      {/* <EndForm /> */}
     </div>
   );
 }

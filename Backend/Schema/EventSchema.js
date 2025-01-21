@@ -1,117 +1,37 @@
 const mongoose = require("mongoose");
-const EventDataSchema = new mongoose.Schema({
-  userid: {
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Signups",
-  },
-  eventname: {
-    required: true,
-    type: String,
-  },
-  iqac: {
-    required: true,
-    type: String,
-  },
-  resourceperson: {
-    required: true,
-    type: [{ type: mongoose.Schema.Types.Mixed }],
-  },
-  venue: {
-    required: true,
-    type: String,
-  },
-  departments: {
-    type: [String],
-    enum: [
-      "Computer and Communication Engineering",
-      "Computer Science Engineering",
-      "Artificial Intelligence and Data Science",
-      "Electronics and Communication Engineering",
-      "Information Technology",
-      "Mechanical Engineering",
-      "Artificial Intelligence and Machine Learning",
-      "Computer Science and Business Systems",
-      "Electrical and Electronics Engineering",
-      "Cybersecurity",
-      "All",
-      "otherspecification",
-    ],
-  },
-  departmentspecification: {
-    type: [String],
-  },
-  eventstarttime: {
-    required: true,
-    type: String,
-  },
-  eventendtime: {
-    required: true,
-    type: String,
-  },
-  eventstartdate: {
-    required: true,
-    type: String,
-  },
-  eventenddate: {
-    required: true,
-    type: String,
-  },
-  typeofevent: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["pending", "completed", "decline"],
-    required: true,
-  },
-  imageurl: {
-    type: String,
-  },
-  eventDescription: {
-    default: "",
-    type: String,
-  },
-  year: {
-    required: true,
-    type: String,
-  },
-  designed: {
-    type: Boolean,
-    default: false,
-  },
-  designstatus: {
-    type: String,
-    enum: ["Yet to Complete", "In Progress", "Completed"],
-    default: "Yet to Complete",
-  },
-  students: { type: Boolean, default: false },
-  teachers: { type: Boolean, default: false },
-  alumnis: { type: Boolean, default: false },
-  staff: { type: Boolean, default: false },
-  schoolstudents: { type: Boolean, default: false },
-  outsideparticipants: { type: Boolean, default: false },
-  Industry: { type: Boolean, default: false },
-  photography: { type: Boolean, default: false },
-  videography: { type: Boolean, default: false },
-  organizer: {
-    type: [{ type: mongoose.Schema.Types.Mixed }],
-  },
-  logos: {
-    type: [String],
-  },
-  international: {
-    type: [String],
-  },
 
-  selectedOptions: {
-    type: Map,
-    of: [String],
-    default: {},
-  },
+const organizerSchema = new mongoose.Schema({
+  employeeId: { type: String, required: true },
+  name: { type: String, required: true },
+  designation: { type: String, required: true },
+  phone: { type: String, required: true },
 });
 
-const EventData = mongoose.model("EventData", EventDataSchema);
+const resourcePersonSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  affiliation: { type: String, required: true },
+});
 
-module.exports = EventData;
+const eventSchema = new mongoose.Schema({
+  iqacNumber: { type: String, required: true },
+  departments: { type: [String], required: true },
+  academicdepartment: { type: [String], required: true },
+  professional: { type: [String], required: true },
+  eventName: { type: String, required: true },
+  eventType: { type: String, required: true },
+  eventVenue: { type: String, required: true },
+  startDate: { type: String, required: true },
+  endDate: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  year: { type: String },
+  categories: { type: [String], required: true },
+  logos: { type: [String], required: true },
+  description: { type: String, required: true },
+  organizers: { type: [organizerSchema]},
+  resourcePersons: { type: [resourcePersonSchema], required: true },
+});
+
+const Event = mongoose.model("Event", eventSchema);
+
+module.exports = Event;

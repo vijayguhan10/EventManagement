@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 export function BasicDetails({ setDetails }) {
   const [formState, setFormState] = useState({
@@ -10,7 +10,30 @@ export function BasicDetails({ setDetails }) {
     designation: "",
     mobileNumber: "",
   });
+  useEffect(() => {
+    const local = JSON.parse(localStorage.getItem("common_data"));
 
+    if (local) {
+      const eventData = local;
+
+      setFormState((prevData) => ({
+        ...prevData,
+        iqacNumber: eventData.iqacNumber || "",
+        eventName: eventData.eventName || "",
+        eventType: eventData.eventType || "",
+        requisitionDate: eventData.startDate || "",
+
+        departmentName: eventData.departments
+          ? eventData.departments.join(", ")
+          : "",
+        requestorName: eventData.organizers[0].name || "",
+        empId: eventData.organizers[0].employeeId || "",
+        designation: eventData.organizers[0].designation || "",
+        mobileNumber: eventData.organizers[0].phone || "",
+        purpose: eventData.description,
+      }));
+    }
+  }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedFormState = { ...formState, [name]: value };
@@ -19,8 +42,8 @@ export function BasicDetails({ setDetails }) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className=" xl:w-full">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             IQAC Number
@@ -30,7 +53,7 @@ export function BasicDetails({ setDetails }) {
             name="iqacNumber"
             value={formState.iqacNumber}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
             placeholder="1/2024-25/"
           />
         </div>
@@ -43,7 +66,7 @@ export function BasicDetails({ setDetails }) {
             name="empId"
             value={formState.empId}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
             placeholder="1/2024-25/"
           />
         </div>
@@ -56,7 +79,7 @@ export function BasicDetails({ setDetails }) {
             name="requestorName"
             value={formState.requestorName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
         <div>
@@ -68,22 +91,22 @@ export function BasicDetails({ setDetails }) {
             name="requisitionDate"
             value={formState.requisitionDate}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
-      </div>
-      {/* Other fields */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Name of the Department/Centre
-        </label>
-        <input
-          type="text"
-          name="departmentName"
-          value={formState.departmentName}
-          onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Name of the Department/Centre
+          </label>
+          <input
+            type="text"
+            name="departmentName"
+            value={formState.departmentName}
+            onChange={handleChange}
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
+          />
+        </div>
       </div>
     </div>
   );

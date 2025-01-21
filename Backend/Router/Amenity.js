@@ -5,7 +5,7 @@ const {
   getEventById,
   updateEvent,
   deleteEvent,
-} = require("../../Controller/foodform/main");
+} = require("../Controller/foodform/main");
 
 const router = express.Router();
 

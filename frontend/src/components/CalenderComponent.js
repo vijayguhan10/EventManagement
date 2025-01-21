@@ -93,7 +93,7 @@ const CalendarComponent = () => {
 
   const initializeForms = () => {
     const forms = {
-      iqacno: {},
+      iqacno: "",
       Eventform: {},
       transportform: {},
       amenityform: {},

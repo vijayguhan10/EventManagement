@@ -1,17 +1,16 @@
-import React from 'react';
+import React from "react";
 
 const EventTypeSelection = ({ selectedType, onTypeChange }) => {
   const eventTypes = [
-    'Guest Lecture',
-    'Workshop',
-    'Seminar',
-    'FDP',
-    'Conference',
-    'Training',
-    'Project Expo',
-    'Other'
+    "Guest Lecture",
+    "Workshop",
+    "Seminar",
+    "FDP",
+    "Conference",
+    "Training",
+    "Project Expo",
+    "Other",
   ];
-
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">Type of Event</h3>
@@ -24,7 +23,7 @@ const EventTypeSelection = ({ selectedType, onTypeChange }) => {
               value={type}
               checked={selectedType === type}
               onChange={(e) => onTypeChange(e.target.value)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+              className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
             />
             <span className="text-sm text-gray-700">{type}</span>
           </label>

@@ -28,33 +28,30 @@ const BookingForm = () => {
     selectedRooms: [],
   });
   useEffect(() => {
-    const savedEventData = localStorage.getItem("Eventdata");
-    if (savedEventData) {
-      try {
-        const parsedEventData = JSON.parse(savedEventData);
-        console.log("Retrieved event data:", parsedEventData);
-        setFormData((prev) => ({
-          ...prev,
-          requestorName: parsedEventData.organizer[0].name || "",
-          empId: parsedEventData.organizer[0].employeeid || "",
-          designation: parsedEventData.organizer[0].designation || "",
-          mobile: parsedEventData.organizer[0].phone || "",
-          iqacNumber: parsedEventData.iqac || "",
-          date: parsedEventData.eventstartdate
-            ? new Date(parsedEventData.eventstartdate.replace(/\//g, "-"))
-                .toISOString()
-                .split("T")[0]
-            : "",
-          eventName: parsedEventData.eventname || "",
-          eventType: parsedEventData.typeofevent || "",
-        }));
-      } catch (error) {
-        console.error("Error parsing event data:", error);
-      }
-    } else {
-      console.log("No event data found in localStorage.");
+    const local = JSON.parse(localStorage.getItem("common_data"));
+
+    if (local) {
+      const eventData = local;
+
+      setFormData((prevData) => ({
+        ...prevData,
+        iqacNumber: eventData.iqacNumber || "",
+        eventName: eventData.eventName || "",
+        eventType: eventData.eventType || "",
+        date: eventData.startDate || "",
+
+        department: eventData.departments
+          ? eventData.departments.join(", ")
+          : "",
+        requestorName: eventData.organizers[0].name || "",
+        empId: eventData.organizers[0].employeeId || "",
+        designation: eventData.organizers[0].designation || "",
+        mobile: eventData.organizers[0].phone || "",
+        purpose: eventData.description,
+      }));
     }
   }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -73,27 +70,27 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/guestroom/bookings`,
         formData
       );
-  
+
       console.log("API Response:", response.data);
-  
+
       if (response.status === 200 || response.status === 201) {
         const formsData = JSON.parse(localStorage.getItem("forms")) || {
           Eventform: {},
           transportform: {},
           amenityform: {},
-          guestroomform: {}
+          guestroomform: {},
         };
-  
+
         if (response && response.data._id) {
           console.log("GUEST Room form data id: ", response.data._id);
           formsData.guestroomform = { 1: response.data._id };
-  
+
           localStorage.setItem("forms", JSON.stringify(formsData));
           toast.success("Event created successfully!");
           console.log("Form Data Submitted:", formData);
@@ -107,12 +104,11 @@ const BookingForm = () => {
       toast.error("Failed to create the event. Please try again.");
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b  from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-full mx-auto ">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-indigo-600 py-6 px-8">
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
@@ -122,7 +118,7 @@ const BookingForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className=" xl: grid xl:grid-cols-3 gap-6">
               <FormInput
                 icon={<BookOpen />}
                 label="Department/Centre"
@@ -169,7 +165,7 @@ const BookingForm = () => {
                 className="md:col-span-2"
               />
 
-              <div className="md:col-span-2">
+              <div className="">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Purpose
                 </label>
@@ -177,7 +173,7 @@ const BookingForm = () => {
                   name="purpose"
                   value={formData.purpose}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
                   rows={3}
                   placeholder="Enter purpose of booking"
                 />
@@ -204,12 +200,12 @@ const BookingForm = () => {
               />
             </div>
 
-            <EventTypeSelection
+            {/* <EventTypeSelection
               selectedType={formData.eventType}
               onTypeChange={(type) =>
                 setFormData((prev) => ({ ...prev, eventType: type }))
               }
-            />
+            /> */}
 
             <RoomSelection
               selectedRooms={formData.selectedRooms}
@@ -219,7 +215,7 @@ const BookingForm = () => {
             <div className="pt-6">
               <button
                 type="submit"
-                className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold"
+                className="w-48 bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold"
               >
                 Submit Booking Request
               </button>
@@ -227,7 +223,7 @@ const BookingForm = () => {
           </form>
         </div>
       </div>
-      <EndForm />
+      {/* <EndForm /> */}
     </div>
   );
 };

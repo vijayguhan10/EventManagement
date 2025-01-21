@@ -28,8 +28,8 @@ export function TravelDetails({ setDetails }) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="gap-4 grid grid-cols-3">
+      <div className=" ">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Pick Up Date & Time
@@ -39,7 +39,7 @@ export function TravelDetails({ setDetails }) {
             name="pickUpDateTime"
             value={travelData.pickUpDateTime}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
         <div>
@@ -51,11 +51,11 @@ export function TravelDetails({ setDetails }) {
             name="pickUpLocation"
             value={travelData.pickUpLocation}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Drop Date & Time
@@ -65,7 +65,7 @@ export function TravelDetails({ setDetails }) {
             name="dropDateTime"
             value={travelData.dropDateTime}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
         <div>
@@ -77,11 +77,11 @@ export function TravelDetails({ setDetails }) {
             name="dropLocation"
             value={travelData.dropLocation}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Number of Passengers
@@ -92,7 +92,7 @@ export function TravelDetails({ setDetails }) {
             value={travelData.numberOfPassengers}
             onChange={handleInputChange}
             min="1"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
         <div>
@@ -103,7 +103,7 @@ export function TravelDetails({ setDetails }) {
             name="vehicleType"
             value={travelData.vehicleType}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           >
             <option value="">Select vehicle type</option>
             {vehicles.map((vehicle) => (
@@ -123,7 +123,7 @@ export function TravelDetails({ setDetails }) {
           name="specialRequirements"
           value={travelData.specialRequirements}
           onChange={handleInputChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
         />
       </div>
     </div>

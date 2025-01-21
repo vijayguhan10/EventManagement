@@ -14,33 +14,33 @@ export function DriverDetails({ setDetails }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="">
       <h3 className="text-lg font-medium text-gray-900">
         Driver Information (if required)
       </h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
+      <div className=" grid grid-cols-3">
+        <div className="">
+          <h1 className=" text-sm font-medium text-gray-700">
             Name
-          </label>
+          </h1>
           <input
             type="text"
             name="name"
             value={driverInfo.name}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <h1 className=" text-sm font-medium text-gray-700">
             Mobile Number
-          </label>
+          </h1>
           <input
             type="tel"
             name="mobileNumber"
             value={driverInfo.mobileNumber}
             onChange={handleInputChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
         </div>
       </div>
