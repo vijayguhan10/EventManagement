@@ -7,7 +7,6 @@ const EndForm = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);

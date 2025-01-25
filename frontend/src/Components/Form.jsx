@@ -1,13 +1,12 @@
 import React from "react";
 import Index from "../BasicEvent/OrginalForm";
 import FoodForm from "../FoodForm/FoodForm";
-import CommunicationForm from "../components/CommunicationForm";
+import CommunicationForm from "../CommunicationForm";
 import { TransportForm } from "../TransportForm/TransportForm";
 import GuestRoom from "../guestroom/index";
 import EndForm from "../EndForm";
 
 const Form = () => {
-  // Function to handle the smooth scroll
   const scrollToSection = (e, targetId) => {
     e.preventDefault();
     const targetElement = document.getElementById(targetId);
@@ -20,7 +19,6 @@ const Form = () => {
 
   return (
     <div>
-      {/* Sticky Header with Smooth Scrolling Navigation */}
       <header className="sticky top-0 bg-gray-800 text-white p-4 shadow-md z-50">
         <h1 className="text-xl font-semibold text-center mb-4">
           Form Navigation
@@ -85,7 +83,6 @@ const Form = () => {
         </nav>
       </header>
 
-      {/* Forms Section */}
       <div
         id="indexForm"
         className="p-10 my-6 border border-gray-300 bg-gray-50"
@@ -117,7 +114,7 @@ const Form = () => {
         <GuestRoom />
       </div>
       <div id="endForm" className="p-10 my-6 border border-gray-300 bg-gray-50">
-      <EndForm/>
+        <EndForm />
       </div>
     </div>
   );

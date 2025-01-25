@@ -35,7 +35,6 @@ exports.getAllEndforms = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch Endforms" });
   }
 };
-
 exports.getEndformByIQAC = async (req, res) => {
   try {
     const { iqac } = req.body;
@@ -58,14 +57,11 @@ exports.getEndformByIQAC = async (req, res) => {
       guestroom: guestroomdata,
     };
 
-    return res
-      .status(200)
-      .json({ message: "Event fetched",  Allformdata });
+    return res.status(200).json({ message: "Event fetched", Allformdata });
   } catch (error) {
     return res.status(500).json({ message: "Error fetching events", error });
   }
 };
-
 exports.updateEndform = async (req, res) => {
   try {
     const updatedEndform = await Endform.findByIdAndUpdate(
@@ -87,7 +83,6 @@ exports.updateEndform = async (req, res) => {
     res.status(500).json({ message: "Failed to update Endform" });
   }
 };
-
 exports.deleteEndform = async (req, res) => {
   try {
     const deletedEndform = await Endform.findByIdAndDelete(req.params.id);
