@@ -6,26 +6,27 @@ export function EventDetails({ setDetails }) {
     eventType: "",
     travellerDetails: "",
   });
+
   useEffect(() => {
     const local = JSON.parse(localStorage.getItem("common_data"));
 
     if (local) {
-      const eventData = local;
-
-      setEventData((prevData) => ({
-        ...prevData,
-        eventName: eventData.eventName || "",
-        eventType: eventData.eventType || "",
-        travellerDetails: eventData.description || "",
-      }));
+      const initialData = {
+        eventName: local.eventName || "",
+        eventType: local.eventType || "",
+        travellerDetails: local.description || "",
+      };
+      setEventData(initialData); 
+      setDetails(initialData); 
     }
   }, []);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const updatedData = { ...eventData, [name]: value };
     setEventData(updatedData);
-    setDetails(eventData);
+
+    // Update parent state
+    setDetails(updatedData);
   };
 
   return (
@@ -48,7 +49,7 @@ export function EventDetails({ setDetails }) {
         </label>
         <input
           type="text"
-          name="eventName"
+          name="eventType"
           value={eventData.eventType}
           onChange={handleInputChange}
           className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"

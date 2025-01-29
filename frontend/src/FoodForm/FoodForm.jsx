@@ -40,7 +40,7 @@ function FoodForm() {
         eventName: eventData.eventName || "",
         eventType: eventData.eventType || "",
         requisitionDate: eventData.startDate || "",
-        
+
         department: eventData.departments
           ? eventData.departments.join(", ")
           : "",
@@ -48,7 +48,6 @@ function FoodForm() {
         empId: eventData.organizers[0].employeeId || "",
         designationDepartment: eventData.organizers[0].designation || "",
         mobileNumber: eventData.organizers[0].phone || "",
-       
       }));
     }
   }, []);
@@ -66,15 +65,16 @@ function FoodForm() {
       if (response.status === 200 || response.status === 201) {
         toast.success("Event created successfully!");
         console.log("Form Data Submitted:", response.data);
-        const formsData = JSON.parse(localStorage.getItem("forms")) || {
-          Eventform: {},
-          transportform: {},
-          amenityform: {},
-          guestroomform: {},
-        };
-        console.log("food form data id : ", response.data.data._id);
-        formsData.amenityform = { 1: response.data.data._id };
-        localStorage.setItem("forms", JSON.stringify(formsData));
+
+        const objectId = response.data.data._id;
+        console.log("Objectid of the food form : ",objectId);
+        if (objectId) {
+          let amenityForm =
+            JSON.parse(localStorage.getItem("amenityForm")) || {};
+          amenityForm.objectId = objectId;
+          localStorage.setItem("amenityForm", JSON.stringify(amenityForm));
+          console.log("Updated amenityForm in localStorage:", amenityForm);
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);

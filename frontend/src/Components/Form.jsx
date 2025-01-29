@@ -18,7 +18,7 @@ const Form = () => {
   };
 
   return (
-    <div>
+    <div className="">
       <header className="sticky top-0 bg-gray-800 text-white p-4 shadow-md z-50">
         <h1 className="text-xl font-semibold text-center mb-4">
           Form Navigation
@@ -83,38 +83,43 @@ const Form = () => {
         </nav>
       </header>
 
-      <div
-        id="indexForm"
-        className="p-10 my-6 border border-gray-300 bg-gray-50"
-      >
-        <Index />
-      </div>
-      <div
-        id="communicationForm"
-        className="p-10 my-6 border border-gray-300 bg-gray-50"
-      >
-        <CommunicationForm />
-      </div>
-      <div
-        id="transportForm"
-        className="p-10 my-6 border border-gray-300 bg-gray-50"
-      >
-        <TransportForm />
-      </div>
-      <div
-        id="foodForm"
-        className="p-10 my-6 border border-gray-300 bg-gray-50"
-      >
-        <FoodForm />
-      </div>
-      <div
-        id="guestRoom"
-        className="p-10 my-6 border border-gray-300 bg-gray-50"
-      >
-        <GuestRoom />
-      </div>
-      <div id="endForm" className="p-10 my-6 border border-gray-300 bg-gray-50">
-        <EndForm />
+      <div className="ml-20">
+        <div
+          id="indexForm"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <Index />
+        </div>
+        <div
+          id="communicationForm"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <CommunicationForm />
+        </div>
+        <div
+          id="transportForm"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <TransportForm />
+        </div>
+        <div
+          id="foodForm"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <FoodForm />
+        </div>
+        <div
+          id="guestRoom"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <GuestRoom />
+        </div>
+        <div
+          id="endForm"
+          className="p-10 my-6 border border-gray-300 bg-gray-50"
+        >
+          <EndForm />
+        </div>
       </div>
     </div>
   );

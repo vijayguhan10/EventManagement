@@ -37,64 +37,48 @@ export function TransportForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (events.length === 0) {
       toast.warn("No events to submit.");
       return;
     }
-  
+
     try {
       console.log("Events going to be submitted: ", events);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/transportform/`,
         { events: events }
       );
-  
+
       if (response.status === 200 || response.status === 201) {
+        let objectId = [];
+        if (Array.isArray(response.data)) {
+          response.data.forEach((elem) => {
+            if (elem._id) objectId.push(elem._id);
+          });
+        }
+
+        console.log("Object IDs of the communication form:", objectId);
+
+        if (objectId.length > 0) {
+          let transportForm =
+            JSON.parse(localStorage.getItem("transportForm")) || [];
+          transportForm = [...transportForm, ...objectId];
+          localStorage.setItem("transportForm", JSON.stringify(transportForm));
+          console.log("Updated transportForm in localStorage:", transportForm);
+        }
+
         toast.success("All events submitted successfully!");
         console.log("Submitted Events:", response);
-  
-        const formsData = JSON.parse(localStorage.getItem("forms")) || {
-          Eventform: {},
-          transportform: {},
-          amenityform: {},
-          guestroomform: {}
-        };
-          if (!formsData.transportform || typeof formsData.transportform !== "object") {
-          formsData.transportform = {};
-        }
-          if (Array.isArray(response.data)) {
-          response.data.forEach((elem, index) => {
-            if (elem._id) {
-              formsData.transportform[index + 1] = elem._id; 
-            }
-          });
-        } else if (response.data._id) {
-          const nextIndex = Object.keys(formsData.transportform).length + 1;
-          formsData.transportform[nextIndex] = response.data._id;
-        }
-  
-        localStorage.setItem("forms", JSON.stringify(formsData));
-          setEvents([]);
+
+        setEvents([]);
       }
     } catch (error) {
       console.error("Error submitting events:", error);
       toast.error("Failed to submit events. Please try again.");
     }
   };
-  
-  
-  
-  
-  
 
-  // useEffect(() => {
-  //   console.log("Updated Current Event:", currentEvent);
-  // }, [currentEvent]);
-
-  // useEffect(() => {
-  //   console.log("Updated Events Array:", events);
-  // }, [events]);
   return (
     <div className="xl:w-full bg-gray-50 py-8 px-4">
       <ToastContainer />
@@ -212,15 +196,15 @@ export function TransportForm() {
                 <div className="grid grid-cols-4 gap-4 py-2 px-4 border-b">
                   <div className="font-semibold"></div>
 
-                  <div>Pick-Up Date & Time</div>
-                  <div>{eventData.travelDetails.dropLocation}</div>
+                  <div>Travellers Pickup Location</div>
+                  <div>{eventData.travelDetails.pickUpLocation}</div>
                   <div></div>
                 </div>
                 <div className="grid grid-cols-4 gap-4 py-2 px-4 border-b">
                   <div className="font-semibold"></div>
 
-                  <div>Pick-Up Date & Time</div>
-                  <div>{eventData.travelDetails.pickUpLocation}</div>
+                  <div>Travellers Drop Location</div>
+                  <div>{eventData.travelDetails.dropLocation}</div>
                   <div></div>
                 </div>
 
@@ -240,7 +224,6 @@ export function TransportForm() {
         </div>
 
         <FormFooter />
-        {/* <EndForm /> */}
       </form>
     </div>
   );

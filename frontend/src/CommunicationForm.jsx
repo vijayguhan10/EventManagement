@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "lucide-react";
+// import { Loader } from "lucide-react";
 const CommunicationForm = () => {
   const navigation = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -13,8 +12,6 @@ const CommunicationForm = () => {
     photography: false,
     videography: false,
   });
-  const form1Data = useSelector((state) => state.events);
-
   const categories = [
     {
       category: "Event Poster",
@@ -72,7 +69,7 @@ const CommunicationForm = () => {
 
   const handleCheckboxChange = (category, option) => {
     setSelectedOptions((prev) => {
-      const categoryOptions = prev[category] || [];
+      const categoryOptions = prev?.[category] || [];
       const isSelected = categoryOptions.includes(option);
 
       return {
@@ -91,51 +88,48 @@ const CommunicationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state to true
-    const { event } = form1Data;
-    console.log("Destructured event:", event);
+    setIsLoading(true);
 
     const combinedData = {
-      ...event,
       selectedOptions,
       photography: formData.photography,
       videography: formData.videography,
     };
-
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/event/create_event`,
+        `${process.env.REACT_APP_BASE_URL}/media`,
         combinedData
       );
-
       console.log("Server Response:", response.data);
       if (response.status === 200 || response.status === 201) {
-              const formsData = JSON.parse(localStorage.getItem("forms")) || {
-                Eventform: {},
-                transportform: {},
-                amenityform: {},
-                guestroomform: {}
-              };
-        
-              if (response && response.data) {
-                console.log("Event Data form data id: ", response.data.event._id);
-                formsData.Eventform = { 1: response.data.event._id };
-        
-                localStorage.setItem("forms", JSON.stringify(formsData));
-                toast.success("Event created successfully!");
-                console.log("Form Data Submitted:", formData);
-              }
-            }
-      setIsLoading(false); 
+        const objectId = response.data.requirement._id;
+        console.log("Objectid of the communication form : ", objectId);
+        if (objectId) {
+          let Communication =
+            JSON.parse(localStorage.getItem("communicationForm")) || {};
+            Communication.objectId = objectId;
+          localStorage.setItem("communicationForm", JSON.stringify(Communication));
+          console.log("Updated guestroom form in localStorage:", Communication);
+        }
+        // toast.success("Event created successfully!");
+        console.log("Form Data Submitted:", formData);
+
+        toast.success("Communication form saved sucessfully");
+      } else {
+        console.error("No data found in the response");
+        toast.error("Failed to create the event. Invalid response.");
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("There was an error submitting the form. Please try again.");
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="relative">
+      {/* <ToastContainer/> */}
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 shadow-lg z-50">
           <div className="h-16 w-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -143,7 +137,6 @@ const CommunicationForm = () => {
       )}
 
       <div className="min-h-screen flex items-center justify-center p-1">
-        <ToastContainer />
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-lg rounded-lg p-8 w-full"

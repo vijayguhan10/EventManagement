@@ -8,9 +8,10 @@ export function DriverDetails({ setDetails }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     const updatedInfo = { ...driverInfo, [name]: value };
     setDriverInfo(updatedInfo);
-    setDetails(driverInfo);
+    setDetails(updatedInfo);
   };
 
   return (
@@ -18,11 +19,9 @@ export function DriverDetails({ setDetails }) {
       <h3 className="text-lg font-medium text-gray-900">
         Driver Information (if required)
       </h3>
-      <div className=" grid grid-cols-3">
+      <div className="grid grid-cols-3">
         <div className="">
-          <h1 className=" text-sm font-medium text-gray-700">
-            Name
-          </h1>
+          <h1 className="text-sm font-medium text-gray-700">Name</h1>
           <input
             type="text"
             name="name"
@@ -32,9 +31,7 @@ export function DriverDetails({ setDetails }) {
           />
         </div>
         <div>
-          <h1 className=" text-sm font-medium text-gray-700">
-            Mobile Number
-          </h1>
+          <h1 className="text-sm font-medium text-gray-700">Mobile Number</h1>
           <input
             type="tel"
             name="mobileNumber"

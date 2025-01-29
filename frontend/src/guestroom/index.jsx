@@ -37,7 +37,9 @@ const BookingForm = () => {
         ...prevData,
         iqacNumber: eventData.iqacNumber || "",
         eventName: eventData.eventName || "",
-        eventType: eventData.eventType || "",
+        eventType: eventData.eventType?.trim()
+          ? eventData.eventType
+          : "common event",
         date: eventData.startDate || "",
 
         department: eventData.departments
@@ -70,6 +72,10 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(
+      "Data of the guest room form which is going to be submitted :",
+      formData
+    );
 
     try {
       const response = await axios.post(
@@ -77,27 +83,23 @@ const BookingForm = () => {
         formData
       );
 
-      console.log("API Response:", response.data);
+      console.log("API Response:", response);
 
-      if (response.status === 200 || response.status === 201) {
-        const formsData = JSON.parse(localStorage.getItem("forms")) || {
-          Eventform: {},
-          transportform: {},
-          amenityform: {},
-          guestroomform: {},
-        };
-
-        if (response && response.data._id) {
-          console.log("GUEST Room form data id: ", response.data._id);
-          formsData.guestroomform = { 1: response.data._id };
-
-          localStorage.setItem("forms", JSON.stringify(formsData));
-          toast.success("Event created successfully!");
-          console.log("Form Data Submitted:", formData);
-        } else {
-          console.error("No data found in the response");
-          toast.error("Failed to create the event. Invalid response.");
+      if (response && response.data._id) {
+        const objectId = response.data._id;
+        console.log("Objectid of the guest room form : ", objectId);
+        if (objectId) {
+          let GuestRoom =
+            JSON.parse(localStorage.getItem("guestRoomForm")) || {};
+          GuestRoom.objectId = objectId;
+          localStorage.setItem("guestRoomForm", JSON.stringify(GuestRoom));
+          console.log("Updated guestroom form in localStorage:", GuestRoom);
         }
+        toast.success("Event created successfully!");
+        console.log("Form Data Submitted:", formData);
+      } else {
+        console.error("No data found in the response");
+        toast.error("Failed to create the event. Invalid response.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);

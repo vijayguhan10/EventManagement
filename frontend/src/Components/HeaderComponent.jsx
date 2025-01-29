@@ -9,16 +9,47 @@ import {
   FiLayers,
   FiUsers,
 } from "react-icons/fi";
+import { CalendarDays } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 const HeaderComponent = () => {
+  function initializeLocalStorage() {
+    if (!localStorage.getItem("basicEvent")) {
+      localStorage.setItem("basicEvent", JSON.stringify({}));
+    }
+
+    if (!localStorage.getItem("communicationForm")) {
+      localStorage.setItem("communicationForm", JSON.stringify({}));
+    }
+
+    if (!localStorage.getItem("transportForm")) {
+      localStorage.setItem("transportForm", JSON.stringify([]));
+    }
+    if (!localStorage.getItem("iqacno")) {
+      localStorage.setItem("iqacno", JSON.stringify({}));
+    }
+
+    if (!localStorage.getItem("amenityForm")) {
+      localStorage.setItem("amenityForm", JSON.stringify({}));
+    }
+
+    if (!localStorage.getItem("guestRoomForm")) {
+      localStorage.setItem("guestRoomForm", JSON.stringify({}));
+    }
+
+    console.log("Local storage initialized with default forms.");
+  }
   const navigate = useNavigate();
   return (
     <div className="flex bg-[#ffffff]">
-      {/* Sidebar */}
       <div className="fixed left-0 top-0 h-full w-20 bg-[#ffffff] ">
         <div className="p-4">
           <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-            <FiGrid className="text-white text-xl" title="Dashboard" />
+            <FiGrid
+              onClick={() => navigate("/dashboard")}
+              className="text-white text-xl"
+              title="Dashboard"
+            />
           </div>
         </div>
         <div className="mt-8">
@@ -26,23 +57,37 @@ const HeaderComponent = () => {
             className="w-full h-10 bg-blue-50= border-blue-500 flex items-center justify-center"
             title="Active Dashboard"
           >
-            <FiGrid className="text-blue-500 text-xl" />
+            <FiGrid
+              onClick={() => navigate("/dashboard")}
+              className="text-blue-500 text-xl"
+            />
           </div>
           <div className="w-full h-10 flex items-center justify-center mt-4">
             <FiPlus
-              onClick={() => navigate("/forms")}
+              onClick={() => {
+                initializeLocalStorage();
+                navigate("/forms");
+              }}
               className="text-gray-500 text-xl"
               title="Add New"
             />
           </div>
           <div className="w-full h-10 flex items-center justify-center mt-4">
-            <FiInfo className="text-gray-500 text-xl" title="Information" />
+            <CalendarDays
+              onClick={() => navigate("/calender")}
+              className="text-gray-500 text-xl"
+              title="Information"
+            />
           </div>
           <div className="w-full h-10 flex items-center justify-center mt-4">
             <FiLayers className="text-gray-500 text-xl" title="Layers" />
           </div>
           <div className="w-full h-10 flex items-center justify-center mt-4">
-            <FiUsers className="text-gray-500 text-xl" title="Users" />
+            <FiUsers
+              onClick={() => navigate("/profile")}
+              className="text-gray-500 text-xl"
+              title="Users"
+            />
           </div>
         </div>
         <div className="absolute bottom-4 left-0 w-full flex justify-center">

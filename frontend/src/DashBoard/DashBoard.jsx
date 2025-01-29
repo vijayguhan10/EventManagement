@@ -135,14 +135,11 @@ function Dashboard() {
   return (
     <div className="  ">
       {/* Left Sidebar */}
-      <HeaderComponent />
       <div className="ml-20 p-6 rounded-l-3xl bg-[#cae9f73e] mb-20">
         <div className="flex justify-between items-center mb-1">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <span className="text-blue-500">Pending Collaborations</span>
         </div>
-
-        {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-6 mb-8">
           <div className="bg-blue-400 rounded-lg p-6 text-white relative overflow-hidden">
             <div className="relative z-10">
@@ -187,7 +184,6 @@ function Dashboard() {
             </div>
           </div>
         </div>
-
         <div className="grid grid-cols-2 gap-6 mb-6">
           {/* Happenings Section */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -208,9 +204,7 @@ function Dashboard() {
 
           <MonthlyChart />
         </div>
-
         {/* Donut Charts Row */}
-
         <DonutChart />
         {/* Recent Bookings */}
         <div className="bg-white rounded-lg shadow-sm">

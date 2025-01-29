@@ -1,6 +1,6 @@
 const Event = require("../Schema/EventSchema");
 const createEvent = async (req, res) => {
-  console.log("Event Requewst form data : ",req.body)
+  console.log("Event Requewst form data : ", req.body);
   try {
     const {
       iqacNumber,
@@ -21,6 +21,7 @@ const createEvent = async (req, res) => {
       organizers,
       resourcePersons,
     } = req.body;
+    console.log("requset boxy : ", req.body);
     const newEvent = new Event({
       iqacNumber,
       departments,

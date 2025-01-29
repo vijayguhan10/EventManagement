@@ -6,8 +6,8 @@ const guestroomform = require("../Schema/guestroom/main");
 exports.createEndform = async (req, res) => {
   try {
     const { iqacno, eventdata, transportform, amenityform, guestform } =
-      req.body.events;
-    console.log("req.body of the end form :", req.body);
+      req.body;
+    console.log("req.body of the end form :", iqacno, eventdata, transportform, amenityform, guestform);
     const newEndform = new Endform({
       iqacno,
       eventdata,

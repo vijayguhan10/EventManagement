@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const BasicInfo = ({ formData, setFormData }) => {
   const handleChange = (e) => {
@@ -8,6 +8,9 @@ const BasicInfo = ({ formData, setFormData }) => {
       [name]: value,
     }));
   };
+  useEffect(() => {
+    console.log("Form Data Updated:", formData);
+  }, [formData, formData]);
 
   return (
     <div className="space-y-4 xl:w-full mb-6">

@@ -69,19 +69,18 @@ function Index() {
       if (response.status === 200) {
         const eventformId = response.data.event._id;
         const iqacNumber = formData.iqacNumber;
+        console.log("clonsoling the iqac number : ", iqacNumber);
         console.log("console data : ", response.data.event._id);
         console.log("Eventform ID from response:", response.data._id);
 
-        const savedData = JSON.parse(localStorage.getItem("forms")) || {};
-
-        savedData.Eventform = { id: eventformId };
-        savedData.iqacno = iqacNumber;
-
-        localStorage.setItem("forms", JSON.stringify(savedData));
-
-        console.log("Form data after response:", savedData);
-        // setFormData({});
-
+        localStorage.setItem(
+          "basicEvent",
+          JSON.stringify({ _id: eventformId })
+        );
+        localStorage.setItem(
+          "iqacno",
+          JSON.stringify({ iqacNumber: iqacNumber })
+        );
         toast.success("Data submitted successfully!");
       } else {
         toast.error("Something went wrong. Please try again.");
