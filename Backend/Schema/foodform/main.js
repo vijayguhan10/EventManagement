@@ -70,6 +70,11 @@ const EventSchema = new mongoose.Schema(
     recommendedBy: { type: String, default: "" },
     facultySignature: { type: String, default: "" },
     dates: [DateDetailsSchema],
+    status: {
+      type: String,
+      enum: ["Pending", "Rejected", "Approved", "Corrections"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );

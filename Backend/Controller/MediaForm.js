@@ -1,15 +1,14 @@
 const MediaRequirements = require("../Schema/MedaiRequirements");
 exports.createRequirement = async (req, res) => {
+  console.log("req body of the Media form:", req.body);
   try {
-    const {
-      eventPoster = [],
-      videos = [],
-      onStageRequirements = [],
-      receptionTVStreamingRequirements = [],
-      communication = [],
-      flexBanners = [],
-      cameraAction = { photography: false, videography: false },
-    } = req.body;
+    const { selectedOptions, photography = false, videography = false } = req.body;
+    const eventPoster = selectedOptions["Event Poster"] || [];
+    const videos = selectedOptions["Videos"] || [];
+    const onStageRequirements = selectedOptions["On Stage Requirements"] || [];
+    const receptionTVStreamingRequirements = selectedOptions["Reception TV Streaming Requirements"] || [];
+    const communication = selectedOptions["Communication"] || [];
+    const flexBanners = selectedOptions["Flex Banners"] || [];
 
     const requirement = new MediaRequirements({
       eventPoster,
@@ -18,17 +17,17 @@ exports.createRequirement = async (req, res) => {
       receptionTVStreamingRequirements,
       communication,
       flexBanners,
-      cameraAction,
+      cameraAction: { photography, videography },
     });
 
     await requirement.save();
-    res
-      .status(201)
-      .json({ message: "Requirement created successfully", requirement });
+    res.status(201).json({ message: "Requirement created successfully", requirement });
   } catch (error) {
-    res.status(500).json({ message: "Error creating requirement", error });
+    console.error("Error creating requirement:", error); // Log full error
+    res.status(500).json({ message: "Error creating requirement", error: error.message });
   }
 };
+
 
 exports.getRequirements = async (req, res) => {
   try {
@@ -38,7 +37,6 @@ exports.getRequirements = async (req, res) => {
     res.status(500).json({ message: "Error fetching requirements", error });
   }
 };
-
 exports.getRequirementById = async (req, res) => {
   try {
     const requirement = await MediaRequirements.findById(req.params.id);

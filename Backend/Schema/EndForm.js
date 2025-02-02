@@ -16,8 +16,18 @@ const EndformSchema = new mongoose.Schema({
   guestform: {
     type: String,
   },
+  communicationform: {
+    type: String,
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "Rejected", "Approved", "Corrections"],
+    default: "Pending",
+  },
+  createdat: {
+    type: Date,
+    default: Date.now(),
+  },
 });
-
 const Endform = mongoose.model("Endform", EndformSchema);
-
 module.exports = Endform;

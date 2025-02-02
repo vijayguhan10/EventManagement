@@ -2,7 +2,6 @@ const TransportRequest = require("../../Schema/transportform/main");
 const createTransportRequest = async (req, res) => {
   try {
     const transportRequests = req.body.events;
-    // console.log("checking the data  : ", transportRequests);
 
     if (!Array.isArray(transportRequests) || transportRequests.length === 0) {
       return res.status(400).json({ error: "Invalid or empty data array" });
@@ -16,7 +15,6 @@ const createTransportRequest = async (req, res) => {
         throw new Error("Missing required nested data in one of the requests.");
       }
 
-      // Ensure pickUpDateTime is defined
       if (!travelDetails.pickUpDateTime) {
         throw new Error("Pick-up Date and Time is required.");
       }
@@ -93,19 +91,45 @@ const getTransportRequestById = async (req, res) => {
 
 const updateTransportRequest = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedRequest = await TransportRequest.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedRequest) {
-      return res.status(404).json({ message: "Transport request not found" });
+    const { id } = req.params; // Can be single ID or undefined if multiple
+    const { events } = req.body; // Expecting an array of events
+
+    console.log("Transport Update Request:", req.body);
+
+    if (Array.isArray(events) && events.length > 0) {
+      // Multiple Updates
+      const updatePromises = events.map(async (event) => {
+        return await TransportRequest.findByIdAndUpdate(event._id, event, {
+          new: true,
+        });
+      });
+
+      const updatedRequests = await Promise.all(updatePromises);
+      return res.status(200).json({
+        message: "Transport requests updated successfully",
+        data: updatedRequests,
+      });
     }
-    res.status(200).json({
-      message: "Transport request updated successfully",
-      data: updatedRequest,
-    });
+
+    // Single Update (Fallback)
+    if (id) {
+      const updatedRequest = await TransportRequest.findByIdAndUpdate(
+        id,
+        req.body,
+        { new: true }
+      );
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "Transport request not found" });
+      }
+      return res.status(200).json({
+        message: "Transport request updated successfully",
+        data: updatedRequest,
+      });
+    }
+
+    return res
+      .status(400)
+      .json({ message: "Invalid request: No ID or events array provided" });
   } catch (error) {
     res.status(400).json({
       message: "Error updating transport request",
@@ -114,7 +138,6 @@ const updateTransportRequest = async (req, res) => {
   }
 };
 
-// Delete a transport request
 const deleteTransportRequest = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,47 +1,20 @@
 const cron = require("node-cron");
-const mongoose = require("mongoose");
 const Event = require("../Schema/EventSchema");
-const convertToDateTime = (dateString, timeString) => {
-  const [day, month, year] = dateString.split("/").map(Number);
-  const fullYear = year < 100 ? 2000 + year : year;
 
-  const [hours, minutes] = timeString.split(":").map(Number);
-  
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const hours12 = hours % 12 || 12;
-
-  return new Date(fullYear, month - 1, day, hours, minutes);
-};
-
-const dateString = "17/10/2024"; 
-const railwayTimeString = "15:30"; 
-
-const convertedDateTime = convertToDateTime(dateString, railwayTimeString);
-console.log("Converted DateTime:", convertedDateTime);
-
-const ScheduledCompletion = cron.schedule("* * * * *", async () => {
+cron.schedule("* * * * * ", async () => {
   try {
-    const currentDate = new Date();
-    const events = await Event.find({ status: { $eq: "pending" } });
-
-    for (const event of events) {
-      const eventEndDateTime = convertToDateTime(
-        event.eventenddate,
-        event.eventendtime
-      );
-      
-      if (eventEndDateTime <= currentDate) {
-        await Event.updateOne(
-          { _id: event._id },
-          { $set: { status: "completed" } }
-        );
+    const now = new Date();
+    const approvedEvents = await Event.find({ status: "Pending" });
+    console.log("Node corn is running");
+    for (const event of approvedEvents) {
+      const endDateTime = new Date(`${event.endDate}T${event.endTime}`);
+      if (endDateTime < now) {
+        event.status = "event-completed";
+        await event.save();
+        console.log(`Event ${event._id} marked as completed.`);
       }
     }
-
   } catch (error) {
-    console.error("Error updating completed events:", error);
+    console.error("Error in cron job:", error);
   }
 });
-
-ScheduledCompletion.start();
-module.exports = ScheduledCompletion;
