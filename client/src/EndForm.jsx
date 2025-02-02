@@ -64,7 +64,6 @@ const EndForm = () => {
         return;
       }
 
-      // Send data to backend
       const endpoint = `${import.meta.env.VITE_API_URL}/endform/create`;
       const response = await axios.post(endpoint, events);
 
