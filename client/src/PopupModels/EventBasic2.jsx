@@ -17,7 +17,6 @@ const EventBasic2 = ({ eventData }) => {
             <th>IQAC Number</th>
             <th>Status</th>
             <th>Departments</th>
-         
           </tr>
         </thead>
         <tbody>
@@ -52,7 +51,7 @@ const EventBasic2 = ({ eventData }) => {
 
             {/* Categories */}
             <td>
-              {eventData.categories.length > 0
+              {eventData.categories && eventData.categories.length > 0
                 ? eventData.categories.join(", ")
                 : "N/A"}
             </td>
@@ -103,12 +102,10 @@ const EventBasic2 = ({ eventData }) => {
 
             {/* Departments */}
             <td>
-              {eventData.departments.length > 0
+              {eventData.departments && eventData.departments.length > 0
                 ? eventData.departments.join(", ")
                 : "N/A"}
             </td>
-
-          
           </tr>
         </tbody>
       </table>

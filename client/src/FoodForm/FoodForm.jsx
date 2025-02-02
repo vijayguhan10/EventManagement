@@ -30,14 +30,26 @@ function FoodForm({ FoodForm }) {
     deanClearance: "",
   });
   useEffect(() => {
-    if (FoodForm) {
-      console.log("Updating formData with FoodForm:", FoodForm);
+    if (FoodForm && FoodForm.dates) {
+      console.log("FoodForm with dates object: ", FoodForm);
+
+      const datesArray = Object.values(FoodForm.dates);
+
+      const transformedDates = datesArray.reduce((acc, dateObj, index) => {
+        const dateKey = `date${index + 1}`;
+        acc[dateKey] = {
+          start: dateObj.date.start,
+          end: dateObj.date.end,
+          foodDetails: dateObj.foodDetails,
+        };
+        return acc;
+      }, {});
 
       setFormData((prev) => ({
         ...prev,
         ...FoodForm,
-        dates: FoodForm.dates ? { ...FoodForm.dates } : {},
-        foodDetails: FoodForm.foodDetails ? { ...FoodForm.foodDetails } : {},
+        dates: transformedDates, 
+        foodDetails: FoodForm.foodDetails || {}, 
       }));
     }
   }, [FoodForm]);

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 const FoodTable = ({ formData, setFormData }) => {
-  console.log("Consoling The Table Form Data : ",formData);
+  console.log("Consoling The Table Form Data : ", formData);
   const handleChange = (date, mealType, menuType, category, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -20,9 +20,7 @@ const FoodTable = ({ formData, setFormData }) => {
       },
     }));
   };
-  useEffect(()=>{
-
-  },[formData])
+  useEffect(() => {}, [formData]);
   const dates = ["date1", "date2", "date3", "date4"];
   const meals = [
     { name: "Breakfast", types: ["Veg", "Non Veg"] },

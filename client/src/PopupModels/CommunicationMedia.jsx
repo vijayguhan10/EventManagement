@@ -29,44 +29,44 @@ const CommunicationMedia = ({ Communicationform }) => {
           <tr>
             <td>
               <ul>
-                {eventPoster.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {eventPoster &&
+                  eventPoster.map((item, index) => <li key={index}>{item}</li>)}
               </ul>
             </td>
             <td>
               <ul>
-                {videos.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {videos &&
+                  videos.map((item, index) => <li key={index}>{item}</li>)}
               </ul>
             </td>
             <td>
               <ul>
-                {onStageRequirements.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {onStageRequirements &&
+                  onStageRequirements.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
               </ul>
             </td>
             <td>
               <ul>
-                {flexBanners.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {flexBanners &&
+                  flexBanners.map((item, index) => <li key={index}>{item}</li>)}
               </ul>
             </td>
             <td>
               <ul>
-                {receptionTVStreamingRequirements.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {receptionTVStreamingRequirements &&
+                  receptionTVStreamingRequirements.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
               </ul>
             </td>
             <td>
               <ul>
-                {communication.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
+                {communication &&
+                  communication.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
               </ul>
             </td>
           </tr>

@@ -78,6 +78,8 @@ function Index({ event1Basics }) {
     }
   }, [event1Basics]);
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
       const dataToPost = {
         ...formData,
@@ -85,32 +87,47 @@ function Index({ event1Basics }) {
         resourcePersons,
       };
 
-      localStorage.setItem("common_data", JSON.stringify(dataToPost));
       console.log("Data to be posted:", dataToPost);
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/event/create`,
-        dataToPost
-      );
-
-      if (response.status === 200) {
-        const eventformId = response.data.event._id;
-        const iqacNumber = formData.iqacNumber;
-        console.log("clonsoling the iqac number : ", iqacNumber);
-        console.log("console data : ", response.data.event._id);
-        console.log("Eventform ID from response:", response.data._id);
-
-        localStorage.setItem(
-          "basicEvent",
-          JSON.stringify({ _id: eventformId })
+      const isUpdating = event1Basics._id;
+      let response;
+      console.log("updating the ID field : ", isUpdating);
+      if (isUpdating) {
+        response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/event/${isUpdating}`,
+          dataToPost
         );
-        localStorage.setItem(
-          "iqacno",
-          JSON.stringify({ iqacNumber: iqacNumber })
-        );
-        toast.success("Data submitted successfully!");
+
+        if (response.status === 200) {
+          toast.success("Event updated successfully!");
+        } else {
+          toast.error("Failed to update event. Please try again.");
+        }
       } else {
-        toast.error("Something went wrong. Please try again.");
+        localStorage.setItem("common_data", JSON.stringify(dataToPost));
+
+        response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/event/create`,
+          dataToPost
+        );
+
+        if (response.status === 200) {
+          const eventformId = response.data.event._id;
+          const iqacNumber = formData.iqacNumber;
+
+          localStorage.setItem(
+            "basicEvent",
+            JSON.stringify({ _id: eventformId })
+          );
+          localStorage.setItem(
+            "iqacno",
+            JSON.stringify({ iqacNumber: iqacNumber })
+          );
+
+          toast.success("Event created successfully!");
+        } else {
+          toast.error("Failed to create event. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Error submitting data:", error);

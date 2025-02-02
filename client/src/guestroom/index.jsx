@@ -15,6 +15,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EndForm from "../EndForm";
 const BookingForm = ({ guestroomData = [] }) => {
+  console.log("Guest Room Data in the Booking Form : ", guestroomData);
   const [formData, setFormData] = useState({
     department: "",
     requestorName: "",
@@ -28,11 +29,8 @@ const BookingForm = ({ guestroomData = [] }) => {
     selectedRooms: [],
   });
   useEffect(() => {
-    if (guestroomData) {
-      setFormData(guestroomData);
-    }
+    setFormData(guestroomData);
   }, [guestroomData]);
-
   useEffect(() => {
     const local = JSON.parse(localStorage.getItem("common_data"));
 
@@ -68,12 +66,18 @@ const BookingForm = ({ guestroomData = [] }) => {
     }));
   };
   const handleRoomChange = (roomId) => {
-    setFormData((prev) => ({
-      ...prev,
-      selectedRooms: prev.selectedRooms.includes(roomId)
+    console.log("Room Id in the Index form  : ", roomId);
+    setFormData((prev) => {
+      const updatedSelectedRooms = prev.selectedRooms.includes(roomId)
         ? prev.selectedRooms.filter((id) => id !== roomId)
-        : [...prev.selectedRooms, roomId],
-    }));
+        : [...prev.selectedRooms, roomId];
+
+      console.log("Updated selectedRooms: ", updatedSelectedRooms);
+      return {
+        ...prev,
+        selectedRooms: updatedSelectedRooms,
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -84,32 +88,41 @@ const BookingForm = ({ guestroomData = [] }) => {
     );
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/guestroom/bookings`,
-        formData
-      );
+      const method = formData._id ? "PUT" : "POST";
+      const url = formData._id
+        ? `${import.meta.env.VITE_API_URL}/guestroom/bookings/${formData._id}`
+        : `${import.meta.env.VITE_API_URL}/guestroom/bookings`;
+
+      const response = await axios({
+        method,
+        url,
+        data: formData,
+      });
 
       console.log("API Response:", response);
 
       if (response && response.data._id) {
         const objectId = response.data._id;
-        console.log("Objectid of the guest room form : ", objectId);
-        if (objectId) {
+        console.log("ObjectId of the guest room form : ", objectId);
+
+        if (!formData._id) {
           let GuestRoom =
             JSON.parse(localStorage.getItem("guestRoomForm")) || {};
           GuestRoom.objectId = objectId;
           localStorage.setItem("guestRoomForm", JSON.stringify(GuestRoom));
           console.log("Updated guestroom form in localStorage:", GuestRoom);
+          toast.success("Event created successfully!");
+        } else {
+          toast.success("Event updated successfully!");
         }
-        toast.success("Event created successfully!");
         console.log("Form Data Submitted:", formData);
       } else {
         console.error("No data found in the response");
-        toast.error("Failed to create the event. Invalid response.");
+        toast.error("Failed to create/update the event. Invalid response.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to create the event. Please try again.");
+      toast.error("Failed to create/update the event. Please try again.");
     }
   };
 

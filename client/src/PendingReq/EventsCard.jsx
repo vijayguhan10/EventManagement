@@ -9,26 +9,41 @@ import EndPopup from "../PopupModels/EndPopup";
 import Forms from "../Components/Form";
 
 const EventsCard = ({ Events, EventPopup }) => {
+  console.log("Event Popup Data : ", EventPopup);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const handleDetailsClick = (event) => {
-    setSelectedEvent(event);
-    setIsPopupOpen(true);
-    setIsEditMode(false); // Ensure it's not in edit mode when opening details
+  const handleDetailsClick = (eventId) => {
+    const eventDetails = EventPopup.find(
+      (event) => event.basicEvent._id === eventId
+    );
+    console.log("Selected Event for Details : ", eventDetails);
+
+    if (eventDetails) {
+      setSelectedEvent(eventDetails); 
+      setIsEditMode(false);           
+      setIsPopupOpen(true);           
+    }
   };
 
-  const handleEditClick = (event) => {
-    setSelectedEvent(event);
-    setIsEditMode(true); // Enable edit mode
-    setIsPopupOpen(false); // Close details popup if open
+  const handleEditClick = (eventId) => {
+    const eventDetails = EventPopup.find(
+      (event) => event.basicEvent._id === eventId
+    );
+    console.log("Selected Event for Edit : ", eventDetails);
+
+    if (eventDetails) {
+      setSelectedEvent(eventDetails);
+      setIsEditMode(true);           
+      setIsPopupOpen(true);          
+    }
   };
 
   const closePopup = () => {
-    setIsPopupOpen(false);
-    setSelectedEvent(null);
-    setIsEditMode(false); // Reset edit mode when closing
+    setIsPopupOpen(false);   
+    setIsEditMode(false);    
+    setSelectedEvent(null);  
   };
 
   return (
@@ -102,13 +117,13 @@ const EventsCard = ({ Events, EventPopup }) => {
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => handleEditClick(event)}
+                    onClick={() => handleEditClick(event._id)}
                     className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDetailsClick(event)}
+                    onClick={() => handleDetailsClick(event._id)}
                     className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
                   >
                     Details
@@ -122,17 +137,15 @@ const EventsCard = ({ Events, EventPopup }) => {
 
       {isPopupOpen && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <EndPopup event={EventPopup} onClose={closePopup} />
+          <EndPopup event={selectedEvent} onClose={closePopup} />
         </div>
       )}
-
       {isEditMode && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-auto">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full  max-h-[90vh] overflow-y-auto">
-            <Forms event={EventPopup} onClose={closePopup} />
+          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-h-[90vh] overflow-y-auto">
+            <Forms event={selectedEvent} onClose={closePopup} />
           </div>
         </div>
-
       )}
     </div>
   );

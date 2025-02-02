@@ -29,12 +29,12 @@ const EndPopup = ({ event, onClose }) => {
   //   handelFetcheventData();
   // }, [iqac]);
 
-  const event1Basics = event[0]?.basicEvent || {};
-  const event2Basics = event[0]?.basicEvent || {};
-  const transportData = event[0]?.transport || [];
-  const guestroomData = event[0]?.guestroom || {};
-  const amenitiesData = event[0]?.foodform || {};
-  const Communicationform = event[0]?.communicationdata || {};
+  const event1Basics = event?.basicEvent || {};
+  const event2Basics = event?.basicEvent || {};
+  const transportData = event?.transport || [];
+  const guestroomData = event?.guestroom || {};
+  const amenitiesData = event?.foodform || {};
+  const Communicationform = event?.communicationdata || {};
 
   console.log("Aminities : ", amenitiesData);
   console.log("Transport data : ", transportData);

@@ -32,7 +32,7 @@ const eventSchema = new mongoose.Schema({
   resourcePersons: { type: [resourcePersonSchema], required: true },
   status: {
     type: String,
-    enum: ["Pending", "Rejected", "Approved", "Corrections"],
+    enum: ["Pending", "Rejected","event-completed", "Approved", "Corrections"],
     default: "Pending",
   },
 });

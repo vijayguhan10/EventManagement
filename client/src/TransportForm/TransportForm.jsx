@@ -50,35 +50,50 @@ export function TransportForm({ TransportForm }) {
     }
 
     try {
-      console.log("Events going to be submitted: ", events);
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/transportform/`,
-        { events: events }
-      );
+      let response;
+      console.log("Events to submit:", events);
 
-      if (response.status === 200 || response.status === 201) {
-        let objectId = [];
-        if (Array.isArray(response.data)) {
-          response.data.forEach((elem) => {
-            if (elem._id) objectId.push(elem._id);
-          });
+      const eventIds = events
+        .filter((event) => event._id)
+        .map((event) => event._id);
+
+      if (eventIds.length > 0) {
+        // Update Multiple Events
+        response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/transportform/`,
+          { events } // Send full events array
+        );
+        toast.success("Events updated successfully!");
+      } else {
+        // Create New Events
+        response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/transportform/`,
+          { events }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          let objectId = [];
+          if (Array.isArray(response.data)) {
+            response.data.forEach((elem) => {
+              if (elem._id) objectId.push(elem._id);
+            });
+          }
+
+          if (objectId.length > 0) {
+            let transportForm =
+              JSON.parse(localStorage.getItem("transportForm")) || [];
+            transportForm = [...transportForm, ...objectId];
+            localStorage.setItem(
+              "transportForm",
+              JSON.stringify(transportForm)
+            );
+          }
+
+          toast.success("All events submitted successfully!");
         }
-
-        console.log("Object IDs of the communication form:", objectId);
-
-        if (objectId.length > 0) {
-          let transportForm =
-            JSON.parse(localStorage.getItem("transportForm")) || [];
-          transportForm = [...transportForm, ...objectId];
-          localStorage.setItem("transportForm", JSON.stringify(transportForm));
-          console.log("Updated transportForm in localStorage:", transportForm);
-        }
-
-        toast.success("All events submitted successfully!");
-        console.log("Submitted Events:", response);
-
-        setEvents([]);
       }
+
+      setEvents([]);
     } catch (error) {
       console.error("Error submitting events:", error);
       toast.error("Failed to submit events. Please try again.");

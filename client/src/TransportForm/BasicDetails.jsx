@@ -48,9 +48,8 @@ export function BasicDetails({ data, setDetails }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updatedFormState = { ...formState, [name]: value };
-    setFormState(updatedFormState);
-    setDetails(updatedFormState); // Update parent
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setDetails({ ...formData, [name]: value });
   };
 
   return (

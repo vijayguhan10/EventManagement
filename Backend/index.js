@@ -10,6 +10,7 @@ const foodform = require("./Router/Amenity");
 const transportform = require("./Router/Transport");
 const endform = require("./Router/endform");
 const Media = require("./Router/Media");
+const common = require("./Router/Common");
 const cors = require("cors");
 dotenv.config();
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/transportform", transportform);
 app.use("/api/endform", endform);
 app.use("/api/media", Media);
 app.use("/api/foodform", foodform);
+app.use("/api/common", common);
 updateevents;
 const PORT = 8000;
 app.listen(PORT, () => {

@@ -8,7 +8,7 @@ const App = () => {
   const location = useLocation();
   const hideHeaderRoutes ='/'; 
   return (
-    <div className="w-full font-Afacad">
+    <div className="w-full font-primary">
         {!hideHeaderRoutes.includes(location.pathname) && <HeaderComponent />}
         <InitialRouter />
     </div>
