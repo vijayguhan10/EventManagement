@@ -25,6 +25,7 @@ function Signup() {
   };
 
   const handleSubmit = async () => {
+    navigate("/dashboard");
     try {
       if (isSignup) {
         const response = await axios.post("http://your-api-endpoint/signup", {
