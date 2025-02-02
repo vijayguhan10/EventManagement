@@ -28,8 +28,13 @@ const eventSchema = new mongoose.Schema({
   categories: { type: [String], required: true },
   logos: { type: [String], required: true },
   description: { type: String, required: true },
-  organizers: { type: [organizerSchema]},
+  organizers: { type: [organizerSchema] },
   resourcePersons: { type: [resourcePersonSchema], required: true },
+  status: {
+    type: String,
+    enum: ["Pending", "Rejected", "Approved", "Corrections"],
+    default: "Pending",
+  },
 });
 
 const Event = mongoose.model("Event", eventSchema);

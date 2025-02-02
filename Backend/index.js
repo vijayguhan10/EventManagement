@@ -32,7 +32,7 @@ app.use("/api/event", Event);
 app.use("/api/messages", messages);
 app.use("/api/guestroom", guestroom);
 app.use("/api/transportform", transportform);
-app.use("/api", endform);
+app.use("/api/endform", endform);
 app.use("/api/media", Media);
 app.use("/api/foodform", foodform);
 updateevents;

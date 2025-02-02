@@ -12,6 +12,11 @@ const EventRequirementSchema = new mongoose.Schema(
       photography: { type: Boolean, default: false },
       videography: { type: Boolean, default: false },
     },
+    status: {
+      type: String,
+      enum: ["Pending", "Rejected", "Approved", "Corrections"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );

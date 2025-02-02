@@ -30,6 +30,11 @@ const transportSchema = new mongoose.Schema(
       name: { type: String, required: true },
       mobileNumber: { type: String, required: true },
     },
+    status: {
+      type: String,
+      enum: ["Pending", "Rejected", "Approved", "Corrections"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );
