@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import {
   FiMenu,
   FiBell,
@@ -10,9 +10,24 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import { CalendarDays } from "lucide-react";
-
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 const HeaderComponent = () => {
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    console.log("Header component mounted.");
+    const token = localStorage.getItem("event_token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token:", decoded.name);
+        setUserName(decoded.name || "");
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
   function initializeLocalStorage() {
     if (!localStorage.getItem("basicEvent")) {
       localStorage.setItem("basicEvent", JSON.stringify({}));
@@ -117,7 +132,7 @@ const HeaderComponent = () => {
               <div className="flex items-center gap-2">
                 <p className="text-gray-600 font-bold">
                   Good evening,
-                  <span className="text-blue-500 font-bold">Vijay Guhan</span>
+                  <span className="text-blue-500 font-bold">{userName}</span>
                 </p>
                 <span className="bg-green-100 font-bold text-green-600 text-xs px-2 py-1 rounded">
                   You're better than this!
