@@ -5,7 +5,7 @@ import {
   FiSettings,
   FiGrid,
   FiPlus,
-  FiInfo,
+  FiLogIn,
   FiLayers,
   FiUsers,
 } from "react-icons/fi";
@@ -107,10 +107,10 @@ const HeaderComponent = () => {
             />
           </div>
           <div className="           w-full h-10 flex items-center justify-center mt-4">
-            <FiUsers
+            <FiLogIn
               onClick={() => navigate("/create-login")}
               className="text-gray-500 text-xl"
-              title="Users"
+              title="FiLogIn"
             />
           </div>
         </div>
