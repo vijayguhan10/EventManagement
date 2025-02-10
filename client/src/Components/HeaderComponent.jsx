@@ -132,7 +132,7 @@ const HeaderComponent = () => {
               <div className="flex items-center gap-2">
                 <p className="text-gray-600 font-bold">
                   Good evening,
-                  <span className="text-blue-500 font-bold">{userName}</span>
+                  <span className="text-blue-500 font-bold"> {userName}</span>
                 </p>
                 <span className="bg-green-100 font-bold text-green-600 text-xs px-2 py-1 rounded">
                   You're better than this!
