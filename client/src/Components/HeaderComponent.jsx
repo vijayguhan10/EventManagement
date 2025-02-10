@@ -91,6 +91,13 @@ const HeaderComponent = () => {
               title="Users"
             />
           </div>
+          <div className="           w-full h-10 flex items-center justify-center mt-4">
+            <FiUsers
+              onClick={() => navigate("/create-login")}
+              className="text-gray-500 text-xl"
+              title="Users"
+            />
+          </div>
         </div>
         <div className="absolute bottom-4 left-0 w-full flex justify-center">
           <img

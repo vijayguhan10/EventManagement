@@ -21,7 +21,7 @@ const createEvent = async (req, res) => {
       requisitionDate,
       mobileNumber,
     } = req.body;
-
+    // eventname:eventName
     if (
       !eventName ||
       !eventType ||

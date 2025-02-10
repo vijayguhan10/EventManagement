@@ -12,6 +12,7 @@ import { TransportForm } from "../TransportForm/TransportForm";
 import GuestRoom from "../guestroom/index";
 import EndForm from "../EndForm";
 import FoodForm from "../FoodForm/FoodForm";
+import CreateLogins from "../Components/CreateLogins";
 const InitialRouter = () => {
   return (
     <Routes>
@@ -27,6 +28,8 @@ const InitialRouter = () => {
       <Route path="/food-form" element={<FoodForm />} />
       <Route path="/guest-room" element={<GuestRoom />} />
       <Route path="/end-form" element={<EndForm />} />
+      <Route path="/create-login" element={<CreateLogins />} />
+
     </Routes>
   );
 };

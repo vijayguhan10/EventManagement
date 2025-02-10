@@ -74,7 +74,7 @@ const EndForm = () => {
         toast.success("Final event submitted successfully!");
 
         setTimeout(() => {
-          localStorage.clear();
+          // localStorage.clear();
           navigate("/Dashboard");
         }, 1000);
       }

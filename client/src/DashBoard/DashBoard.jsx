@@ -58,6 +58,7 @@ const Dashboard = () => {
     mostEventBookingDepartment: "N/A",
   });
   const [loading, setLoading] = useState(true);
+  // console.log(`value of ${value}`)
   const [error, setError] = useState(null);
   const [user] = useState({ name: "vijay guhan", role: "Supervisor" });
 
