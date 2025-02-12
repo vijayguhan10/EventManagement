@@ -27,6 +27,7 @@ const MonthlyChart = () => {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg">
+      <div className="mt-10 ml-10">
       <AreaChart
         width={670}
         height={250}
@@ -62,6 +63,7 @@ const MonthlyChart = () => {
           fill="url(#colorPv)"
         />
       </AreaChart>
+      </div>
     </div>
   );
 };

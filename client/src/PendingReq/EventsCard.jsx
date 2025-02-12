@@ -1,29 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 import {
   CalendarIcon,
   ClockIcon,
   UsersIcon,
   MapPinIcon,
+  ArrowUpTrayIcon,
 } from "@heroicons/react/24/outline";
+
 import EndPopup from "../PopupModels/EndPopup";
 import Forms from "../Components/Form";
+import { toast,ToastContainer } from "react-toastify";
 
 const EventsCard = ({ Events, EventPopup }) => {
-  console.log("Event Popup Data : ", EventPopup);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setRole("Media");
+    }
+  }, []);
 
   const handleDetailsClick = (eventId) => {
     const eventDetails = EventPopup.find(
       (event) => event.basicEvent._id === eventId
     );
-    console.log("Selected Event for Details : ", eventDetails);
-
     if (eventDetails) {
-      setSelectedEvent(eventDetails); 
-      setIsEditMode(false);           
-      setIsPopupOpen(true);           
+      setSelectedEvent(eventDetails);
+      setIsEditMode(false);
+      setIsPopupOpen(true);
     }
   };
 
@@ -31,23 +42,45 @@ const EventsCard = ({ Events, EventPopup }) => {
     const eventDetails = EventPopup.find(
       (event) => event.basicEvent._id === eventId
     );
-    console.log("Selected Event for Edit : ", eventDetails);
-
     if (eventDetails) {
       setSelectedEvent(eventDetails);
-      setIsEditMode(true);           
-      setIsPopupOpen(true);          
+      setIsEditMode(true);
+      setIsPopupOpen(true);
+    }
+  };
+
+  const handlePosterUpload = async (eventId, file) => {
+    try {
+      const formData = new FormData();
+      formData.append("poster", file);
+      formData.append("eventId", eventId);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/event/upload-poster`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      toast.success("Poster uploaded successfully!");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Poster upload failed", error);
     }
   };
 
   const closePopup = () => {
-    setIsPopupOpen(false);   
-    setIsEditMode(false);    
-    setSelectedEvent(null);  
+    setIsPopupOpen(false);
+    setIsEditMode(false);
+    setSelectedEvent(null);
   };
 
   return (
     <div>
+      <ToastContainer/>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Events.map((event) => (
           <div
@@ -56,7 +89,7 @@ const EventsCard = ({ Events, EventPopup }) => {
           >
             <div className="relative">
               <img
-                src={event.image}
+                src={`http://localhost:8000${event.poster}`}
                 alt={event.eventName}
                 className="w-full h-48 object-cover rounded-t-xl"
               />
@@ -128,6 +161,19 @@ const EventsCard = ({ Events, EventPopup }) => {
                   >
                     Details
                   </button>
+
+                  {/* {role === "Media" && ( */}
+                    <label className="px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg cursor-pointer">
+                      Upload Poster
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) =>
+                          handlePosterUpload(event._id, e.target.files[0])
+                        }
+                      />
+                    </label>
+                  {/* )} */}
                 </div>
               </div>
             </div>

@@ -11,7 +11,6 @@ const CalenderUI = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("month");
 
-  // Sample events with start and end dates
   const sampleEvents = [
     { id: 1, name: "Team Meeting", startDate: "2025-01-25", endDate: "2025-01-26" },
     { id: 2, name: "Project Demo", startDate: "2025-01-27", endDate: "2025-01-28" },
@@ -81,7 +80,7 @@ const CalenderUI = () => {
         <div key={i} className={getDayClass(dayNum)}>
           {isValidDay && (
             <>
-              <span className="absolute top-2 right-2 text-sm text-gray-500">
+              <span className="absolute top-2  text-sm text-gray-500">
                 {dayNum}
               </span>
               <div className="mt-6">
@@ -103,8 +102,8 @@ const CalenderUI = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className=" ">
+      <div className=" ml-20 px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -164,7 +163,7 @@ const CalenderUI = () => {
             </div>
           </div>
 
-          <div className="flex flex-col flex-1">
+          <div className="flex flex-col flex-1 mt-4">
             <div className="grid grid-cols-7 bg-gray-50">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div

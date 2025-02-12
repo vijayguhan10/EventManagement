@@ -1,6 +1,6 @@
 const Event = require("../Schema/EventSchema");
-
-// ✅ Create Event
+const multer = require("multer");
+const path = require("path");
 const createEvent = async (req, res) => {
   console.log("Event Request form data:", req.body);
   try {
@@ -100,9 +100,62 @@ const updateEvent = async (req, res) => {
   }
 };
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
+
+const uploadPoster = async (req, res) => {
+  console.log("Hitting the upload poster endpoint");
+  try {
+    const { eventId } = req.body;
+    console.log("Event ID:", eventId);
+    const posterUrl = `/uploads/${req.file.filename}`;
+
+    const event = await Event.findByIdAndUpdate(
+      eventId,
+      { poster: posterUrl },
+      { new: true }
+    );
+
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    res.status(200).json({ message: "Poster uploaded", event });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+const approveEvent = async (req, res) => {
+  try {
+    const { eventId } = req.body;
+
+    const event = await Event.findByIdAndUpdate(
+      eventId,
+      { status: "approved" },
+      { new: true }
+    );
+
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    res.status(200).json({ message: "Event approved", event });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 module.exports = {
+  upload,
   createEvent,
   getAllEvents,
   getEventById,
   updateEvent,
+  uploadPoster,
+  approveEvent,
 };

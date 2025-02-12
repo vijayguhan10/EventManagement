@@ -217,10 +217,10 @@ const Dashboard = () => {
               <button className="text-blue-500 text-xs">Show All</button>
             </div>
             <div className="bg-white rounded-lg shadow-sm">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto text-nowrap overflow-hidden  text-sm">
                 <table className="w-full table-auto text-xs">
                   <thead>
-                    <tr className="text-left text-xs text-gray-500 border-b">
+                    <tr className="text-left  text-gray-500 border-b">
                       <th className="px-6 py-4">Venue</th>
                       <th className="px-6 py-4">Event Name</th>
                       <th className="px-6 py-4">End Date</th>
@@ -236,7 +236,7 @@ const Dashboard = () => {
                           key={event.iqacNumber}
                           className="border-b last:border-b-0"
                         >
-                          <td className="px-6 py-4">{event.eventVenue}</td>
+                          <td className="px-6 text-wrap py-4">{event.eventVenue}</td>
                           <td className="px-6 py-4">{event.eventName}</td>
                           <td className="px-6 py-4">{event.endDate}</td>
                           <td className="px-6 py-4">{event.endTime}</td>

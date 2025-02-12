@@ -10,6 +10,8 @@ const foodform = require("./Router/Amenity");
 const transportform = require("./Router/Transport");
 const endform = require("./Router/endform");
 const Media = require("./Router/Media");
+const Email = require("./Controller/email/Fetch");
+const path = require("path");
 const common = require("./Router/Common");
 const cors = require("cors");
 dotenv.config();
@@ -27,7 +29,7 @@ mongoose
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
   });
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/sece", router);
 app.use("/api/event", Event);
 app.use("/api/messages", messages);

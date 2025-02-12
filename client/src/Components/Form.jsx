@@ -5,6 +5,7 @@ import CommunicationForm from "../CommunicationForm";
 import { TransportForm } from "../TransportForm/TransportForm";
 import GuestRoom from "../guestroom/index";
 import EndForm from "../EndForm";
+import { Home, MessageCircle, Bus, Utensils, Bed, Flag } from "lucide-react";
 
 const Form = ({ event = [] }) => {
   console.log("Events in the Popup FORMS  Console : ", event);
@@ -32,104 +33,110 @@ const Form = ({ event = [] }) => {
 
   return (
     <div className="">
-      <header className="sticky top-0 bg-gray-800 text-white p-4 shadow-md z-50">
-        <h1 className="text-xl font-semibold text-center mb-4">
-          Form Navigation
-        </h1>
-        <nav>
-          <ul className="flex justify-center space-x-8">
+    <header className="sticky top-0 bg-white  ml-20  text-gray-800 p-3 z-50">
+      <div className=" ml-0.5 mx-auto flex items-center justify-evenly px-4">
+        <h1 className="text-lg font-semibold tracking-wide  mr-[17%]">Event Form Navigator</h1>
+        <nav className="ml-84">
+          <ul className="flex space-x-6   text-sm">
             <li>
               <a
                 href="#indexForm"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "indexForm")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'indexForm')}
               >
-                Basic Event
+                <Home size={16} />
+                <span>Basic Event</span>
               </a>
             </li>
             <li>
               <a
                 href="#communicationForm"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "communicationForm")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'communicationForm')}
               >
-                Communication Form
+                <MessageCircle size={16} />
+                <span>Communication</span>
               </a>
             </li>
             <li>
               <a
                 href="#transportForm"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "transportForm")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'transportForm')}
               >
-                Transport Form
+                <Bus size={16} />
+                <span>Transport</span>
               </a>
             </li>
             <li>
               <a
                 href="#foodForm"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "foodForm")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'foodForm')}
               >
-                Food Form
+                <Utensils size={16} />
+                <span>Food</span>
               </a>
             </li>
             <li>
               <a
                 href="#guestRoom"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "guestRoom")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'guestRoom')}
               >
-                Guest Room
+                <Bed size={16} />
+                <span>Guest Room</span>
               </a>
             </li>
             <li>
               <a
                 href="#endForm"
-                className="hover:text-orange-500"
-                onClick={(e) => scrollToSection(e, "endForm")}
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                onClick={(e) => scrollToSection(e, 'endForm')}
               >
-                End Form
+                <Flag size={16} />
+                <span>End Form</span>
               </a>
             </li>
           </ul>
         </nav>
-      </header>
+      </div>
+    </header>
 
-      <div className="ml-20">
+      <div className="ml-20 text-sm">
         <div
           id="indexForm"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <Index event1Basics={event1Basics} />
         </div>
         <div
           id="communicationForm"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <CommunicationForm Communicationform={Communicationform} />
         </div>
         <div
           id="transportForm"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <TransportForm TransportForm={transportData} />
         </div>
         <div
           id="foodForm"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <FoodForm FoodForm={amenitiesData} />
         </div>
         <div
           id="guestRoom"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <GuestRoom guestroomData={guestroomData} />
         </div>
         <div
           id="endForm"
-          className="p-10 my-6 border border-gray-300 bg-gray-50"
+          className=" my-6 "
         >
           <EndForm />
         </div>
