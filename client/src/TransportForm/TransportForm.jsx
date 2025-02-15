@@ -7,10 +7,17 @@ import { DriverDetails } from "./DriverDetails";
 import { FormFooter } from "./FormFooter";
 import { toast, ToastContainer } from "react-toastify";
 import EndForm from "../EndForm";
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+export function TransportForm() {
+  const navitgate=useNavigate();
+  const location = useLocation();
+  const TransportForm = useSelector((state) => state.event.event?.transport);
 
-export function TransportForm({ TransportForm }) {
+  useEffect(() => {}, [TransportForm]);
   console.log("transport Form : ", TransportForm);
   const [events, setEvents] = useState([]);
   const [currentEvent, setCurrentEvent] = useState({
@@ -90,6 +97,9 @@ export function TransportForm({ TransportForm }) {
           }
 
           toast.success("All events submitted successfully!");
+          setTimeout(() => {
+            navitgate('/forms/food')
+          }, 1000);
         }
       }
 

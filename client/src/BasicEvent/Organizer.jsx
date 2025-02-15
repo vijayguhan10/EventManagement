@@ -25,7 +25,7 @@ const OrganizersForm = ({ organizers, setOrganizers }) => {
   };
 
   return (
-    <div>
+    <div className="">
       <button
         type="button"
         onClick={() => setIsPopupOpen(true)}

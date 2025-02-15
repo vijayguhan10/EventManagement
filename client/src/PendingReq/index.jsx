@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Dashboard from "./Dashboard";
 import EventsCard from "./EventsCard";
 import axios from "axios";
+
 function PendingDashboard() {
   const [activeTab, setActiveTab] = useState("pending");
   const [pendingEvents, setPendingEvents] = useState([]); // Ensure initial value is an array

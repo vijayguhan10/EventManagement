@@ -10,10 +10,15 @@ import EventTypePopup from "./EventPopup";
 import OrganizersForm from "./Organizer";
 import ResourcePersonsForm from "./ResourcePopup";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+function Index() {
+  const navigate=useNavigate();
+  const event1Basics = useSelector((state) => state.event.event.basicEvent);
 
-function Index({ event1Basics }) {
+  // const event1Basics = location.state.event.basicEvent;
   console.log("Event1Basics : ", event1Basics);
   const [SelectedDepartment, setSelectedDepartment] = useState(false);
   const [SelectedLogo, setSelectedLogo] = useState(false);
@@ -61,7 +66,7 @@ function Index({ event1Basics }) {
         eventName: event1Basics.eventName || "",
         eventType: event1Basics.eventType || "",
         eventVenue: event1Basics.eventVenue || "",
-        startDate: event1Basics.startDate || "",
+        startDate: event1Basics.startDate,
         endDate: event1Basics.endDate || "",
         startTime: event1Basics.startTime || "",
         endTime: event1Basics.endTime || "",
@@ -88,8 +93,7 @@ function Index({ event1Basics }) {
       };
 
       console.log("Data to be posted:", dataToPost);
-
-      const isUpdating = event1Basics._id;
+      const isUpdating = event1Basics?._id;
       let response;
       console.log("updating the ID field : ", isUpdating);
       if (isUpdating) {
@@ -104,13 +108,14 @@ function Index({ event1Basics }) {
           toast.error("Failed to update event. Please try again.");
         }
       } else {
+        console.log("data to be posted");
         localStorage.setItem("common_data", JSON.stringify(dataToPost));
 
         response = await axios.post(
           `${import.meta.env.VITE_API_URL}/event/create`,
           dataToPost
         );
-
+        console.log("response of the form status : ", response);
         if (response.status === 200) {
           const eventformId = response.data.event._id;
           const iqacNumber = formData.iqacNumber;
@@ -125,6 +130,9 @@ function Index({ event1Basics }) {
           );
 
           toast.success("Event created successfully!");
+          setTimeout(() => {
+            navigate('/forms/communication')
+          }, 1000);
         } else {
           toast.error("Failed to create event. Please try again.");
         }
@@ -195,6 +203,7 @@ function Index({ event1Basics }) {
 
   return (
     <div className="w-full bg-gray-50 py-8 px-4">
+      <ToastContainer />
       <div className=" mx-auto bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-center mb-8">
           Request to Organize Event
@@ -485,12 +494,20 @@ function Index({ event1Basics }) {
             />
           </div>
 
-          <div className=" justify-end">
+          <div className="flex justify-end space-x-2">
             <button
               type="submit"
-              className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="rounded-md bg-green-600 px-6 h-10 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              Save the data
+              Yes, Save Data
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forms/end")}
+              className="rounded-md bg-red-600 px-6 h-10 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              No, Go to EndForm
             </button>
           </div>
         </form>

@@ -6,9 +6,13 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FoodTable from "./FoodTable";
-import EndForm from "../EndForm";
+import { useNavigate } from "react-router-dom";
 import Signatures from "./Signatures";
-function FoodForm({ FoodForm }) {
+import { useSelector } from "react-redux";
+function FoodForm() {
+  const navigate=useNavigate();
+  const FoodForm = useSelector((state) => state.event.event?.foodform);
+  useEffect(() => {}, [FoodForm]);
   console.log("Food Form data is comming for the Edit : ", FoodForm);
   const [formData, setFormData] = useState({
     iqacNumber: "",
@@ -48,8 +52,8 @@ function FoodForm({ FoodForm }) {
       setFormData((prev) => ({
         ...prev,
         ...FoodForm,
-        dates: transformedDates, 
-        foodDetails: FoodForm.foodDetails || {}, 
+        dates: transformedDates,
+        foodDetails: FoodForm.foodDetails || {},
       }));
     }
   }, [FoodForm]);
@@ -100,6 +104,9 @@ function FoodForm({ FoodForm }) {
           amenityForm.objectId = objectId;
           localStorage.setItem("amenityForm", JSON.stringify(amenityForm));
           console.log("Updated amenityForm in localStorage:", amenityForm);
+          setTimeout(() => {
+            navigate('/forms/guest-room')
+          }, 1000);
         }
       }
     } catch (error) {
@@ -123,12 +130,20 @@ function FoodForm({ FoodForm }) {
           </div>
           <FoodTable formData={formData} setFormData={setFormData} />
           <Signatures formData={formData} setFormData={setFormData} />
-          <div className="mt-6 flex justify-end">
+          <div className="flex justify-end space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="rounded-md bg-green-600 px-6 h-10 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              Submit Form
+              Yes, Save Data
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forms/end")}
+              className="rounded-md bg-red-600 px-6 h-10 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              No, Go to EndForm
             </button>
           </div>
         </form>

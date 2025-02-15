@@ -32,7 +32,7 @@ const EventTypePopup = ({ data, HandelChange, onclose, ClosingProperty }) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
+      className="fixed inset-0 flex items-center justify-center bg-[#00000020] bg-opacity-50"
       onClick={handleClose}
     >
       <div

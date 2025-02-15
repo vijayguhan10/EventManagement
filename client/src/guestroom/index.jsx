@@ -6,6 +6,7 @@ import {
   Phone,
   BookOpen,
   MapPin,
+  Import,
 } from "lucide-react";
 import axios from "axios";
 import RoomSelection from "./RoomSelection";
@@ -13,8 +14,9 @@ import FormInput from "./FormInput";
 import EventTypeSelection from "./EventTypeSelection";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EndForm from "../EndForm";
-const BookingForm = ({ guestroomData = [] }) => {
+import { useSelector } from "react-redux";
+const BookingForm = () => {
+  const guestroomData = useSelector((state) => state.event.event?.guestroom);
   console.log("Guest Room Data in the Booking Form : ", guestroomData);
   const [formData, setFormData] = useState({
     department: "",
@@ -29,7 +31,7 @@ const BookingForm = ({ guestroomData = [] }) => {
     selectedRooms: [],
   });
   useEffect(() => {
-    setFormData(guestroomData);
+    if (guestroomData) setFormData(guestroomData);
   }, [guestroomData]);
   useEffect(() => {
     const local = JSON.parse(localStorage.getItem("common_data"));
@@ -44,7 +46,7 @@ const BookingForm = ({ guestroomData = [] }) => {
         eventType: eventData.eventType?.trim()
           ? eventData.eventType
           : "common event",
-        date: eventData.startDate || "",
+        date: eventData.startDate,
 
         department: eventData.departments
           ? eventData.departments.join(", ")
@@ -233,14 +235,22 @@ const BookingForm = ({ guestroomData = [] }) => {
               onRoomChange={handleRoomChange}
             />
 
-            <div className="pt-6">
-              <button
-                type="submit"
-                className="w-48 bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold"
-              >
-                Submit Booking Request
-              </button>
-            </div>
+<div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="rounded-md bg-green-600 px-6 h-10 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            >
+              Yes, Save Data
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forms/end")}
+              className="rounded-md bg-red-600 px-6 h-10 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              No, Go to EndForm
+            </button>
+          </div>
           </form>
         </div>
       </div>

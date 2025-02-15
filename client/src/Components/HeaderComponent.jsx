@@ -9,12 +9,14 @@ import {
   FiLayers,
   FiUsers,
 } from "react-icons/fi";
+import { useDispatch } from "react-redux";
+import { resetEventState } from "../redux/EventSlice";
 import { CalendarDays } from "lucide-react";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 const HeaderComponent = () => {
   const [userName, setUserName] = useState("");
-
+  const dispatch = useDispatch();
   useEffect(() => {
     console.log("Header component mounted.");
     const token = localStorage.getItem("event_token");
@@ -52,6 +54,16 @@ const HeaderComponent = () => {
 
     console.log("Local storage initialized with default forms.");
   }
+  function clearLocalStorage() {
+    dispatch(resetEventState());
+    localStorage.removeItem("basicEvent");
+    localStorage.removeItem("communicationForm");
+    localStorage.removeItem("transportForm");
+    localStorage.removeItem("iqacno");
+    localStorage.removeItem("amenityForm");
+    localStorage.removeItem("guestRoomForm");
+  }
+
   const navigate = useNavigate();
   return (
     <div className="flex bg-[#ffffff]">
@@ -78,6 +90,7 @@ const HeaderComponent = () => {
           <div className="w-full h-10 flex items-center justify-center mt-4">
             <FiPlus
               onClick={() => {
+                clearLocalStorage();
                 initializeLocalStorage();
                 navigate("/forms");
               }}

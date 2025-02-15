@@ -2,10 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
 import { CloudCog } from "lucide-react";
-
-const CommunicationForm = ({ Communicationform = {} }) => {
+import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+const CommunicationForm = () => {
+  const Navigate = useNavigate();
+  const location = useLocation();
+  const Communicationform = useSelector(
+    (state) => state.event.event?.communicationdata
+  );
+  console.log(
+    "Communicationform in the CommunicationForm : ",
+    Communicationform
+  );
+  useEffect(() => {
+    // console.log("Communicationform in the CommunicationForm : ", Communicationform);
+  }, [Communicationform]);
   const navigation = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -141,6 +154,9 @@ const CommunicationForm = ({ Communicationform = {} }) => {
           console.log("Updated guestroom form in localStorage:", Communication);
         }
         toast.success("Communication form saved successfully");
+        setTimeout(() => {
+          Navigate("/forms/transport");
+        }, 1000);
       } else {
         console.error("No data found in the response");
         toast.error("Failed to create the event. Invalid response.");
@@ -228,12 +244,20 @@ const CommunicationForm = ({ Communicationform = {} }) => {
               </div>
             ))}
           </div>
-          <div className="text-center mt-6">
+          <div className="flex justify-end space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700"
+              className="rounded-md bg-green-600 px-6 h-10 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              Submit
+              Yes, Save Data
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forms/end")}
+              className="rounded-md bg-red-600 px-6 h-10 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              No, Go to EndForm
             </button>
           </div>
         </form>

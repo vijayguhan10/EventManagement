@@ -91,8 +91,8 @@ const EventsCard = ({ Events, EventPopup }) => {
               <img
                 src={`http://localhost:8000${event.poster}`}
                 alt={event.eventName}
-                className="w-full h-48 object-cover rounded-t-xl"
-              />
+                className="w-full h-72 object-contain object-center rounded-t-xl"
+                />
               <span
                 className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${
                   event.status === "Upcoming"

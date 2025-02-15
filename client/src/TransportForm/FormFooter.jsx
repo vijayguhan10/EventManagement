@@ -28,12 +28,22 @@ export function FormFooter() {
         >
           Reset
         </button>
-        <button
-          type="submit"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-        >
-          Submit
-        </button>
+        <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="rounded-md bg-green-600 px-6 h-10 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            >
+              Yes, Save Data
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forms/end")}
+              className="rounded-md bg-red-600 px-6 h-10 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              No, Go to EndForm
+            </button>
+          </div>
       </div>
     </div>
   );

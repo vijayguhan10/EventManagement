@@ -8,7 +8,14 @@ const EndForm = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-
+  function clearLocalStorage() {
+    localStorage.removeItem("basicEvent");
+    localStorage.removeItem("communicationForm");
+    localStorage.removeItem("transportForm");
+    localStorage.removeItem("iqacno");
+    localStorage.removeItem("amenityForm");
+    localStorage.removeItem("guestRoomForm");
+  }
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
@@ -74,7 +81,7 @@ const EndForm = () => {
         toast.success("Final event submitted successfully!");
 
         setTimeout(() => {
-          // localStorage.clear();
+          clearLocalStorage();
           navigate("/Dashboard");
         }, 1000);
       }

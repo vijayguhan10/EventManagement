@@ -217,7 +217,7 @@ const Dashboard = () => {
               <button className="text-blue-500 text-xs">Show All</button>
             </div>
             <div className="bg-white rounded-lg shadow-sm">
-              <div className="overflow-x-auto text-nowrap overflow-hidden  text-sm">
+              <div className="overflow-x-auto text-nowrap h-72 overflow-y-scroll  text-sm">
                 <table className="w-full table-auto text-xs">
                   <thead>
                     <tr className="text-left  text-gray-500 border-b">
@@ -229,7 +229,7 @@ const Dashboard = () => {
                       <th className="px-6 py-4">Phone</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="">
                     {currentEvents.length > 0 ? (
                       currentEvents.map((event) => (
                         <tr

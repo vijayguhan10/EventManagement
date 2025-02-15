@@ -47,9 +47,9 @@ function CreateLogins() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
+    <div className="flex ml-20 p-4">
       <ToastContainer />
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl  p-8">
         <h1 className="text-3xl mb-6 text-center">Create Account</h1>
 
         <input
