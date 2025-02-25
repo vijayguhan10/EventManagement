@@ -6,7 +6,6 @@ import CommunicationMedia from "./CommunicationMedia";
 import AmenitiesForm from "./AmenitiesForm";
 import Guestroom from "./GuestRoom";
 import TransportRequisition from "./TransportRequisition";
-import "./index.css";
 import { PanelBottomClose } from "lucide-react";
 const EndPopup = ({ event, onClose }) => {
   console.log("Events in the Popup Console : ", event);

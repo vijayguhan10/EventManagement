@@ -51,10 +51,10 @@ const BookingForm = () => {
         department: eventData.departments
           ? eventData.departments.join(", ")
           : "",
-        requestorName: eventData.organizers[0].name || "",
-        empId: eventData.organizers[0].employeeId || "",
-        designation: eventData.organizers[0].designation || "",
-        mobile: eventData.organizers[0].phone || "",
+        requestorName: eventData.organizers.name || "",
+        empId: eventData.organizers.employeeId || "",
+        designation: eventData.organizers.designation || "",
+        mobile: eventData.organizers.phone || "",
         purpose: eventData.description,
       }));
     }

@@ -18,6 +18,10 @@ export function BasicDetails({ data, setDetails }) {
 
     if (local) {
       const eventData = local;
+      console.log("local storage data in the transport form: ", eventData);
+
+      const organizers = eventData.organizers || {};
+      console.log("Organizers data: ", organizers);
 
       setFormState({
         iqacNumber: eventData.iqacNumber || "",
@@ -25,23 +29,19 @@ export function BasicDetails({ data, setDetails }) {
         departmentName: eventData.departments
           ? eventData.departments.join(", ")
           : "",
-        requestorName: eventData.organizers?.[0]?.name || "",
-        empId: eventData.organizers?.[0]?.employeeId || "",
-        designation: eventData.organizers?.[0]?.designation || "",
-        mobileNumber: eventData.organizers?.[0]?.phone || "",
+       
       });
 
-      // Update the parent component
       setDetails({
         iqacNumber: eventData.iqacNumber || "",
         requisitionDate: eventData.startDate || "",
         departmentName: eventData.departments
           ? eventData.departments.join(", ")
           : "",
-        requestorName: eventData.organizers?.[0]?.name || "",
-        empId: eventData.organizers?.[0]?.employeeId || "",
-        designation: eventData.organizers?.[0]?.designation || "",
-        mobileNumber: eventData.organizers?.[0]?.phone || "",
+        requestorName: organizers.name || "",
+        empId: organizers.employeeId || "",
+        designation: organizers.designation || "",
+        mobileNumber: organizers.phone || "",
       });
     }
   }, []);

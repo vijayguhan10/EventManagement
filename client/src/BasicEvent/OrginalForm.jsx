@@ -14,11 +14,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 function Index() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const event1Basics = useSelector((state) => state.event.event.basicEvent);
 
-  // const event1Basics = location.state.event.basicEvent;
   console.log("Event1Basics : ", event1Basics);
   const [SelectedDepartment, setSelectedDepartment] = useState(false);
   const [SelectedLogo, setSelectedLogo] = useState(false);
@@ -82,6 +82,39 @@ function Index() {
       setResourcePersons(event1Basics.resourcePersons || []);
     }
   }, [event1Basics]);
+
+  useEffect(() => {
+    if (!event1Basics) {
+      const empiddecode = localStorage.getItem("event_token");
+      if (empiddecode) {
+        try {
+          const data = jwtDecode(empiddecode);
+          console.log("employee data : ", data);
+
+          setOrganizers((prev) => {
+            const updatedOrganizer = {
+              employeeId: data.empid,
+              name: data.name,
+              designation: data.designation,
+              phone: data.phonenumber,
+            };
+            console.log(
+              "organizer data filled (inside setState):",
+              updatedOrganizer
+            );
+            return updatedOrganizer;
+          });
+        } catch (error) {
+          console.error("Invalid token:", error);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Organizer state updated:", organizers);
+  }, [organizers]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -131,7 +164,7 @@ function Index() {
 
           toast.success("Event created successfully!");
           setTimeout(() => {
-            navigate('/forms/communication')
+            navigate("/forms/communication");
           }, 1000);
         } else {
           toast.error("Failed to create event. Please try again.");
@@ -276,10 +309,10 @@ function Index() {
             )}
           </div>
 
-          <OrganizersForm
+          {/* <OrganizersForm
             organizers={organizers}
             setOrganizers={setOrganizers}
-          />
+          /> */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Name of the Event

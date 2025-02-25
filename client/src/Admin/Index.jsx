@@ -5,7 +5,7 @@ import EventController from './EventCoordinator'
 const Index = () => {
   return (
     <div className=' bg-gray-50 '>
-        <div className='flex  flex-row'>
+        <div className='flex  flex-row gap-0'>
         <CreateLogins/>
         <EventController/>
         </div>

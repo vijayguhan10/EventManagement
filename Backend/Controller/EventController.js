@@ -80,11 +80,14 @@ const getEventById = async (req, res) => {
   }
 };
 
-// ✅ Update Event
 const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
+    let updateData = { ...req.body };
+      updateData.status = "Approved";
+    
+
+    const updatedEvent = await Event.findByIdAndUpdate(id, updateData, {
       new: true,
     });
 
@@ -92,9 +95,12 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    res
-      .status(200)
-      .json({ message: "Event updated successfully", event: updatedEvent });
+    res.status(200).json({
+      message: req.body.approve
+        ? "Event approved successfully"
+        : "Event updated successfully",
+      event: updatedEvent,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

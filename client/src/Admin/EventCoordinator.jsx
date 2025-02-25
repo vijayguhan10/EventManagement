@@ -155,13 +155,13 @@ function EventController() {
   }, [searchTerm]);
 
   return (
-    <div className="ml-20 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="ml- bg-gradient-to-br from-gray-50 to-gray-100">
       <div className=" mx-auto  sm:px-6 lg:px-8 ">
         <div className="bg-white rounded-xl overflow-hidden ">
           {/* Header */}
           <div className=" py-5 border-b border-gray-200 bg-gray-50">
             <h2 className="text-2xl font-semibold text-gray-800">
-              Employee Directory
+              Teaching Staffs
             </h2>
           </div>
 
@@ -182,7 +182,7 @@ function EventController() {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto h-[300px]">
+          <div className="overflow-x-auto h-[450px]">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>

@@ -6,7 +6,7 @@ import axios from "axios";
 import { FiMoreHorizontal } from "react-icons/fi";
 import DonutChart from "./DonutChart";
 import MonthlyChart from "./MonthlyChart";
-import { toast } from "react-toastify"; // Ensure you have this installed
+import { toast } from "react-toastify";
 
 const recentBookings = [
   {
@@ -157,8 +157,9 @@ const Dashboard = () => {
           <span className="text-blue-500">Pending Collaborations</span>
         </div>
         <div className="grid grid-cols-4 gap-6 mb-8">
-          {/* Total Bookings in This Month */}
-          <div className="bg-blue-400 rounded-lg p-6 text-white relative overflow-hidden">
+          {/* Total Bookings in This M
+          onth */}
+          <div className="bg-blue-400 rounded-lg p-6  relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-4xl font-bold mb-1">
                 {dashboardData.totalBookingsThisMonth}
@@ -171,7 +172,7 @@ const Dashboard = () => {
           </div>
 
           {/* Number of Events Today */}
-          <div className="bg-[#80b584cb] rounded-lg p-6 text-white relative overflow-hidden">
+          <div className="bg-[#80b584cb] rounded-lg p-6  relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-4xl font-bold mb-1">
                 {dashboardData.eventsToday}
@@ -184,7 +185,7 @@ const Dashboard = () => {
           </div>
 
           {/* Most Event Booking Department */}
-          <div className="bg-[#b178b5e4] rounded-lg p-6 text-white relative overflow-hidden">
+          <div className="bg-[#b178b5e4] rounded-lg p-6  relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-4xl font-bold mb-1">
                 {dashboardData.mostEventBookingDepartment}
@@ -199,7 +200,7 @@ const Dashboard = () => {
           </div>
 
           {/* User Satisfaction Rating */}
-          <div className="bg-[#e25c23af] rounded-lg p-6 text-white relative overflow-hidden">
+          <div className="bg-[#e25c23af] rounded-lg p-6  relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-4xl font-bold mb-1">3.5</h3>
               <p className="text-sm opacity-90">User satisfaction rating</p>
@@ -217,55 +218,59 @@ const Dashboard = () => {
               <button className="text-blue-500 text-xs">Show All</button>
             </div>
             <div className="bg-white rounded-lg shadow-sm">
-              <div className="overflow-x-auto text-nowrap h-72 overflow-y-scroll  text-sm">
-                <table className="w-full table-auto text-xs">
-                  <thead>
-                    <tr className="text-left  text-gray-500 border-b">
-                      <th className="px-6 py-4">Venue</th>
-                      <th className="px-6 py-4">Event Name</th>
-                      <th className="px-6 py-4">End Date</th>
-                      <th className="px-6 py-4">End Time</th>
-                      <th className="px-6 py-4">Organizer</th>
-                      <th className="px-6 py-4">Phone</th>
-                    </tr>
-                  </thead>
-                  <tbody className="">
-                    {currentEvents.length > 0 ? (
-                      currentEvents.map((event) => (
-                        <tr
-                          key={event.iqacNumber}
-                          className="border-b last:border-b-0"
-                        >
-                          <td className="px-6 text-wrap py-4">{event.eventVenue}</td>
-                          <td className="px-6 py-4">{event.eventName}</td>
-                          <td className="px-6 py-4">{event.endDate}</td>
-                          <td className="px-6 py-4">{event.endTime}</td>
-                          <td className="px-6 py-4">
-                            {event.organizers.map((organizer, index) => (
-                              <div key={index}>
-                                <p>{organizer.name}</p>
-                              </div>
-                            ))}
-                          </td>
-                          <td className="px-6 py-4">
-                            {event.organizers.map((organizer, index) => (
-                              <div key={index}>{organizer.phone}</div>
-                            ))}
+              <div className="overflow-x-auto text-nowrap h-72 overflow-y-hidden  text-sm">
+                <div className="custom-scrollbar">
+                  <table className="w-full table-auto text-xs custom-scrollbar">
+                    <thead>
+                      <tr className="text-left text-gray-500 border-b">
+                        <th className="px-6 py-4">Venue</th>
+                        <th className="px-6 py-4">Event Name</th>
+                        <th className="px-6 py-4">End Date</th>
+                        <th className="px-6 py-4">End Time</th>
+                        <th className="px-6 py-4">Organizer</th>
+                        <th className="px-6 py-4">Phone</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentEvents.length > 0 ? (
+                        currentEvents.map((event) => (
+                          <tr
+                            key={event.iqacNumber}
+                            className="border-b last:border-b-0"
+                          >
+                            <td className="px-6 text-wrap py-4">
+                              {event.eventVenue}
+                            </td>
+                            <td className="px-6 py-4">{event.eventName}</td>
+                            <td className="px-6 py-4">{event.endDate}</td>
+                            <td className="px-6 py-4">{event.endTime}</td>
+                            <td className="px-6 py-4">
+                              {event.organizers.map((organizer, index) => (
+                                <div key={index}>
+                                  <p>{organizer.name}</p>
+                                </div>
+                              ))}
+                            </td>
+                            <td className="px-6 py-4">
+                              {event.organizers.map((organizer, index) => (
+                                <div key={index}>{organizer.phone}</div>
+                              ))}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan="7"
+                            className="px-6 py-4 text-center text-gray-500"
+                          >
+                            No results.
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="7"
-                          className="px-6 py-4 text-center text-gray-500"
-                        >
-                          No results.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

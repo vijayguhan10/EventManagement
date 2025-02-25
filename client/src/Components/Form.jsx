@@ -3,14 +3,23 @@ import { Link, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setEventData } from "../redux/EventSlice";
 import { Home, MessageCircle, Bus, Utensils, Bed, Flag } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 import TermsandConditon from "./Terms&Conditons";
+
 const Form = ({ event = {} }) => {
   const dispatch = useDispatch();
   const storedEvent = useSelector((state) => state.event.event);
   console.log("stored event : ", storedEvent);
+
+  const token = localStorage.getItem("event_token");
+  const decodedToken = token ? jwtDecode(token) : null;
+  let role = decodedToken ? decodedToken.role : null;
+  role = "Iqac";
   useEffect(() => {
     dispatch(setEventData(event));
   }, []);
+
+  const hasEventData = Object.keys(event).length > 0;
 
   return (
     <div>
@@ -21,60 +30,180 @@ const Form = ({ event = {} }) => {
           </h1>
           <nav className="ml-84">
             <ul className="flex space-x-6 text-sm">
-              <li>
-                <Link
-                  to="/forms/basic"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <Home size={16} />
-                  <span>Basic Event</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/forms/communication"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <MessageCircle size={16} />
-                  <span>Communication</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/forms/transport"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <Bus size={16} />
-                  <span>Transport</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/forms/food"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <Utensils size={16} />
-                  <span>Food</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/forms/guest-room"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <Bed size={16} />
-                  <span>Guest Room</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/forms/end"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
-                >
-                  <Flag size={16} />
-                  <span>End Form</span>
-                </Link>
-              </li>
+              {hasEventData && storedEvent ? (
+                <>
+                  {role === "systemadmin" && (
+                    <li>
+                      <Link
+                        to="/forms/basic"
+                        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                      >
+                        <Home size={16} />
+                        <span>Basic Event</span>
+                      </Link>
+                    </li>
+                  )}
+                  {role === "Mediamax" && (
+                    <li>
+                      <Link
+                        to="/forms/communication"
+                        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                      >
+                        <MessageCircle size={16} />
+                        <span>Communication</span>
+                      </Link>
+                    </li>
+                  )}
+                  {role === "transport" && (
+                    <li>
+                      <Link
+                        to="/forms/transport"
+                        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                      >
+                        <Bus size={16} />
+                        <span>Transport</span>
+                      </Link>
+                    </li>
+                  )}
+                  {role === "food" && (
+                    <li>
+                      <Link
+                        to="/forms/food"
+                        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                      >
+                        <Utensils size={16} />
+                        <span>Food</span>
+                      </Link>
+                    </li>
+                  )}
+                  {role === "guestroom" && (
+                    <li>
+                      <Link
+                        to="/forms/guest-room"
+                        className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                      >
+                        <Bed size={16} />
+                        <span>Guest Room</span>
+                      </Link>
+                    </li>
+                  )}
+                  {role === "Iqac" && (
+                    <>
+                      <li>
+                        <Link
+                          to="/forms/basic"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <Home size={16} />
+                          <span>Basic Event</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/forms/communication"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <MessageCircle size={16} />
+                          <span>Communication</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/forms/transport"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <Bus size={16} />
+                          <span>Transport</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/forms/food"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <Utensils size={16} />
+                          <span>Food</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/forms/guest-room"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <Bed size={16} />
+                          <span>Guest Room</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/forms/end"
+                          className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                        >
+                          <Flag size={16} />
+                          <span>End Form</span>
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      to="/forms/basic"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <Home size={16} />
+                      <span>Basic Event</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/forms/communication"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <MessageCircle size={16} />
+                      <span>Communication</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/forms/transport"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <Bus size={16} />
+                      <span>Transport</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/forms/food"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <Utensils size={16} />
+                      <span>Food</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/forms/guest-room"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <Bed size={16} />
+                      <span>Guest Room</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/forms/end"
+                      className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition"
+                    >
+                      <Flag size={16} />
+                      <span>End Form</span>
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </div>

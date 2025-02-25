@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -7,13 +7,23 @@ import "react-toastify/dist/ReactToastify.css";
 function CreateLogins() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
-    password: "",
-    role: "Media",
+    emailId: "",
+    password: "sece@123",
+    phoneNumber: "",
+    designation: "",
+    dept: "",
   });
+  const [file, setFile] = useState(null);
   const navigate = useNavigate();
-
-  const roles = ["Media", "Dept", "Amenity", "System Admin", "Transport"];
+  const designations = [
+    "Media",
+    "Food",
+    "Transport",
+    "System Admin",
+    "IQAC",
+    "Professor",
+    "HOD",
+  ];
 
   const handleChange = (e) => {
     setFormData({
@@ -21,73 +31,105 @@ function CreateLogins() {
       [e.target.name]: e.target.value,
     });
   };
-
-  const handleSubmit = async () => {
+  const getallstaffs = async () => {
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/sece/signup`,
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        }
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/sece/getallstaffs`
       );
-    //   localStorage.setItem("event_token", response.data.token);
-      toast.success("created the Login!");
-    //   navigate("/dashboard");
+      console.log("response on fetched the  Staffs : ", response.data);
     } catch (error) {
       console.error("Error", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Signup failed!");
-      } else {
-        toast.error("Network error. Please check your connection.");
-      }
+      toast.error(error.response?.data?.message || "Signup failed!");
+    }
+  };
+  useEffect(() => {
+    getallstaffs();
+  }, []);
+  const handleSubmit = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/sece/signup`, formData);
+      toast.success("Created the Login!");
+    } catch (error) {
+      console.error("Error", error);
+      toast.error(error.response?.data?.message || "Signup failed!");
+    }
+  };
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+  const handleUpload = async () => {
+    if (!file) {
+      toast.error("Please select an Excel file.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/sece/upload-excel`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      console.log("response : ", response.data);
+      toast.success("Excel file uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading file", error);
+      toast.error(error.response?.data?.message || "Upload failed!");
     }
   };
 
   return (
-    <div className="flex ml-20 p-4">
+    <div className="flex flex-col items-center p-4 ml-20">
       <ToastContainer />
-      <div className="w-full max-w-md bg-white rounded-2xl  p-8">
+      <div className="w-full  bg-white rounded-2xl p-8 shadow-lg">
         <h1 className="text-3xl mb-6 text-center">Create Account</h1>
 
         <input
           type="text"
           name="name"
           placeholder="Your Name"
-          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
           value={formData.name}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="dept"
+          placeholder="Enter Department"
+          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          value={formData.dept}
           onChange={handleChange}
         />
 
         <input
           type="email"
-          name="email"
+          name="emailId"
           placeholder="Your Email"
-          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={formData.email}
+          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          value={formData.emailId}
           onChange={handleChange}
         />
 
         <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={formData.password}
+          type="text"
+          name="phoneNumber"
+          placeholder="Phone Number"
+          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          value={formData.phoneNumber}
           onChange={handleChange}
         />
 
         <select
-          name="role"
-          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={formData.role}
+          name="designation"
+          className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          value={formData.designation}
           onChange={handleChange}
         >
-          {roles.map((role) => (
-            <option key={role} value={role}>
-              {role}
+          {designations.map((designation) => (
+            <option key={designation} value={designation}>
+              {designation}
             </option>
           ))}
         </select>
@@ -105,6 +147,22 @@ function CreateLogins() {
         >
           Go to Dashboard
         </button>
+
+        <div className="mt-6">
+          <h2 className="text-xl mb-2 text-center">Upload Excel Sheet</h2>
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={handleFileChange}
+            className="w-full px-4 py-3 mb-4 rounded-lg border border-gray-300"
+          />
+          <button
+            onClick={handleUpload}
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300"
+          >
+            Upload Excel
+          </button>
+        </div>
       </div>
     </div>
   );

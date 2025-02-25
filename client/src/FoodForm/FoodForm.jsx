@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Signatures from "./Signatures";
 import { useSelector } from "react-redux";
 function FoodForm() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const FoodForm = useSelector((state) => state.event.event?.foodform);
   useEffect(() => {}, [FoodForm]);
   console.log("Food Form data is comming for the Edit : ", FoodForm);
@@ -63,21 +63,20 @@ function FoodForm() {
 
     if (local) {
       const eventData = local;
-
+      console.log("local storage data : ", eventData);
       setFormData((prevData) => ({
         ...prevData,
         iqacNumber: eventData.iqacNumber || "",
         eventName: eventData.eventName || "",
         eventType: eventData.eventType || "",
         requisitionDate: eventData.startDate || "",
-
         department: eventData.departments
           ? eventData.departments.join(", ")
           : "",
-        requestorName: eventData.organizers[0].name || "",
-        empId: eventData.organizers[0].employeeId || "",
-        designationDepartment: eventData.organizers[0].designation || "",
-        mobileNumber: eventData.organizers[0].phone || "",
+        requestorName: eventData.organizers.name || "",
+        empId: eventData.organizers.employeeId || "",
+        designationDepartment: eventData.organizers.designation || "",
+        mobileNumber: eventData.organizers.phone || "",
       }));
     }
   }, []);
@@ -105,7 +104,7 @@ function FoodForm() {
           localStorage.setItem("amenityForm", JSON.stringify(amenityForm));
           console.log("Updated amenityForm in localStorage:", amenityForm);
           setTimeout(() => {
-            navigate('/forms/guest-room')
+            navigate("/forms/guest-room");
           }, 1000);
         }
       }
