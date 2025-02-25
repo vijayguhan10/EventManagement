@@ -14,9 +14,9 @@ const resourcePersonSchema = new mongoose.Schema({
 
 const eventSchema = new mongoose.Schema({
   iqacNumber: { type: String, required: true },
-  departments: { type: [String], required: true },
-  academicdepartment: { type: [String], required: true },
-  professional: { type: [String], required: true },
+  departments: { type: [String] },
+  academicdepartment: { type: [String] },
+  professional: { type: [String] },
   eventName: { type: String, required: true },
   eventType: { type: String, required: true },
   eventVenue: { type: String, required: true },
@@ -27,7 +27,7 @@ const eventSchema = new mongoose.Schema({
   year: { type: String },
   categories: { type: [String], required: true },
   logos: { type: [String], required: true },
-  description: { type: String, required: true },
+  description: { type: String },
   organizers: { type: [organizerSchema] },
   resourcePersons: { type: [resourcePersonSchema], required: true },
   status: {
