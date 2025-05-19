@@ -27,27 +27,31 @@ function Signup() {
   const handleSubmit = async () => {
     try {
       if (isSignup) {
+        // Frontend validation for password match
+        if (formData.password !== formData.confirmPassword) {
+          toast.error("Passwords do not match!");
+          return;
+        }
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/sece/signup`,
           {
             name: formData.name,
-            email: formData.email,
+            emailId: formData.email, // map email to emailId
             password: formData.password,
-            confirmPassword: formData.confirmPassword,
           }
         );
         localStorage.setItem("event_token", response.data.token);
+        localStorage.setItem("user_dept", response.data.dept);
         navigate("/dashboard");
         toast.success("Signup successful!");
       } else {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/sece/Login`,
+          `${import.meta.env.VITE_API_URL}/sece/login`,
           {
-            email: formData.email,
+            emailId: formData.email, // map email to emailId
             password: formData.password,
           }
         );
-
         localStorage.setItem("event_token", response.data.token);
         toast.success("Login successful!");
         navigate("/dashboard");
@@ -177,3 +181,5 @@ function Signup() {
 }
 
 export default Signup;
+
+

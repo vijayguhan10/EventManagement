@@ -13,6 +13,7 @@ import GuestRoom from "../guestroom/index";
 import EndForm from "../EndForm";
 import FoodForm from "../FoodForm/FoodForm";
 import CreateLogins from "../Admin/CreateLogins";
+import CreateProfile from "../Components/CreateProfile";
 import AdminController from "../Admin/Index";
 import TermsandCondition from "../Components/Terms&Conditons"; // Import Terms & Conditions page
 
@@ -34,6 +35,7 @@ const InitialRouter = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/pending" element={<PendingDashboard />} />
       <Route path="/create-login" element={<AdminController />} />
+      <Route path="/create-profile" element={<CreateProfile />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -41,3 +43,4 @@ const InitialRouter = () => {
 };
 
 export default InitialRouter;
+

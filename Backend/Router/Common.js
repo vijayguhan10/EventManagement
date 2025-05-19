@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../Middleware/Authentication");
 const router = express.Router();
 const {
   getCurrentDateEvents,

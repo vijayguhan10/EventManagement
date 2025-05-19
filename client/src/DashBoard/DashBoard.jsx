@@ -8,6 +8,7 @@ import DonutChart from "./DonutChart";
 import MonthlyChart from "./MonthlyChart";
 import { toast } from "react-toastify";
 
+
 const recentBookings = [
   {
     id: 1,
@@ -148,6 +149,8 @@ const Dashboard = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const userDept = localStorage.getItem("user_dept");
 
   return (
     <div className="">
@@ -299,33 +302,11 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {recentBookings.map((booking) => (
-                  <tr key={booking.id} className="border-b last:border-b-0">
-                    <td className="px-6 py-4">{booking.id}</td>
-                    <td className="px-6 py-4">{booking.dept}</td>
-                    <td className="px-6 py-4">{booking.date}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-emerald-100 text-emerald-600 text-xs px-2 py-0.5 rounded">
-                          Completed
-                        </span>
-                        {booking.title}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={booking.status} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span>→</span>
-                        {booking.priority}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <FiMoreHorizontal />
-                      </button>
-                    </td>
-                  </tr>
+                  <FormComponent
+                    key={booking.id}
+                    form={booking}
+                    canEdit={booking.dept === userDept}
+                  />
                 ))}
               </tbody>
             </table>
@@ -336,4 +317,27 @@ const Dashboard = () => {
   );
 };
 
+function FormComponent({ form, canEdit }) {
+  return (
+    <tr>
+      <td>{form.id}</td>
+      <td>{form.dept}</td>
+      <td>{form.date}</td>
+      <td>{form.title}</td>
+      <td>{form.status}</td>
+      <td>{form.priority}</td>
+      <td>
+        {canEdit ? (
+          <button>Edit</button>
+        ) : (
+          <span style={{ color: "gray" }}>View Only</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
 export default Dashboard;
+
+
+

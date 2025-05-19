@@ -1,5 +1,6 @@
 const express = require("express");
-const router = express.Router();
+const auth = require("../Middleware/Authentication");
+const departmentAuthorize = require("../Middleware/DepartmentAuth");
 const {
   createRequirement,
   getRequirements,
@@ -7,9 +8,22 @@ const {
   updateRequirement,
   deleteRequirement,
 } = require("../Controller/MediaForm");
-router.post("/", createRequirement);
-router.get("/", getRequirements);
-router.get("/:id", getRequirementById);
-router.put("/:id", updateRequirement);
-router.delete("/:id", deleteRequirement);
+
+const router = express.Router();
+
+router.post("/media", createRequirement);
+router.get("/media", getRequirements);
+router.get("/media/:id", getRequirementById);
+router.put("/media/:id", updateRequirement);
+router.delete("/media/:id", deleteRequirement);
+
+// Only media and systemadmin roles can edit media events
+router.put("/edit/:id", auth, departmentAuthorize(), async (req, res) => {
+  try {
+    await updateRequirement(req, res);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update media", error: err.message });
+  }
+});
+
 module.exports = router;
