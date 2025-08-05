@@ -13,7 +13,8 @@ import {
 } from "recharts";
 import { FiMoreHorizontal } from "react-icons/fi";
 import HeaderComponent from "../Components/HeaderComponent";
-const DonutChart = () => {
+
+const DonutChart = ({ departmentBookings = [], eventTypes = [], eventSatisfaction = [] }) => {
   const renderCustomizedLabel = ({
     cx,
     cy,
@@ -28,67 +29,45 @@ const DonutChart = () => {
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
   };
-  const departmentBookings = [
+
+  // Default data if no props provided
+  const defaultDepartmentBookings = [
     { name: "CSE", value: 4 },
     { name: "ECE", value: 3 },
     { name: "MECH", value: 2 },
     { name: "CIVIL", value: 2 },
   ];
 
-  const eventTypes = [
+  const defaultEventTypes = [
     { name: "Workshops", value: 25 },
     { name: "Seminars", value: 15 },
     { name: "Conferences", value: 13 },
     { name: "Others", value: 10 },
   ];
 
-  const eventSatisfaction = [
+  const defaultEventSatisfaction = [
     { name: "Very Satisfied", value: 5 },
     { name: "Satisfied", value: 4 },
     { name: "Neutral", value: 3 },
     { name: "Dissatisfied", value: 2 },
   ];
 
-  const recentBookings = [
-    {
-      id: 1,
-      dept: "CSE",
-      date: "01 Jul 2024",
-      title: "check other group decisions",
-      status: "Accepted",
-      priority: "Medium",
-    },
-    {
-      id: 2,
-      dept: "PLAC",
-      date: "25 to 26 Jun 2024",
-      title: "Thadaladi New",
-      status: "Pending",
-      priority: "Medium",
-    },
-    {
-      id: 3,
-      dept: "CSE",
-      date: "27 Jun 2024",
-      title: "Uniops inauguration",
-      status: "Accepted",
-      priority: "Medium",
-    },
-    {
-      id: 4,
-      dept: "CSE",
-      date: "02 Jul 2024",
-      title: "new bookings",
-      status: "Rejected",
-      priority: "Medium",
-    },
-  ];
+  // Use provided data or fallback to defaults
+  const deptBookings = departmentBookings.length > 0 ? departmentBookings : defaultDepartmentBookings;
+  const evtTypes = eventTypes.length > 0 ? eventTypes : defaultEventTypes;
+  const satisfaction = eventSatisfaction.length > 0 ? eventSatisfaction : defaultEventSatisfaction;
 
   const COLORS = {
     blue: ["#60A5FA", "#3B82F6", "#2563EB", "#1D4ED8"],
     green: ["#4ADE80", "#22C55E", "#16A34A", "#15803D"],
     red: ["#FF8A8A", "#EF4444", "#DC2626", "#B91C1C"],
   };
+
+  // Calculate totals for center text
+  const totalDeptBookings = deptBookings.reduce((sum, item) => sum + item.value, 0);
+  const totalEventTypes = evtTypes.reduce((sum, item) => sum + item.value, 0);
+  const totalSatisfaction = satisfaction.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="grid grid-cols-3 gap-6 mb-6">
       {/* Department Bookings */}
@@ -97,7 +76,7 @@ const DonutChart = () => {
         <div className="h-64 flex items-center justify-center">
           <PieChart width={200} height={200}>
             <Pie
-              data={departmentBookings}
+              data={deptBookings}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -107,7 +86,7 @@ const DonutChart = () => {
               fill="#8884d8"
               dataKey="value"
             >
-              {departmentBookings.map((entry, index) => (
+              {deptBookings.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS.blue[index % COLORS.blue.length]}
@@ -116,7 +95,7 @@ const DonutChart = () => {
             </Pie>
             <text x={100} y={100} textAnchor="middle" dominantBaseline="middle">
               <tspan x={100} dy="-0.5em" className="text-xl font-bold">
-                11
+                {totalDeptBookings}
               </tspan>
               <tspan x={100} dy="1.5em" className="text-sm">
                 Total Booking
@@ -132,7 +111,7 @@ const DonutChart = () => {
         <div className="h-64 flex items-center justify-center">
           <PieChart width={200} height={200}>
             <Pie
-              data={eventTypes}
+              data={evtTypes}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -142,7 +121,7 @@ const DonutChart = () => {
               fill="#8884d8"
               dataKey="value"
             >
-              {eventTypes.map((entry, index) => (
+              {evtTypes.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS.green[index % COLORS.green.length]}
@@ -151,7 +130,7 @@ const DonutChart = () => {
             </Pie>
             <text x={100} y={100} textAnchor="middle" dominantBaseline="middle">
               <tspan x={100} dy="-0.5em" className="text-xl font-bold">
-                63
+                {totalEventTypes}
               </tspan>
               <tspan x={100} dy="1.5em" className="text-sm">
                 Total Events
@@ -167,7 +146,7 @@ const DonutChart = () => {
         <div className="h-64 flex items-center justify-center">
           <PieChart width={200} height={200}>
             <Pie
-              data={eventSatisfaction}
+              data={satisfaction}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -177,7 +156,7 @@ const DonutChart = () => {
               fill="#8884d8"
               dataKey="value"
             >
-              {eventSatisfaction.map((entry, index) => (
+              {satisfaction.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS.red[index % COLORS.red.length]}
@@ -186,7 +165,7 @@ const DonutChart = () => {
             </Pie>
             <text x={100} y={100} textAnchor="middle" dominantBaseline="middle">
               <tspan x={100} dy="-0.5em" className="text-xl font-bold">
-                14
+                {totalSatisfaction}
               </tspan>
               <tspan x={100} dy="1.5em" className="text-sm">
                 Total Rating
@@ -198,4 +177,5 @@ const DonutChart = () => {
     </div>
   );
 };
+
 export default DonutChart;

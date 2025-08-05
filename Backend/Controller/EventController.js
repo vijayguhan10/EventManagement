@@ -1,6 +1,7 @@
-const Event = require("../Schema/EventSchema");
-const multer = require("multer");
-const path = require("path");
+import Event from "../Schema/EventSchema.js";
+import multer from "multer";
+import path from "path";
+
 const createEvent = async (req, res) => {
   console.log("Event Request form data:", req.body);
   try {
@@ -22,6 +23,10 @@ const createEvent = async (req, res) => {
       description,
       organizers,
       resourcePersons,
+      communicationform,
+      foodform,
+      guestroom,
+      transport
     } = req.body;
 
     const newEvent = new Event({
@@ -42,6 +47,10 @@ const createEvent = async (req, res) => {
       description,
       organizers,
       resourcePersons,
+      communicationform: communicationform || undefined,
+      foodform: foodform || undefined,
+      guestroom: guestroom || undefined,
+      transport: transport || undefined
     });
 
     await newEvent.save();
@@ -50,7 +59,7 @@ const createEvent = async (req, res) => {
       .json({ message: "Event created successfully", event: newEvent });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message, stack: error.stack });
   }
 };
 
@@ -68,7 +77,11 @@ const getAllEvents = async (req, res) => {
 const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findById(id);
+    const event = await Event.findById(id)
+      .populate("communicationform")
+      .populate("foodform")
+      .populate("guestroom")
+      .populate("transport");
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -84,8 +97,13 @@ const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
     let updateData = { ...req.body };
-      updateData.status = "Approved";
-    
+    updateData.status = "Approved";
+
+    // Accept and set sub-form ObjectId references if provided
+    if (req.body.communicationform) updateData.communicationform = req.body.communicationform;
+    if (req.body.foodform) updateData.foodform = req.body.foodform;
+    if (req.body.guestroom) updateData.guestroom = req.body.guestroom;
+    if (req.body.transport) updateData.transport = req.body.transport;
 
     const updatedEvent = await Event.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -156,7 +174,7 @@ const approveEvent = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   upload,
   createEvent,
   getAllEvents,

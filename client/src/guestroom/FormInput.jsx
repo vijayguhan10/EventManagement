@@ -9,6 +9,7 @@ const FormInput = ({
   min,
   value,
   onChange,
+  disabled = false,
 }) => {
   return (
     <div className={className}>
@@ -31,9 +32,10 @@ const FormInput = ({
           min={min}
           value={value}
           onChange={onChange}
+          disabled={disabled}
           className={`border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96 ${
             icon ? "pl-10" : "pl-4"
-          } py-2 border`}
+          } py-2 border ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           placeholder={placeholder}
         />
       </div>

@@ -1,6 +1,7 @@
-const express = require("express");
-const { auth, authorize } = require("../Middleware/Authentication");
-const { createEvent ,getAllEvents,getEventById,updateEvent,uploadPoster,approveEvent,upload} = require("../Controller/EventController");
+import express from "express";
+import { auth, authorize } from "../Middleware/Authentication.js";
+import { createEvent, getAllEvents, getEventById, updateEvent, uploadPoster, approveEvent, upload } from "../Controller/EventController.js";
+
 const router = express.Router();
 router.post("/create", createEvent);
 router.post("/upload-poster", upload.single("poster"), uploadPoster);
@@ -8,4 +9,5 @@ router.post("/approve-event", approveEvent);
 router.get("/", getAllEvents);
 router.get("/:id", getEventById);
 router.put("/:id", updateEvent);
-module.exports = router;
+
+export default router;

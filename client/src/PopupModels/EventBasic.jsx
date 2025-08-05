@@ -1,17 +1,16 @@
 import React from "react";
 
 const EventBasic = ({ eventData }) => {
+  console.log("=== EventBasic Debug ===");
+  console.log("eventData:", eventData);
+  console.log("eventData type:", typeof eventData);
+  console.log("eventData keys:", eventData ? Object.keys(eventData) : "No data");
+  
   const eventsArray = Array.isArray(eventData) ? eventData : [eventData];
   console.log("events data inside the EventBasic1 popup : ", eventsArray);
 
   return (
     <div>
-      <img
-        src="https://i.ibb.co/j3pBkkL/img-sece.jpg"
-        style={{ display: "block", margin: "auto" }}
-        alt="Image Description"
-      />
-
       <h1 className="main-heading">Event Basic</h1>
       <table>
         <thead>

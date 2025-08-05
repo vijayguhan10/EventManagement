@@ -9,19 +9,6 @@ export function EventDetails({ data, setDetails }) {
   useEffect(() => {
     setEventData(data);
   }, [data]);
-  useEffect(() => {
-    const local = JSON.parse(localStorage.getItem("common_data"));
-
-    if (local) {
-      const initialData = {
-        eventName: local.eventName || "",
-        eventType: local.eventType || "",
-        travellerDetails: local.description || "",
-      };
-      setEventData(initialData);
-      setDetails(initialData);
-    }
-  }, []);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const updatedData = { ...eventData, [name]: value };

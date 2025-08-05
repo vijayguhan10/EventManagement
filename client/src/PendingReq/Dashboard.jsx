@@ -1,5 +1,7 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -11,37 +13,99 @@ import {
   ChartBarIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
+  const [pendingPageData, setPendingPageData] = useState({
+    totalEvents: 0,
+    upcomingEvents: 0,
+    ongoingEvents: 0,
+    totalParticipants: 0,
+    quarter: "Q1 2024",
+    quarterEvents: 0,
+    quarterUpcoming: 0,
+    quarterOngoing: 0,
+    growthPercentage: "0.0",
+    pendingEvents: 0,
+    completedEventsCount: 0,
+    rejectedEvents: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPendingPageData = async () => {
+      setLoading(true);
+      try {
+        console.log("Fetching pending page data...");
+        
+        const response = await axios.get('/api/common/pending-page-data');
+        
+        console.log("Pending page response:", response);
+
+        if (response.status === 200) {
+          const data = response.data || {};
+          console.log("Pending page data:", data);
+          setPendingPageData(data);
+        } else {
+          console.error("Failed to fetch pending page data. Status:", response.status);
+          setError("Failed to fetch data.");
+        }
+      } catch (err) {
+        console.error("Error fetching pending page data:", err);
+        console.error("Error response:", err.response);
+        console.error("Error message:", err.message);
+        setError(`An error occurred while fetching data: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPendingPageData();
+  }, []);
+
   const stats = [
     {
       title: "Total Events",
-      count: "1432",
+      count: pendingPageData.totalEvents.toString(),
       icon: CalendarIcon,
       color: "bg-purple-100",
       textColor: "text-purple-600",
     },
     {
       title: "Upcoming Events",
-      count: "432",
+      count: pendingPageData.upcomingEvents.toString(),
       icon: ClockIcon,
       color: "bg-blue-100",
       textColor: "text-blue-600",
     },
     {
       title: "Ongoing Events",
-      count: "89",
+      count: pendingPageData.ongoingEvents.toString(),
       icon: CheckCircleIcon,
       color: "bg-green-100",
       textColor: "text-green-600",
     },
     {
       title: "Participants",
-      count: "23.5K",
+      count: pendingPageData.totalParticipants >= 1000 
+        ? `${(pendingPageData.totalParticipants / 1000).toFixed(1)}K`
+        : pendingPageData.totalParticipants.toString(),
       icon: UsersIcon,
       color: "bg-orange-100",
       textColor: "text-orange-600",
     },
   ];
+
+  if (loading) {
+    return <div className="m bg-gray-50 p-8">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="m bg-gray-50 p-8">Error: {error}</div>;
+  }
+
   return (
     <div className="m bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -56,11 +120,14 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm border border-gray-200">
-              <span className="text-gray-700">Q1 2024</span>
+              <span className="text-gray-700">{pendingPageData.quarter}</span>
               <ChevronLeftIcon className="h-4 w-4 text-gray-600 cursor-pointer" />
               <ChevronRightIcon className="h-4 w-4 text-gray-600 cursor-pointer" />
             </div>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+            <button 
+              onClick={() => navigate('/forms')}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            >
               <PlusIcon className="h-5 w-5" />
               <span>Create New Event</span>
             </button>
@@ -86,7 +153,7 @@ const Dashboard = () => {
               <div className="mt-4 flex items-center text-sm">
                 <span className="text-green-500 flex items-center">
                   <ArrowUpIcon className="h-4 w-4 mr-1" />
-                  +2.3%
+                  +{pendingPageData.growthPercentage}%
                 </span>
                 <span className="text-gray-500 ml-2">vs previous quarter</span>
               </div>
@@ -96,6 +163,7 @@ const Dashboard = () => {
       </div>
     </div>
   );
+  
   function PlusIcon(props) {
     return (
       <svg

@@ -1,5 +1,6 @@
-const Event = require("../../Schema/foodform/main");
-const createEvent = async (req, res) => {
+import Event from "../../Schema/foodform/main.js";
+
+export const createEvent = async (req, res) => {
   try {
     console.log("Incoming data:", JSON.stringify(req.body, null, 2));
 
@@ -49,7 +50,7 @@ const createEvent = async (req, res) => {
   }
 };
 
-const getAllEvents = async (req, res) => {
+export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find();
     res.status(200).json({ data: events });
@@ -59,7 +60,8 @@ const getAllEvents = async (req, res) => {
       .json({ error: "Failed to fetch events", details: error.message });
   }
 };
-const getEventById = async (req, res) => {
+
+export const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
     const event = await Event.findById(id);
@@ -72,7 +74,7 @@ const getEventById = async (req, res) => {
   }
 };
 
-const updateEvent = async (req, res) => {
+export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
@@ -90,7 +92,7 @@ const updateEvent = async (req, res) => {
   }
 };
 
-const deleteEvent = async (req, res) => {
+export const deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedEvent = await Event.findByIdAndDelete(id);
@@ -104,12 +106,4 @@ const deleteEvent = async (req, res) => {
       .status(500)
       .json({ error: "Failed to delete event", details: error.message });
   }
-};
-
-module.exports = {
-  createEvent,
-  getAllEvents,
-  getEventById,
-  updateEvent,
-  deleteEvent,
 };

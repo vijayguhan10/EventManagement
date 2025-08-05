@@ -1,29 +1,29 @@
-const express = require("express");
-const auth = require("../Middleware/Authentication");
-const departmentAuthorize = require("../Middleware/DepartmentAuth");
-const {
+import express from "express";
+import { auth } from "../Middleware/Authentication.js";
+import departmentAuthorize from "../Middleware/DepartmentAuth.js";
+import {
   createRequirement,
   getRequirements,
   getRequirementById,
   updateRequirement,
   deleteRequirement,
-} = require("../Controller/MediaForm");
+} from "../Controller/MediaForm.js";
+import Endform from "../Schema/EndForm.js";
 
 const router = express.Router();
 
-router.post("/media", createRequirement);
+router.post("/", createRequirement);
 router.get("/media", getRequirements);
-router.get("/media/:id", getRequirementById);
-router.put("/media/:id", updateRequirement);
-router.delete("/media/:id", deleteRequirement);
+router.get("/:id", getRequirementById);
+router.put("/:id", updateRequirement);
+router.delete("/:id", deleteRequirement);
 
-// Only media and systemadmin roles can edit media events
-router.put("/edit/:id", auth, departmentAuthorize(), async (req, res) => {
-  try {
-    await updateRequirement(req, res);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to update media", error: err.message });
-  }
-});
+router.put(
+  "/communication/:id",
+  auth,
+  departmentAuthorize(["Media", "System Admin", "IQAC"]),
+  updateRequirement
+);
 
-module.exports = router;
+export default router;
+

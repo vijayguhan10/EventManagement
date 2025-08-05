@@ -19,6 +19,7 @@ function CreateLogins() {
     "Media",
     "Food",
     "Transport",
+    "Guest Deparment",
     "System Admin",
     "IQAC",
     "Professor",

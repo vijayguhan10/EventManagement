@@ -1,12 +1,12 @@
-module.exports = function departmentAuthorize() {
+function departmentAuthorize(allowedDepartments) {
   return (req, res, next) => {
-    const userDept = req.user.dept; // req.user is set by Authentication.js
-    const formDept = req.body.dept || req.params.dept; 
-
-    if (userDept !== formDept) {
-      return res.status(403).json({ message: "Not authorized to edit this department's form" });
+    const userDept = req.user.dept;
+    if (allowedDepartments.includes(userDept)) {
+      return next();
     }
-    next();
+    return res.status(403).json({ message: "Access denied: Not authorized for this form" });
   };
-};
+}
+
+export default departmentAuthorize;
 

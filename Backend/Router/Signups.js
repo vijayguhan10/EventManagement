@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
+import User from "../Schema/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { uploadUsersFromExcel, uploadMiddleware, getallstaffs } from "../Controller/Signups.js";
+import checkDepartment from '../Middleware/checkDepartment.js';
+import { auth as authenticate } from '../Middleware/Authentication.js';
+import MediaRequirements from "../Schema/MedaiRequirements.js";
+
 const router = express.Router();
-const User = require("../Schema/user");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const {
-  uploadUsersFromExcel,
-  uploadMiddleware,
-  getallstaffs,
-} = require("../Controller/Signups");
 
 router.post("/signup", async (req, res) => {
   try {
@@ -18,6 +18,11 @@ router.post("/signup", async (req, res) => {
       phoneNumber,
       dept,
     } = req.body;
+
+    // Add this validation
+    if (!name || !emailId || !password || !phoneNumber || !dept) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const existingUser = await User.findOne({ emailId });
     if (existingUser)
@@ -61,5 +66,25 @@ router.post("/login", async (req, res) => {
 router.get("/getallstaffs", getallstaffs);
 router.post("/upload-excel", uploadMiddleware, uploadUsersFromExcel);
 
-module.exports = router;
+// Approval endpoint for Communication form
+router.post('/approve/:id', authenticate, checkDepartment('communication'), async (req, res) => {
+  const { id } = req.params;
+  const department = req.user?.dept || req.department || 'Unknown';
+  const user = req.user?.name || req.user?.username || 'Unknown';
+  const media = await MediaRequirements.findById(id);
+  if (!media) return res.status(404).json({ message: 'Communication form not found' });
+  media.approvals.push({ department, user, date: new Date() });
+  await media.save();
+  res.json({ message: 'Communication form approved successfully', approvals: media.approvals });
+});
+
+// Endpoint to get approval details for a communication form
+router.get('/approvals/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+  const media = await MediaRequirements.findById(id, 'approvals');
+  if (!media) return res.status(404).json({ message: 'Communication form not found' });
+  res.json({ approvals: media.approvals });
+});
+
+export default router;
 

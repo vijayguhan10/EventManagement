@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const organizerSchema = new mongoose.Schema({
   employeeId: { type: String, required: true },
@@ -25,19 +25,21 @@ const eventSchema = new mongoose.Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
   year: { type: String },
-  categories: { type: [String], required: true },
-  logos: { type: [String], required: true },
+  categories: { type: String },
+  logos: { type: [String] },
   description: { type: String },
   organizers: { type: [organizerSchema] },
-  resourcePersons: { type: [resourcePersonSchema], required: true },
+  resourcePersons: { type: [resourcePersonSchema] },
   status: {
     type: String,
-    enum: ["Pending", "Rejected", "event-completed", "Approved", "Corrections"],
-    default: "Pending",
   },
   poster: { type: String },
+  communicationform: { type: mongoose.Schema.Types.ObjectId, ref: "MediaRequirements" },
+  foodform: { type: mongoose.Schema.Types.ObjectId, ref: "foodforms" },
+  guestroom: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
+  transport: [{ type: mongoose.Schema.Types.ObjectId, ref: "TransportRequest" }],
 });
 
 const Event = mongoose.model("Event", eventSchema);
 
-module.exports = Event;
+export default Event;

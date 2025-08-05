@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const FoodDetailsSchema = new mongoose.Schema({
   Breakfast: {
@@ -72,11 +72,9 @@ const EventSchema = new mongoose.Schema(
     dates: [DateDetailsSchema],
     status: {
       type: String,
-      enum: ["Pending", "Rejected", "Approved", "Corrections"],
-      default: "Pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("foodforms", EventSchema);
+export default mongoose.model("foodforms", EventSchema);

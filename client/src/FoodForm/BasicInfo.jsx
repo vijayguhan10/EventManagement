@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
 
+function toDateInputValue(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+
 const BasicInfo = ({ formData, setFormData }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +29,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="text"
             name="iqacNumber"
-            value={formData.iqacNumber}
+            value={formData.iqacNumber || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -34,7 +41,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="date"
             name="requisitionDate"
-            value={formData.requisitionDate}
+            value={toDateInputValue(formData.requisitionDate)}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -47,7 +54,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="text"
             name="department"
-            value={formData.department}
+            value={formData.department || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -60,7 +67,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="text"
             name="requestorName"
-            value={formData.requestorName}
+            value={formData.requestorName || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -72,7 +79,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="text"
             name="empId"
-            value={formData.empId}
+            value={formData.empId || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -84,7 +91,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="text"
             name="designationDepartment"
-            value={formData.designationDepartment}
+            value={formData.designationDepartment || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />
@@ -96,7 +103,7 @@ const BasicInfo = ({ formData, setFormData }) => {
           <input
             type="tel"
             name="mobileNumber"
-            value={formData.mobileNumber}
+            value={formData.mobileNumber || ""}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
           />

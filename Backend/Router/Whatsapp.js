@@ -1,4 +1,8 @@
-const router = require("express").Router();
-const messages = require("../other/Whatsapp");
-router.get("/whatsapp", messages.sendAutoSchedulingEmail);
-module.exports = router;
+import express from "express";
+import { sendAutoSchedulingEmail } from "../other/Whatsapp.js";
+
+const router = express.Router();
+
+router.get("/whatsapp", sendAutoSchedulingEmail);
+
+export default router;

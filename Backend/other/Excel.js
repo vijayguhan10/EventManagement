@@ -1,8 +1,8 @@
-const ExcelJS = require("exceljs");
-const Event = require("../Schema/EventSchema");
-const moment = require("moment");
+import ExcelJS from "exceljs";
+import Event from "../Schema/EventSchema.js";
+import moment from "moment";
 
-const ExcelConversion = async (req, res) => {
+export const ExcelConversion = async (req, res) => {
   try {
     const { fromDate, toDate, departments, year, fullYear, selectedeventtype } =
       req.query;
@@ -167,5 +167,3 @@ const ExcelConversion = async (req, res) => {
     res.status(500).send("Failed to generate Excel");
   }
 };
-
-module.exports = { ExcelConversion };

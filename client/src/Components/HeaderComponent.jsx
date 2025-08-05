@@ -14,22 +14,44 @@ import { resetEventState } from "../redux/EventSlice";
 import { CalendarDays } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-const HeaderComponent = () => {
+
+const HeaderComponent = ({ showSidebar }) => {
   const [userName, setUserName] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   useEffect(() => {
     console.log("Header component mounted.");
-    const token = localStorage.getItem("event_token");
+    const token = localStorage.getItem("token");
+    const userDept = localStorage.getItem("user_dept");
+    
+    console.log("HeaderComponent - Token:", token ? 'Present' : 'Missing');
+    console.log("HeaderComponent - userDept:", userDept);
+    
     if (token) {
       try {
-        const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded.name);
-        setUserName(decoded.name || "");
+        const decodedToken = jwtDecode(token);
+        console.log("Decoded token:", decodedToken);
+        setUserName(decodedToken.name || "");
+        
+        // Store department if not already stored
+        if (!userDept && decodedToken.dept) {
+          localStorage.setItem("user_dept", decodedToken.dept);
+        }
+        
+        console.log("HeaderComponent - Authentication successful, userName:", decodedToken.name);
       } catch (error) {
         console.error("Error decoding token:", error);
+        // Clear invalid token
+        localStorage.removeItem("token");
+        navigate("/");
       }
+    } else {
+      // Redirect to login if no token
+      navigate("/");
     }
-  }, []);
+  }, [navigate]);
+
   function initializeLocalStorage() {
     if (!localStorage.getItem("basicEvent")) {
       localStorage.setItem("basicEvent", JSON.stringify({}));
@@ -41,7 +63,7 @@ const HeaderComponent = () => {
       localStorage.setItem("transportForm", JSON.stringify([]));
     }
     if (!localStorage.getItem("iqacno")) {
-      localStorage.setItem("iqacno", JSON.stringify({}));
+      localStorage.setItem("iqacno", "");
     }
 
     if (!localStorage.getItem("amenityForm")) {
@@ -54,6 +76,7 @@ const HeaderComponent = () => {
 
     console.log("Local storage initialized with default forms.");
   }
+
   function clearLocalStorage() {
     dispatch(resetEventState());
     localStorage.removeItem("basicEvent");
@@ -64,80 +87,81 @@ const HeaderComponent = () => {
     localStorage.removeItem("guestRoomForm");
   }
 
-  const navigate = useNavigate();
   return (
     <div className="flex bg-[#ffffff]">
-      <div className="fixed left-0 top-0 h-full w-20 bg-[#ffffff] ">
-        <div className="p-4">
-          <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-            <FiGrid
-              onClick={() => navigate("/dashboard")}
-              className="text-white text-xl"
-              title="Dashboard"
+      {showSidebar && (
+        <div className="fixed left-0 top-0 h-full w-20 bg-[#ffffff] shadow-lg">
+          <div className="p-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <FiGrid
+                onClick={() => navigate("/dashboard")}
+                className="text-white text-xl cursor-pointer"
+                title="Dashboard"
+              />
+            </div>
+          </div>
+          <div className="mt-8">
+            <div
+              className="w-full h-10 bg-blue-50 border-blue-500 flex items-center justify-center"
+              title="Active Dashboard"
+            >
+              <FiGrid
+                onClick={() => navigate("/dashboard")}
+                className="text-blue-500 text-xl cursor-pointer"
+              />
+            </div>
+            <div className="w-full h-10 flex items-center justify-center mt-4">
+              <FiPlus
+                onClick={() => {
+                  clearLocalStorage();
+                  initializeLocalStorage();
+                  navigate("/forms");
+                }}
+                className="text-gray-500 text-xl cursor-pointer"
+                title="Add New"
+              />
+            </div>
+            <div className="w-full h-10 flex items-center justify-center mt-4">
+              <CalendarDays
+                onClick={() => navigate("/calender")}
+                className="text-gray-500 text-xl cursor-pointer"
+                title="Information"
+              />
+            </div>
+            <div className="w-full h-10 flex items-center justify-center mt-4">
+              <FiLayers
+                onClick={() => navigate("/pending")}
+                className="text-gray-500 text-xl cursor-pointer"
+                title="Layers"
+              />
+            </div>
+            <div className="w-full h-10 flex items-center justify-center mt-4">
+              <FiUsers
+                onClick={() => navigate("/profile")}
+                className="text-gray-500 text-xl cursor-pointer"
+                title="Users"
+              />
+            </div>
+            <div className="w-full h-10 flex items-center justify-center mt-4">
+              <FiLogIn
+                onClick={() => navigate("/create-login")}
+                className="text-gray-500 text-xl cursor-pointer"
+                title="FiLogIn"
+              />
+            </div>
+          </div>
+          <div className="absolute bottom-4 left-0 w-full flex justify-center">
+            <img
+              src="https://sece.ac.in/wp-content/uploads/2024/05/clg-logo2-scaled.webp"
+              alt="College Logo"
+              className="w-32 h-16 object-contain"
+              title="College Logo"
             />
           </div>
         </div>
-        <div className="mt-8">
-          <div
-            className="w-full h-10 bg-blue-50= border-blue-500 flex items-center justify-center"
-            title="Active Dashboard"
-          >
-            <FiGrid
-              onClick={() => navigate("/dashboard")}
-              className="text-blue-500 text-xl"
-            />
-          </div>
-          <div className="w-full h-10 flex items-center justify-center mt-4">
-            <FiPlus
-              onClick={() => {
-                clearLocalStorage();
-                initializeLocalStorage();
-                navigate("/forms");
-              }}
-              className="text-gray-500 text-xl"
-              title="Add New"
-            />
-          </div>
-          <div className="w-full h-10 flex items-center justify-center mt-4">
-            <CalendarDays
-              onClick={() => navigate("/calender")}
-              className="text-gray-500 text-xl"
-              title="Information"
-            />
-          </div>
-          <div className="w-full h-10 flex items-center justify-center mt-4">
-            <FiLayers
-              onClick={() => navigate("/pending")}
-              className="text-gray-500 text-xl"
-              title="Layers"
-            />
-          </div>
-          <div className="           w-full h-10 flex items-center justify-center mt-4">
-            <FiUsers
-              onClick={() => navigate("/profile")}
-              className="text-gray-500 text-xl"
-              title="Users"
-            />
-          </div>
-          <div className="           w-full h-10 flex items-center justify-center mt-4">
-            <FiLogIn
-              onClick={() => navigate("/create-login")}
-              className="text-gray-500 text-xl"
-              title="FiLogIn"
-            />
-          </div>
-        </div>
-        <div className="absolute bottom-4 left-0 w-full flex justify-center">
-          <img
-            src="https://www.mithreshvar.tech/_next/image?url=%2FlogoShort%2Flogo.png&w=64&q=75"
-            alt="User Avatar"
-            className="w-32 h-16 rounded-full"
-            title="User Profile"
-          />
-        </div>
-      </div>
+      )}
 
-      <div className="ml-20 rounded-l-3xl  w-full pl-6 pt-6">
+      <div className={`${showSidebar ? 'ml-20' : ''} rounded-l-3xl w-full pl-6 pt-6`}>
         <div className="flex justify-between items-center mb-1">
           <div className="flex items-center">
             <FiMenu className="text-gray-400 mr-4 text-xl" title="Menu" />
@@ -154,13 +178,13 @@ const HeaderComponent = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <FiBell className="text-gray-400 text-xl" title="Notifications" />
-            <FiSettings className="text-gray-400 text-xl" title="Settings" />
+            <FiBell className="text-gray-400 text-xl cursor-pointer" title="Notifications" />
+            <FiSettings className="text-gray-400 text-xl cursor-pointer" title="Settings" />
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full" title="Avatar"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200" title="Avatar"></div>
               <span className="text-gray-600">Supervisor</span>
               <svg
-                className="w-4 h-4 text-gray-400"
+                className="w-4 h-4 text-gray-400 cursor-pointer"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

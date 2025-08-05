@@ -6,6 +6,17 @@ import events from "../assets/Website setup-rafiki.png";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Map backend department to formType
+function mapDeptToFormType(dept) {
+  if (!dept) return '';
+  const d = dept.toLowerCase();
+  if (d === 'media' || d === 'communication') return 'communication';
+  if (d === 'food') return 'food';
+  if (d === 'transport') return 'transport';
+  if (d === 'guestroom' || d === 'guest room' || d === 'guest department') return 'guestroom';
+  return d; // fallback
+}
+
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSignup, setIsSignup] = useState(true);
@@ -15,6 +26,8 @@ function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
+    dept: "",
+    phoneNumber: "",
   });
 
   const handleChange = (e) => {
@@ -24,7 +37,8 @@ function Signup() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
     try {
       if (isSignup) {
         // Frontend validation for password match
@@ -38,21 +52,26 @@ function Signup() {
             name: formData.name,
             emailId: formData.email, // map email to emailId
             password: formData.password,
+            dept: formData.dept,
+            phoneNumber: formData.phoneNumber,
           }
         );
-        localStorage.setItem("event_token", response.data.token);
-        localStorage.setItem("user_dept", response.data.dept);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user_dept", mapDeptToFormType(response.data.dept));
         navigate("/dashboard");
         toast.success("Signup successful!");
       } else {
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/sece/login`,
           {
-            emailId: formData.email, // map email to emailId
-            password: formData.password,
+            emailId: formData.email,
+            password: formData.password
           }
         );
-        localStorage.setItem("event_token", response.data.token);
+        console.log("Login response:", response.data);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user_dept", mapDeptToFormType(response.data.dept));
+        console.log("Stored department:", mapDeptToFormType(response.data.dept));
         toast.success("Login successful!");
         navigate("/dashboard");
       }
@@ -88,7 +107,7 @@ function Signup() {
               <h1 className="text-3xl">{isSignup ? "Sign Up" : "Login"}</h1>
             </div>
 
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {isSignup && (
                 <input
                   type="text"
@@ -141,24 +160,46 @@ function Signup() {
                   onChange={handleChange}
                 />
               )}
-            </div>
 
-            <div className="mt-10">
-              <button
-                onClick={handleSubmit}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
-              >
-                {isSignup ? "Sign Up" : "Login"}
-              </button>
-              <p
-                className="text-center text-gray-600 mt-4 cursor-pointer"
-                onClick={() => setIsSignup(!isSignup)}
-              >
-                {isSignup
-                  ? "Already have an account? Login here"
-                  : "Don't have an account? Sign up here"}
-              </p>
-            </div>
+              {isSignup && (
+                <>
+                  <input
+                    type="text"
+                    name="dept"
+                    placeholder="Department"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={formData.dept}
+                    onChange={handleChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    placeholder="Phone Number"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                  />
+                </>
+              )}
+
+              <div className="mt-10">
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+                >
+                  {isSignup ? "Sign Up" : "Login"}
+                </button>
+                <p
+                  className="text-center text-gray-600 mt-4 cursor-pointer"
+                  onClick={() => setIsSignup(!isSignup)}
+                >
+                  {isSignup
+                    ? "Already have an account? Login here"
+                    : "Don't have an account? Sign up here"}
+                </p>
+              </div>
+            </form>
           </div>
         </div>
 

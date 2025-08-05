@@ -1,16 +1,17 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const xlsx = require("xlsx");
-const multer = require("multer");
-const User = require("../Schema/user");
-require("dotenv").config();
-const mongoose = require("mongoose");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import xlsx from "xlsx";
+import multer from "multer";
+import User from "../Schema/user.js";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+dotenv.config();
 const secretKey = process.env.JWT_SECRET_TOKEN || "yourDefaultSecretKey";
 console.log("Initializing ordered  Bulk operation Erorr");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const Signup = async (req, res) => {
+export const Signup = async (req, res) => {
   console.log("Creating The new user data : ", req.body);
   const { name, emailId, password, phoneNumber, designation, dept, empid } =
     req.body;
@@ -59,13 +60,12 @@ const Signup = async (req, res) => {
   }
 };
 
-const Login = async (req, res) => {
-  // console.log("req body for the login : ", req.body);
-  const { email, password } = req.body;
-  console.log(email, password );
+export const Login = async (req, res) => {
+  const { emailId, password } = req.body;
+  console.log("Login request:", { emailId });
 
   try {
-    const user = await User.findOne({ emailId: email });
+    const user = await User.findOne({ emailId: emailId });
     console.log("user found data : ", user);
     if (!user) {
       return res.status(401).json({ message: "Authentication failed" });
@@ -76,6 +76,9 @@ const Login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Log the user's department for debugging
+    console.log("User department:", user.dept);
+
     const token = jwt.sign(
       {
         userId: user._id,
@@ -84,12 +87,17 @@ const Login = async (req, res) => {
         designation: user.designation,
         empid: user.empid,
         phonenumber: user.phoneNumber,
+        dept: user.dept
       },
       secretKey,
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ 
+      message: "Login successful", 
+      token,
+      dept: user.dept
+    });
   } catch (err) {
     res
       .status(500)
@@ -97,7 +105,7 @@ const Login = async (req, res) => {
   }
 };
 
-const uploadUsersFromExcel = async (req, res) => {
+export const uploadUsersFromExcel = async (req, res) => {
   const dbUri =
     "mongodb+srv://botonicalgarden:TN30e4230!@cluster0.ostdu.mongodb.net/";
   console.log("Reached the Excel Endpoint");
@@ -149,7 +157,8 @@ const uploadUsersFromExcel = async (req, res) => {
     await mongoose.connection.close();
   }
 };
-const getallstaffs = async (req, res) => {
+
+export const getallstaffs = async (req, res) => {
   try {
     const user = await User.findOne();
 
@@ -160,11 +169,5 @@ const getallstaffs = async (req, res) => {
       .json({ message: "Error in logging in", error: err.message });
   }
 };
-const uploadMiddleware = upload.single("file");
-module.exports = {
-  Signup,
-  Login,
-  uploadUsersFromExcel,
-  uploadMiddleware,
-  getallstaffs,
-};
+
+export const uploadMiddleware = upload.single("file");

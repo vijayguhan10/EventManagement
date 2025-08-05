@@ -1,14 +1,17 @@
-const MediaRequirements = require("../Schema/MedaiRequirements");
-exports.createRequirement = async (req, res) => {
+import MediaRequirements from "../Schema/MedaiRequirements.js";
+
+export const createRequirement = async (req, res) => {
   console.log("req body of the Media form:", req.body);
   try {
-    const { selectedOptions, photography = false, videography = false } = req.body;
-    const eventPoster = selectedOptions["Event Poster"] || [];
-    const videos = selectedOptions["Videos"] || [];
-    const onStageRequirements = selectedOptions["On Stage Requirements"] || [];
-    const receptionTVStreamingRequirements = selectedOptions["Reception TV Streaming Requirements"] || [];
-    const communication = selectedOptions["Communication"] || [];
-    const flexBanners = selectedOptions["Flex Banners"] || [];
+    const {
+      eventPoster = [],
+      videos = [],
+      onStageRequirements = [],
+      receptionTVStreamingRequirements = [],
+      communication = [],
+      flexBanners = [],
+      cameraAction = { photography: false, videography: false }
+    } = req.body;
 
     const requirement = new MediaRequirements({
       eventPoster,
@@ -17,19 +20,18 @@ exports.createRequirement = async (req, res) => {
       receptionTVStreamingRequirements,
       communication,
       flexBanners,
-      cameraAction: { photography, videography },
+      cameraAction,
     });
 
     await requirement.save();
     res.status(201).json({ message: "Requirement created successfully", requirement });
   } catch (error) {
-    console.error("Error creating requirement:", error); // Log full error
+    console.error("Error creating requirement:", error);
     res.status(500).json({ message: "Error creating requirement", error: error.message });
   }
 };
 
-
-exports.getRequirements = async (req, res) => {
+export const getRequirements = async (req, res) => {
   try {
     const requirements = await MediaRequirements.find();
     res.status(200).json(requirements);
@@ -37,7 +39,8 @@ exports.getRequirements = async (req, res) => {
     res.status(500).json({ message: "Error fetching requirements", error });
   }
 };
-exports.getRequirementById = async (req, res) => {
+
+export const getRequirementById = async (req, res) => {
   try {
     const requirement = await MediaRequirements.findById(req.params.id);
     if (!requirement)
@@ -49,7 +52,7 @@ exports.getRequirementById = async (req, res) => {
 };
 
 // Update a requirement
-exports.updateRequirement = async (req, res) => {
+export const updateRequirement = async (req, res) => {
   try {
     const {
       eventPoster,
@@ -86,7 +89,7 @@ exports.updateRequirement = async (req, res) => {
   }
 };
 
-exports.deleteRequirement = async (req, res) => {
+export const deleteRequirement = async (req, res) => {
   try {
     const deletedRequirement = await MediaRequirements.findByIdAndDelete(
       req.params.id
