@@ -1,5 +1,6 @@
-const TransportRequest = require("../../Schema/transportform/main");
-const createTransportRequest = async (req, res) => {
+import TransportRequest from "../../Schema/transportform/main.js";
+
+export const createTransportRequest = async (req, res) => {
   try {
     const transportRequests = req.body.events;
 
@@ -60,7 +61,8 @@ const createTransportRequest = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-const getAllTransportRequests = async (req, res) => {
+
+export const getAllTransportRequests = async (req, res) => {
   try {
     const requests = await TransportRequest.find();
     res.status(200).json(requests);
@@ -73,7 +75,7 @@ const getAllTransportRequests = async (req, res) => {
   }
 };
 
-const getTransportRequestById = async (req, res) => {
+export const getTransportRequestById = async (req, res) => {
   try {
     const { id } = req.params;
     const request = await TransportRequest.findById(id);
@@ -89,7 +91,7 @@ const getTransportRequestById = async (req, res) => {
   }
 };
 
-const updateTransportRequest = async (req, res) => {
+export const updateTransportRequest = async (req, res) => {
   try {
     const { id } = req.params; // Can be single ID or undefined if multiple
     const { events } = req.body; // Expecting an array of events
@@ -138,7 +140,7 @@ const updateTransportRequest = async (req, res) => {
   }
 };
 
-const deleteTransportRequest = async (req, res) => {
+export const deleteTransportRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedRequest = await TransportRequest.findByIdAndDelete(id);
@@ -152,12 +154,4 @@ const deleteTransportRequest = async (req, res) => {
       error: error.message,
     });
   }
-};
-
-module.exports = {
-  createTransportRequest,
-  getAllTransportRequests,
-  getTransportRequestById,
-  updateTransportRequest,
-  deleteTransportRequest,
 };

@@ -1,6 +1,6 @@
-const nodemailer = require("nodemailer");
-const Event = require("../../Schema/EventSchema");
-const Cron = require("node-cron");
+import nodemailer from "nodemailer";
+import Event from "../../Schema/EventSchema.js";
+import Cron from "node-cron";
 
 const sendEmail = async (to, subject, htmlContent) => {
   const sender = nodemailer.createTransport({
@@ -187,4 +187,4 @@ const sendAutoSchedulingEmail = async () => {
 //   }
 // });
 
-module.exports = { sendAutoSchedulingEmail };
+export { sendAutoSchedulingEmail };

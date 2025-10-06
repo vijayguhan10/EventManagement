@@ -1,6 +1,11 @@
 import React from "react";
 
 const CommunicationMedia = ({ Communicationform }) => {
+  console.log("=== CommunicationMedia Debug ===");
+  console.log("Communicationform prop:", Communicationform);
+  console.log("Communicationform type:", typeof Communicationform);
+  console.log("Communicationform keys:", Communicationform ? Object.keys(Communicationform) : "No data");
+  
   // Destructure relevant fields from Communicationform
   const {
     eventPoster,
@@ -9,7 +14,7 @@ const CommunicationMedia = ({ Communicationform }) => {
     flexBanners,
     receptionTVStreamingRequirements,
     communication,
-  } = Communicationform;
+  } = Communicationform || {};
 
   return (
     <div className="w-full overflow-auto">

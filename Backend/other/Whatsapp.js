@@ -1,8 +1,8 @@
-var nodemailer = require("nodemailer");
-var cron = require("node-cron");
-
-require("dotenv").config();
-const Event = require("../Schema/EventSchema");
+import nodemailer from "nodemailer";
+import cron from "node-cron";
+import dotenv from "dotenv";
+dotenv.config();
+import Event from "../Schema/EventSchema.js";
 
 const convertTo12HourFormat = (time) => {
   let [hours, minutes] = time.split(":").map(Number);
@@ -12,7 +12,7 @@ const convertTo12HourFormat = (time) => {
   return `${hours}:${minutes} ${period}`;
 };
 
-const sendAutoSchedulingEmail = async () => {
+export const sendAutoSchedulingEmail = async () => {
   try {
     const recipientEmails = [
       "vijayguhan10@gmail.com",
@@ -117,5 +117,3 @@ cron.schedule("0 0 12 * * *", async () => {
   );
   await sendAutoSchedulingEmail();
 });
-
-module.exports = { sendAutoSchedulingEmail };

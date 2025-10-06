@@ -1,10 +1,30 @@
-const express = require("express");
-const router = express.Router();
-const transportController = require("../Controller/transportform/main");
-router.post("/", transportController.createTransportRequest);
-router.get("/", transportController.getAllTransportRequests);
-router.get("/:id", transportController.getTransportRequestById);
-router.put("/", transportController.updateTransportRequest);
-router.delete("/:id", transportController.deleteTransportRequest);
+import express from "express";
+import { auth } from "../Middleware/Authentication.js";
+import departmentAuthorize from "../Middleware/DepartmentAuth.js";
+import {
+  createTransportRequest,
+  getAllTransportRequests,
+  getTransportRequestById,
+  updateTransportRequest,
+  deleteTransportRequest
+} from "../Controller/transportform/main.js";
+import checkDepartment from '../Middleware/checkDepartment.js';
+import GuestRoom from "../Schema/guestroom/main.js";
 
-module.exports = router;
+const router = express.Router();
+
+router.post("/transports", createTransportRequest);
+router.get("/transports", getAllTransportRequests);
+router.get("/transports/:id", getTransportRequestById);
+router.put("/transports/:id", updateTransportRequest);
+router.delete("/transports/:id", deleteTransportRequest);
+
+// Only Transport, System Admin, and IQAC can edit transport forms
+router.put(
+  "/transport/:id",
+  auth,
+  departmentAuthorize(["Transport", "System Admin", "IQAC"]),
+  updateTransportRequest
+);
+
+export default router;

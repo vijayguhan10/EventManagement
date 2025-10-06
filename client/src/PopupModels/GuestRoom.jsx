@@ -1,6 +1,14 @@
 import React from "react";
 
-const GuestHouseBooking = ({ guestroomData }) => {
+const Guestroom = ({ guestroomData }) => {
+  if (!guestroomData || Object.keys(guestroomData).length === 0) {
+    return (
+      <div className="text-gray-500 italic">
+        No guest room booking details available
+      </div>
+    );
+  }
+
   const date = new Date(guestroomData.date);
   const formattedDate = date.toLocaleDateString("en-US", {
     weekday: "long",
@@ -8,126 +16,72 @@ const GuestHouseBooking = ({ guestroomData }) => {
     month: "long",
     day: "numeric",
   });
+
+  const roomLabels = {
+    suite1: "Suite Room 1",
+    suite2: "Suite Room 2",
+    suite3: "Suite Room 3",
+    mainBlock3: "Main Block III Floor",
+    mainBlock2: "Main Block II Floor",
+    girlsHostel: "Girls Hostel",
+    eBlock: "E - Block",
+    cBlock: "C - Block",
+  };
+
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", margin: "20px" }}>
-      <h1
-        className="main-heading"
-        style={{
-          textAlign: "left",
-          marginBottom: "20px",
-          fontSize: "24px",
-          fontWeight: "bold",
-        }}
-      >
-        Guest House Booking
-      </h1>
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h4 className="font-semibold text-gray-700">Department/Centre</h4>
+          <p className="text-gray-600">{guestroomData.department || "N/A"}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Requestor Name</h4>
+          <p className="text-gray-600">{guestroomData.requestorName || "N/A"}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Employee ID</h4>
+          <p className="text-gray-600">{guestroomData.empId || "N/A"}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Mobile Number</h4>
+          <p className="text-gray-600">{guestroomData.mobile || "N/A"}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Designation</h4>
+          <p className="text-gray-600">{guestroomData.designation || "N/A"}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Date</h4>
+          <p className="text-gray-600">{formattedDate}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-700">Number of Guests</h4>
+          <p className="text-gray-600">{guestroomData.guestCount || "N/A"}</p>
+        </div>
+      </div>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginBottom: "20px",
-        }}
-      >
-        <thead>
-          <tr>
-            <th
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-                backgroundColor: "#E4E8EB",
-              }}
-            >
-              Purpose
-            </th>
-            <th
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-                backgroundColor: "#E4E8EB",
-              }}
-            >
-              Date
-            </th>
-            <th
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-                backgroundColor: "#E4E8EB",
-              }}
-            >
-              No. of Guests
-            </th>
-            <th
-              colSpan={
-                Array.isArray(guestroomData.selectedRooms)
-                  ? guestroomData.selectedRooms.length
-                  : 0
-              }
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "center",
-                backgroundColor: "#E4E8EB",
-              }}
-            >
-              Room Selection
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-              }}
-            >
-              {guestroomData.purpose}
-            </td>
-            <td
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-              }}
-            >
-              {formattedDate}
-            </td>
-            <td
-              style={{
-                border: "2px solid black",
-                padding: "11px",
-                textAlign: "left",
-              }}
-            >
-              {guestroomData.guestCount}
-            </td>
-            {Array.isArray(guestroomData.selectedRooms) &&
-              guestroomData.selectedRooms.map((data, index) => (
-                <td
-                  key={index}
-                  style={{
-                    border: "2px solid black",
-                    padding: "11px",
-                    textAlign: "left",
-                  }}
-                >
-                  {data}
-                </td>
-              ))}
-          </tr>
-        </tbody>
-      </table>
+      <div>
+        <h4 className="font-semibold text-gray-700 mb-2">Purpose</h4>
+        <p className="text-gray-600">{guestroomData.purpose || "N/A"}</p>
+      </div>
 
-      <h3>Amenity Incharge:</h3>
-      <br />
+      <div>
+        <h4 className="font-semibold text-gray-700 mb-2">Selected Rooms</h4>
+        <div className="grid grid-cols-2 gap-2">
+          {guestroomData.selectedRooms && guestroomData.selectedRooms.length > 0 ? (
+            guestroomData.selectedRooms.map((roomId, index) => (
+              <div key={index} className="bg-gray-50 p-2 rounded">
+                {roomLabels[roomId] || roomId}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 italic">No rooms selected</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default GuestHouseBooking;
+export default Guestroom;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const TotalCountSchema = new mongoose.Schema({
   totalCounts: {
@@ -22,4 +22,4 @@ const TotalCountSchema = new mongoose.Schema({
 
 const TotalCount = mongoose.model("TotalCount", TotalCountSchema);
 
-module.exports = TotalCount;
+export default TotalCount;

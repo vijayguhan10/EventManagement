@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const transportSchema = new mongoose.Schema(
   {
@@ -32,8 +32,6 @@ const transportSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Rejected", "Approved", "Corrections"],
-      default: "Pending",
     },
   },
   { timestamps: true }
@@ -41,4 +39,4 @@ const transportSchema = new mongoose.Schema(
 
 const TransportRequest = mongoose.model("TransportRequest", transportSchema);
 
-module.exports = TransportRequest;
+export default TransportRequest;

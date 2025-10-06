@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const EventRequirementSchema = new mongoose.Schema(
   {
@@ -14,11 +14,9 @@ const EventRequirementSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Rejected", "Approved", "Corrections"],
-      default: "Pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("MediaRequirements", EventRequirementSchema);
+export default mongoose.model("MediaRequirements", EventRequirementSchema);

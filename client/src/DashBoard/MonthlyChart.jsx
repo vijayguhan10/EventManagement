@@ -8,9 +8,9 @@ import {
   Area,
 } from "recharts";
 
-const MonthlyChart = () => {
-  // Define your sample data
-  const data = [
+const MonthlyChart = ({ monthlyData = [] }) => {
+  // Default data if no props provided
+  const defaultData = [
     { name: "Jan", uv: 4000 },
     { name: "Feb", uv: 3000 },
     { name: "Mar", uv: 2000 },
@@ -24,6 +24,9 @@ const MonthlyChart = () => {
     { name: "Nov", uv: 3490 },
     { name: "Dec", uv: 3490 },
   ];
+
+  // Use provided data or fallback to defaults
+  const data = monthlyData.length > 0 ? monthlyData : defaultData;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg">

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 
+function toDateInputValue(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+
 export function BasicDetails({ data, setDetails }) {
   const [formState, setFormState] = useState({
     iqacNumber: "",
@@ -10,46 +17,44 @@ export function BasicDetails({ data, setDetails }) {
     designation: "",
     mobileNumber: "",
   });
+
+  // Update local state when data prop changes
   useEffect(() => {
-    setFormState(data);
+    if (data) {
+      setFormState(prev => ({
+        ...prev,
+        ...data
+      }));
+    }
   }, [data]);
+
+  // Load data from localStorage on component mount
   useEffect(() => {
     const local = JSON.parse(localStorage.getItem("common_data"));
-
     if (local) {
       const eventData = local;
-      console.log("local storage data in the transport form: ", eventData);
-
       const organizers = eventData.organizers || {};
-      console.log("Organizers data: ", organizers);
 
-      setFormState({
+      const newState = {
         iqacNumber: eventData.iqacNumber || "",
         requisitionDate: eventData.startDate || "",
-        departmentName: eventData.departments
-          ? eventData.departments.join(", ")
-          : "",
-       
-      });
-
-      setDetails({
-        iqacNumber: eventData.iqacNumber || "",
-        requisitionDate: eventData.startDate || "",
-        departmentName: eventData.departments
-          ? eventData.departments.join(", ")
-          : "",
+        departmentName: eventData.departments ? eventData.departments.join(", ") : "",
         requestorName: organizers.name || "",
         empId: organizers.employeeId || "",
         designation: organizers.designation || "",
         mobileNumber: organizers.phone || "",
-      });
+      };
+
+      setFormState(newState);
+      setDetails(newState);
     }
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setDetails({ ...formData, [name]: value });
+    const newState = { ...formState, [name]: value };
+    setFormState(newState);
+    setDetails(newState);
   };
 
   return (
@@ -66,6 +71,7 @@ export function BasicDetails({ data, setDetails }) {
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
             placeholder="1/2024-25/"
+            required
           />
         </div>
         <div>
@@ -78,6 +84,7 @@ export function BasicDetails({ data, setDetails }) {
             value={formState.empId}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
+            required
           />
         </div>
         <div>
@@ -90,6 +97,7 @@ export function BasicDetails({ data, setDetails }) {
             value={formState.requestorName}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
+            required
           />
         </div>
         <div>
@@ -99,9 +107,10 @@ export function BasicDetails({ data, setDetails }) {
           <input
             type="date"
             name="requisitionDate"
-            value={formState.requisitionDate}
+            value={toDateInputValue(formState.requisitionDate)}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
+            required
           />
         </div>
         <div>
@@ -114,6 +123,7 @@ export function BasicDetails({ data, setDetails }) {
             value={formState.departmentName}
             onChange={handleChange}
             className="border border-black p-2 rounded focus:outline-none focus:ring-2 focus:ring-black w-96"
+            required
           />
         </div>
       </div>

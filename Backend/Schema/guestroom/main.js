@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const BookingSchema = new mongoose.Schema({
   date: {
@@ -43,11 +43,9 @@ const BookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Pending", "Rejected", "Approved", "Corrections"],
-    default: "Pending",
   },
 });
 
 const Booking = mongoose.model("Booking", BookingSchema);
 
-module.exports = Booking;
+export default Booking;
